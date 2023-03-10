@@ -1,5 +1,5 @@
 [package]
-name = "bevy-pixels-web-game-poc"
+name = "bevy_pixels_web_game_poc"
 version = "0.1.0"
 edition = "2021"
 rust-version = "1.68"
@@ -10,13 +10,23 @@ license = "MIT"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
+[features]
+default = []
+visualize_schedule_main = ["dep:bevy_mod_debugdump"]
+visualize_schedule_fixed_update = ["dep:bevy_mod_debugdump"]
+
 [dependencies]
 pixels = "0.11.0" # https://github.com/parasyte/pixels
+bevy_mod_debugdump = { version = "0.7.0", optional = true } # https://github.com/jakobhellermann/bevy_mod_debugdump
 
 # https://github.com/bevyengine/bevy
 [dependencies.bevy]
 version = "0.10.0"
-# https://docs.rs/crate/bevy/latest/features
+# Available features: https://docs.rs/crate/bevy/latest/features
+#
+# Please, keep bevy's render and bevy_wgpu features disabled, since (according to https://github.com/dtcristo/bevy_pixels )
+# they will conflict with rendering based on `pixels`, which we have implemented in `pixel_art/pixel_canvas.rs` here.
+#
 default-features = false
 features = [
     "bevy_winit"

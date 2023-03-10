@@ -1,35 +1,57 @@
+use bevy::app::PluginGroupBuilder;
 use bevy::prelude::*;
-use bevy::window::{close_on_esc, WindowResolution};
+use bevy::window::WindowResolution;
 
-use crate::pixel_art::{PixelCanvas, PixelCanvasPlugin, PixelCanvasSystemSet};
+use crate::game::{GamePlugin, GAME_AREA_HEIGHT, GAME_AREA_WIDTH, GAME_TITLE};
 
-mod pixel_art;
+mod game;
+mod pixel_canvas;
+
+const WINDOW_WIDTH: u32 = 512;
+const WINDOW_HEIGHT: u32 = 512;
+
+// TODO: improve window size management in relation to pixel canvas
 
 fn main() {
+    assert_eq!(WINDOW_WIDTH % GAME_AREA_WIDTH, 0);
+    assert_eq!(WINDOW_HEIGHT % GAME_AREA_HEIGHT, 0);
+    assert_eq!(
+        WINDOW_WIDTH % GAME_AREA_WIDTH,
+        WINDOW_HEIGHT % GAME_AREA_HEIGHT
+    );
+
     let mut app = App::new();
 
-    // TODO: ???
-    // app.insert_resource(ScheduleRunnerSettings::run_loop(Duration::from_secs_f64(
-    //     1.0 / 60.0,
-    // )));
-
-    app.add_plugins(DefaultPlugins.set(WindowPlugin {
+    let window_plugin = WindowPlugin {
         primary_window: Some(Window {
-            // TODO: extract game title as constant
-            title: "Bevy/pixels web game PoC".to_string(),
-            // TODO: extract window size as constants
-            resolution: WindowResolution::new(512., 512.),
+            title: GAME_TITLE.to_string(),
+            // TODO: better way for number type conversion?
+            resolution: WindowResolution::new(WINDOW_WIDTH as f32, WINDOW_HEIGHT as f32),
             // TODO: any other props to set?
             ..default()
         }),
         ..default()
-    }));
+    };
+    #[cfg(all(
+        not(feature = "visualize_schedule_main"),
+        not(feature = "visualize_schedule_fixed_update")
+    ))]
+    let default_plugins: PluginGroupBuilder = DefaultPlugins.set(window_plugin);
+    #[cfg(any(
+        feature = "visualize_schedule_main",
+        feature = "visualize_schedule_fixed_update"
+    ))]
+    let default_plugins: PluginGroupBuilder = DefaultPlugins
+        .set(window_plugin)
+        .disable::<bevy::log::LogPlugin>();
+    app.add_plugins(default_plugins);
 
-    // TODO: extract canvas size as constants
-    app.add_plugin(PixelCanvasPlugin {
-        canvas_width: 16,
-        canvas_height: 16,
-    });
+    // https://bevy-cheatbook.github.io/cookbook/print-framerate.html
+    #[cfg(debug_assertions)]
+    app.add_plugin(bevy::diagnostic::LogDiagnosticsPlugin::default())
+        .add_plugin(bevy::diagnostic::FrameTimeDiagnosticsPlugin::default());
+
+    app.add_plugin(GamePlugin);
 
     // TODO: ImagePlugin::default_nearest()
     //       comment: Prevent blurring of scaled up pixel art sprites
@@ -38,34 +60,32 @@ fn main() {
     //       comment: Get rid of edges of neighbour sprites visible around the given sprite from the sprite sheet
 
     #[cfg(debug_assertions)]
-    app.add_system(close_on_esc);
+    app.add_system(bevy::window::close_on_esc);
 
-    // TODO: TMP
-    app.add_systems(
-        (draw_background, draw_pixel)
-            .chain()
-            .in_base_set(PixelCanvasSystemSet::Render),
+    #[cfg(feature = "visualize_schedule_main")]
+    println!(
+        "{}",
+        bevy_mod_debugdump::schedule_graph_dot(
+            &mut app,
+            CoreSchedule::Main,
+            &bevy_mod_debugdump::schedule_graph::Settings::default(),
+        )
+    );
+    #[cfg(feature = "visualize_schedule_fixed_update")]
+    println!(
+        "{}",
+        bevy_mod_debugdump::schedule_graph_dot(
+            &mut app,
+            CoreSchedule::FixedUpdate,
+            &bevy_mod_debugdump::schedule_graph::Settings::default(),
+        )
     );
 
+    #[cfg(all(
+        not(feature = "visualize_schedule_main"),
+        not(feature = "visualize_schedule_fixed_update")
+    ))]
     app.run();
-}
-
-// TODO: TMP
-fn draw_background(mut pixels_resource: ResMut<PixelCanvas>) {
-    // TODO: encapsulate frame access
-    let frame = pixels_resource.pixels.get_frame_mut();
-    frame.copy_from_slice(&[0x48, 0xb2, 0xe8, 0xff].repeat(frame.len() / 4));
-}
-
-// TODO: TMP
-fn draw_pixel(mut pixels_resource: ResMut<PixelCanvas>) {
-    // TODO: encapsulate frame access
-    let frame = pixels_resource.pixels.get_frame_mut();
-    let pixel_index = 17;
-    frame[4 * pixel_index] = 0xff;
-    frame[4 * pixel_index + 1] = 0x00;
-    frame[4 * pixel_index + 2] = 0x55;
-    frame[4 * pixel_index + 3] = 0xff;
 }
 
 // TODO: anything left in https://github.com/bevyengine/bevy/tree/main/examples worth applying on this app?
