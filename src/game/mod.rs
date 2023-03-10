@@ -6,12 +6,12 @@ use bevy::diagnostic::Diagnostic;
 use bevy::diagnostic::{DiagnosticId, Diagnostics};
 use bevy::prelude::*;
 
-use crate::game::game_state::GameState;
 pub use xy::Xy;
 
+use crate::game::game_state::GameState;
 use crate::game::input::KeyboardControlsSystems;
 use crate::game::player::PlayerSystems;
-use crate::pixel_canvas::{PixelCanvas, PixelCanvasPlugin};
+use crate::pixel_art::{Pico8Color, PixelCanvas, PixelCanvasPlugin};
 
 mod game_state;
 mod input;
@@ -112,12 +112,8 @@ impl GamePlugin {
         );
     }
 
-    // TODO: encapsulate drawing
     fn clear_screen(mut pixel_canvas: ResMut<PixelCanvas>) {
-        // TODO: encapsulate frame access
-        let frame = pixel_canvas.pixels.get_frame_mut();
-        // TODO: use desired PICO-8 color
-        frame.copy_from_slice(&[0x48, 0xb2, 0xe8, 0xff].repeat(frame.len() / 4));
+        pixel_canvas.clear(Pico8Color::DarkBlue.into());
     }
 
     #[cfg(debug_assertions)]

@@ -4,6 +4,8 @@ use bevy::winit::WinitWindows;
 use pixels::{Pixels, SurfaceTexture};
 
 use crate::game::Xy;
+use crate::pixel_art::color::Color;
+use crate::pixel_art::draw::Draw;
 
 pub struct PixelCanvasPlugin {
     pub width: u32,
@@ -13,13 +15,27 @@ pub struct PixelCanvasPlugin {
 #[derive(Resource)]
 pub struct PixelCanvas {
     // TODO: make private, hide implementation details
-    pub pixels: Pixels,
+    pixels: Pixels,
     width: u32,
     height: u32,
 }
 
 impl PixelCanvas {
-    pub fn pixel_index_at(&self, xy: &Xy) -> Option<usize> {
+    pub fn clear(&mut self, color: Color) -> &mut Self {
+        Draw::clear(self.pixels.get_frame_mut(), color);
+        self
+    }
+
+    // TODO: it doesn't feel right to pass simple XY as a reference :thinking:
+    pub fn set_pixel(&mut self, xy: &Xy, color: Color) -> &mut Self {
+        if let Some(pixel_index) = self.pixel_index_at(xy) {
+            Draw::set_pixel(self.pixels.get_frame_mut(), pixel_index, color);
+        }
+        self
+    }
+
+    // TODO: should be here or inside Draw?
+    fn pixel_index_at(&self, xy: &Xy) -> Option<usize> {
         // TODO: better way for number type conversion?
         let w = self.width as i32;
         let h = self.height as i32;
