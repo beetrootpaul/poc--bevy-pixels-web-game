@@ -11,3 +11,12 @@ license = "MIT"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+
+# https://github.com/bevyengine/bevy
+[dependencies.bevy]
+version = "0.10.0"
+# https://docs.rs/crate/bevy/latest/features
+default-features = false
+features = [
+    "bevy_winit"
+]
