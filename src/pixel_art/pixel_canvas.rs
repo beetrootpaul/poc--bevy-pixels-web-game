@@ -14,8 +14,8 @@ impl Plugin for PixelCanvasPlugin {
         let canvas_width = self.canvas_width;
         let canvas_height = self.canvas_height;
 
-        app.configure_set(PixelCanvasSystemSet::Render.after(PixelCanvasSystemSet::Draw));
-        app.configure_set(PixelCanvasSystemSet::Draw.after(CoreSet::Update));
+        app.configure_set(PixelCanvasSystemSet::RenderPixelCanvas.after(PixelCanvasSystemSet::DrawPixelCanvas));
+        app.configure_set(PixelCanvasSystemSet::DrawPixelCanvas.after(CoreSet::PostUpdate));
 
         // TODO: move out to function. Probably will require to introduce a resource for canvas width/height
         app.add_startup_system(
@@ -45,15 +45,15 @@ impl Plugin for PixelCanvasPlugin {
             },
         );
 
-        app.add_system(render_canvas.in_base_set(PixelCanvasSystemSet::Render));
+        app.add_system(render_canvas.in_base_set(PixelCanvasSystemSet::RenderPixelCanvas));
     }
 }
 
 #[derive(SystemSet, Debug, Hash, PartialEq, Eq, Clone)]
 #[system_set(base)]
 pub enum PixelCanvasSystemSet {
-    Draw,
-    Render,
+    DrawPixelCanvas,
+    RenderPixelCanvas,
 }
 
 #[derive(Resource)]

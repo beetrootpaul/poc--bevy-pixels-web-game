@@ -44,7 +44,7 @@ fn main() {
     app.add_systems(
         (draw_background, draw_pixel)
             .chain()
-            .in_base_set(PixelCanvasSystemSet::Render),
+            .in_base_set(PixelCanvasSystemSet::DrawPixelCanvas),
     );
 
     app.run();
