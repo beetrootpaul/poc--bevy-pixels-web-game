@@ -2,11 +2,24 @@ use bevy::app::PluginGroupBuilder;
 use bevy::prelude::*;
 use bevy::window::{close_on_esc, WindowResolution};
 
-use crate::pixel_art::{PixelCanvas, PixelCanvasPlugin, PixelCanvasSystemSet};
+use crate::game::{GAME_AREA_HEIGHT, GAME_AREA_WIDTH, GAME_TITLE, GamePlugin};
 
+mod game;
 mod pixel_art;
 
+const WINDOW_WIDTH: u32 = 960;
+const WINDOW_HEIGHT: u32 = 384;
+
+// TODO: improve window size management in relation to pixel canvas
+
 fn main() {
+    assert_eq!(WINDOW_WIDTH % GAME_AREA_WIDTH, 0);
+    assert_eq!(WINDOW_HEIGHT % GAME_AREA_HEIGHT, 0);
+    assert_eq!(
+        WINDOW_WIDTH % GAME_AREA_WIDTH,
+        WINDOW_HEIGHT % GAME_AREA_HEIGHT
+    );
+
     let mut app = App::new();
 
     // TODO: ???
@@ -16,10 +29,9 @@ fn main() {
 
     let window_plugin = WindowPlugin {
         primary_window: Some(Window {
-            // TODO: extract game title as constant
-            title: "Bevy/pixels web game PoC".to_string(),
-            // TODO: extract window size as constants
-            resolution: WindowResolution::new(512., 512.),
+            title: GAME_TITLE.to_string(),
+            // TODO: better way for number type conversion?
+            resolution: WindowResolution::new(WINDOW_WIDTH as f32, WINDOW_HEIGHT as f32),
             // TODO: any other props to set?
             ..default()
         }),
@@ -33,11 +45,7 @@ fn main() {
         .disable::<bevy::log::LogPlugin>();
     app.add_plugins(default_plugins);
 
-    // TODO: extract canvas size as constants
-    app.add_plugin(PixelCanvasPlugin {
-        canvas_width: 16,
-        canvas_height: 16,
-    });
+    app.add_plugin(GamePlugin);
 
     // TODO: ImagePlugin::default_nearest()
     //       comment: Prevent blurring of scaled up pixel art sprites
@@ -48,36 +56,11 @@ fn main() {
     #[cfg(debug_assertions)]
     app.add_system(close_on_esc);
 
-    // TODO: TMP
-    app.add_systems(
-        (draw_background, draw_pixel)
-            .chain()
-            .in_base_set(PixelCanvasSystemSet::DrawPixelCanvas),
-    );
-
     #[cfg(feature = "print_system_sets_diagram")]
     bevy_mod_debugdump::print_main_schedule(&mut app);
 
     #[cfg(not(feature = "print_system_sets_diagram"))]
     app.run();
-}
-
-// TODO: TMP
-fn draw_background(mut pixels_resource: ResMut<PixelCanvas>) {
-    // TODO: encapsulate frame access
-    let frame = pixels_resource.pixels.get_frame_mut();
-    frame.copy_from_slice(&[0x48, 0xb2, 0xe8, 0xff].repeat(frame.len() / 4));
-}
-
-// TODO: TMP
-fn draw_pixel(mut pixels_resource: ResMut<PixelCanvas>) {
-    // TODO: encapsulate frame access
-    let frame = pixels_resource.pixels.get_frame_mut();
-    let pixel_index = 17;
-    frame[4 * pixel_index] = 0xff;
-    frame[4 * pixel_index + 1] = 0x00;
-    frame[4 * pixel_index + 2] = 0x55;
-    frame[4 * pixel_index + 3] = 0xff;
 }
 
 // TODO: anything left in https://github.com/bevyengine/bevy/tree/main/examples worth applying on this app?

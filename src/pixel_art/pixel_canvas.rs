@@ -3,18 +3,22 @@ use bevy::window::PrimaryWindow;
 use bevy::winit::WinitWindows;
 use pixels::{Pixels, SurfaceTexture};
 
+use crate::game::Xy;
+
 pub struct PixelCanvasPlugin {
-    pub canvas_width: u32,
-    pub canvas_height: u32,
+    pub width: u32,
+    pub height: u32,
 }
 
 // TODO: check if there is a new release of bevy_pixels, adjusted for Bevy 0.10
 impl Plugin for PixelCanvasPlugin {
     fn build(&self, app: &mut App) {
-        let canvas_width = self.canvas_width;
-        let canvas_height = self.canvas_height;
+        let canvas_width = self.width;
+        let canvas_height = self.height;
 
-        app.configure_set(PixelCanvasSystemSet::RenderPixelCanvas.after(PixelCanvasSystemSet::DrawPixelCanvas));
+        app.configure_set(
+            PixelCanvasSystemSet::RenderPixelCanvas.after(PixelCanvasSystemSet::DrawPixelCanvas),
+        );
         app.configure_set(PixelCanvasSystemSet::DrawPixelCanvas.after(CoreSet::PostUpdate));
 
         // TODO: move out to function. Probably will require to introduce a resource for canvas width/height
@@ -41,7 +45,11 @@ impl Plugin for PixelCanvasPlugin {
                 let pixels = Pixels::new(canvas_width, canvas_height, surface_texture)
                     .expect("should create pixels");
 
-                commands.insert_resource(PixelCanvas { pixels })
+                commands.insert_resource(PixelCanvas {
+                    pixels,
+                    width: canvas_width,
+                    height: canvas_height,
+                })
             },
         );
 
@@ -60,6 +68,23 @@ pub enum PixelCanvasSystemSet {
 pub struct PixelCanvas {
     // TODO: make private, hide implementation details
     pub pixels: Pixels,
+    width: u32,
+    height: u32,
+}
+
+impl PixelCanvas {
+    pub fn pixel_index_at(&self, xy: &Xy) -> Option<usize> {
+        // TODO: better way for number type conversion?
+        let w = self.width as i32;
+        let h = self.height as i32;
+        let (x, y) = xy.rounded();
+        if x >= 0 && x < w && y >= 0 && y < h {
+            // TODO: better way for number type conversion?
+            Some((y * w + x) as usize)
+        } else {
+            None
+        }
+    }
 }
 
 pub fn render_canvas(resource: Res<PixelCanvas>) {
