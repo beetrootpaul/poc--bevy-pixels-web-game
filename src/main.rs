@@ -1,3 +1,4 @@
+use bevy::app::PluginGroupBuilder;
 use bevy::prelude::*;
 use bevy::window::{close_on_esc, WindowResolution};
 
@@ -13,7 +14,7 @@ fn main() {
     //     1.0 / 60.0,
     // )));
 
-    app.add_plugins(DefaultPlugins.set(WindowPlugin {
+    let window_plugin = WindowPlugin {
         primary_window: Some(Window {
             // TODO: extract game title as constant
             title: "Bevy/pixels web game PoC".to_string(),
@@ -23,7 +24,14 @@ fn main() {
             ..default()
         }),
         ..default()
-    }));
+    };
+    #[cfg(not(feature = "print_system_sets_diagram"))]
+        let default_plugins: PluginGroupBuilder = DefaultPlugins.set(window_plugin);
+    #[cfg(feature = "print_system_sets_diagram")]
+        let default_plugins: PluginGroupBuilder = DefaultPlugins
+        .set(window_plugin)
+        .disable::<bevy::log::LogPlugin>();
+    app.add_plugins(default_plugins);
 
     // TODO: extract canvas size as constants
     app.add_plugin(PixelCanvasPlugin {
@@ -47,6 +55,10 @@ fn main() {
             .in_base_set(PixelCanvasSystemSet::DrawPixelCanvas),
     );
 
+    #[cfg(feature = "print_system_sets_diagram")]
+    bevy_mod_debugdump::print_main_schedule(&mut app);
+
+    #[cfg(not(feature = "print_system_sets_diagram"))]
     app.run();
 }
 

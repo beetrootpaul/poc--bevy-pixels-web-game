@@ -18,12 +18,17 @@ format:
 
 check:
 	cargo clippy --all-targets
+	cargo clippy --all-targets --features print_system_sets_diagram
 
 run: run_desktop_debug
 
 # # # # # # # # # # # # #
 # specialized commands
 #
+
+print_system_sets_diagram:
+	cargo run --quiet --features print_system_sets_diagram | pbcopy
+	echo "Graph data is in your clipboard now. Visit https://dreampuf.github.io/GraphvizOnline and paste it there 🙂"
 
 run_desktop_debug:
 	cargo run
