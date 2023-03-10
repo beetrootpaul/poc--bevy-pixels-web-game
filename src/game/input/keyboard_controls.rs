@@ -44,11 +44,11 @@ impl KeyboardControlsSystems {
             match *current_state {
                 State(GameState::InGame) => {
                     next_state.set(GameState::DebugPause);
-                }
+                },
                 State(GameState::DebugPause) => {
                     next_state.set(GameState::InGame);
-                }
-                _ => {}
+                },
+                _ => {},
             };
         }
         #[cfg(debug_assertions)]
