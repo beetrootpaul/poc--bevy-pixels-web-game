@@ -1,9 +1,5 @@
-use std::time::Duration;
-
-use bevy::app::ScheduleRunnerSettings;
 use bevy::prelude::*;
 use bevy::window::{close_on_esc, WindowResolution};
-use bevy::winit::WinitPlugin;
 
 fn main() {
     let mut app = App::new();
@@ -26,6 +22,11 @@ fn main() {
     }));
 
     // TODO: ImagePlugin::default_nearest()
+    //       comment: Prevent blurring of scaled up pixel art sprites
+
+    // TODO: app.insert_resource(Msaa { samples: 1 });
+    //       comment: Get rid of edges of neighbour sprites visible around the given sprite from the sprite sheet
+
     #[cfg(debug_assertions)]
     app.add_system(close_on_esc);
 

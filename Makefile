@@ -16,6 +16,9 @@ setup:
 format:
 	cargo fmt
 
+check:
+	cargo clippy --all-targets
+
 run: run_desktop_debug
 
 # # # # # # # # # # # # #
