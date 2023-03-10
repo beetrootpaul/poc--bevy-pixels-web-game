@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 
 use crate::game::xy::Xy;
-use crate::pixel_art::{Pico8Color, PixelCanvas};
+use crate::pixel_canvas::{Pico8Color, PixelCanvas};
 
 // TODO: fixed FPS
 // TODO: adjust movement

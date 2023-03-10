@@ -1,4 +1,4 @@
-use crate::pixel_art::Color;
+use crate::pixel_canvas::Color;
 
 #[allow(dead_code)]
 pub enum Pico8Color {

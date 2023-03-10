@@ -5,7 +5,7 @@ use bevy::window::WindowResolution;
 use crate::game::{GamePlugin, GAME_AREA_HEIGHT, GAME_AREA_WIDTH, GAME_TITLE};
 
 mod game;
-mod pixel_art;
+mod pixel_canvas;
 
 const WINDOW_WIDTH: u32 = 512;
 const WINDOW_HEIGHT: u32 = 512;

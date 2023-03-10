@@ -1,4 +1,4 @@
-use crate::pixel_art::color::Color;
+use crate::pixel_canvas::color::Color;
 
 pub struct Draw;
 

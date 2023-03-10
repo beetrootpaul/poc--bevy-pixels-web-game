@@ -11,7 +11,7 @@ pub use xy::Xy;
 use crate::game::game_state::GameState;
 use crate::game::input::KeyboardControlsSystems;
 use crate::game::player::PlayerSystems;
-use crate::pixel_art::{Pico8Color, PixelCanvas, PixelCanvasPlugin};
+use crate::pixel_canvas::{Pico8Color, PixelCanvas, PixelCanvasPlugin};
 
 mod game_state;
 mod input;
