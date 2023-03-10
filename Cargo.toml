@@ -1,5 +1,5 @@
 [package]
-name = "bevy-pixels-web-game-poc"
+name = "bevy_pixels_web_game_poc"
 version = "0.1.0"
 edition = "2021"
 rust-version = "1.68"
@@ -12,11 +12,12 @@ license = "MIT"
 
 [features]
 default = []
-print_system_sets_diagram = ["dep:bevy_mod_debugdump"]
+visualize_schedule_main = ["dep:bevy_mod_debugdump"]
+visualize_schedule_fixed_update = ["dep:bevy_mod_debugdump"]
 
 [dependencies]
 pixels = "0.11.0" # https://github.com/parasyte/pixels
-bevy_mod_debugdump = { version = "0.7.0", optional = true }
+bevy_mod_debugdump = { version = "0.7.0", optional = true } # https://github.com/jakobhellermann/bevy_mod_debugdump
 
 # https://github.com/bevyengine/bevy
 [dependencies.bevy]

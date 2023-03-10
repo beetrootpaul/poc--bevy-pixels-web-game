@@ -10,60 +10,6 @@ pub struct PixelCanvasPlugin {
     pub height: u32,
 }
 
-// TODO: check if there is a new release of bevy_pixels, adjusted for Bevy 0.10
-impl Plugin for PixelCanvasPlugin {
-    fn build(&self, app: &mut App) {
-        let canvas_width = self.width;
-        let canvas_height = self.height;
-
-        app.configure_set(
-            PixelCanvasSystemSet::RenderPixelCanvas.after(PixelCanvasSystemSet::DrawPixelCanvas),
-        );
-        app.configure_set(PixelCanvasSystemSet::DrawPixelCanvas.after(CoreSet::PostUpdate));
-
-        // TODO: move out to function. Probably will require to introduce a resource for canvas width/height
-        app.add_startup_system(
-            move |primary_window_query: Query<Entity, With<PrimaryWindow>>,
-                  // TODO:: what does NonSend do?
-                  winit_windows: NonSend<WinitWindows>,
-                  mut commands: Commands| {
-                let primary_window = primary_window_query
-                    .get_single()
-                    .expect("should query single primary window");
-
-                let winit_window = winit_windows
-                    .get_window(primary_window)
-                    .expect("should get winit window for a given primary window");
-
-                let surface_texture = SurfaceTexture::new(
-                    winit_window.inner_size().width,
-                    winit_window.inner_size().height,
-                    winit_window,
-                );
-
-                // TODO: WASM: Pixels::new_async(canvas_width, canvas_height, surface_texture).block_on()
-                let pixels = Pixels::new(canvas_width, canvas_height, surface_texture)
-                    .expect("should create pixels");
-
-                commands.insert_resource(PixelCanvas {
-                    pixels,
-                    width: canvas_width,
-                    height: canvas_height,
-                })
-            },
-        );
-
-        app.add_system(render_canvas.in_base_set(PixelCanvasSystemSet::RenderPixelCanvas));
-    }
-}
-
-#[derive(SystemSet, Debug, Hash, PartialEq, Eq, Clone)]
-#[system_set(base)]
-pub enum PixelCanvasSystemSet {
-    DrawPixelCanvas,
-    RenderPixelCanvas,
-}
-
 #[derive(Resource)]
 pub struct PixelCanvas {
     // TODO: make private, hide implementation details
@@ -87,7 +33,65 @@ impl PixelCanvas {
     }
 }
 
-pub fn render_canvas(resource: Res<PixelCanvas>) {
+#[derive(SystemSet, Debug, Hash, PartialEq, Eq, Clone)]
+#[system_set(base)]
+enum PixelCanvasSystemSet {
+    RenderPixelCanvas,
+}
+#[derive(Resource)]
+struct PixelCanvasConfig {
+    width: u32,
+    height: u32,
+}
+
+// TODO: check if there is a new release of bevy_pixels, adjusted for Bevy 0.10
+impl Plugin for PixelCanvasPlugin {
+    fn build(&self, app: &mut App) {
+        app.insert_resource(PixelCanvasConfig {
+            width: self.width,
+            height: self.height,
+        });
+
+        app.add_startup_system(setup);
+
+        app.configure_set(PixelCanvasSystemSet::RenderPixelCanvas.after(CoreSet::PostUpdate));
+        app.add_system(render_canvas.in_base_set(PixelCanvasSystemSet::RenderPixelCanvas));
+    }
+}
+
+fn setup(
+    primary_window_query: Query<Entity, With<PrimaryWindow>>,
+    // TODO:: what does NonSend do?
+    winit_windows: NonSend<WinitWindows>,
+    canvas_config: Res<PixelCanvasConfig>,
+    mut commands: Commands,
+) {
+    let primary_window = primary_window_query
+        .get_single()
+        .expect("should query single primary window");
+
+    let winit_window = winit_windows
+        .get_window(primary_window)
+        .expect("should get winit window for a given primary window");
+
+    let surface_texture = SurfaceTexture::new(
+        winit_window.inner_size().width,
+        winit_window.inner_size().height,
+        winit_window,
+    );
+
+    // TODO: WASM: Pixels::new_async(canvas_width, canvas_height, surface_texture).block_on()
+    let pixels = Pixels::new(canvas_config.width, canvas_config.height, surface_texture)
+        .expect("should create pixels");
+
+    commands.insert_resource(PixelCanvas {
+        pixels,
+        width: canvas_config.width,
+        height: canvas_config.height,
+    })
+}
+
+fn render_canvas(resource: Res<PixelCanvas>) {
     resource.pixels.render().expect("should render pixels");
 }
 

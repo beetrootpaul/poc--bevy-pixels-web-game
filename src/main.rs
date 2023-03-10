@@ -2,10 +2,10 @@ use bevy::app::PluginGroupBuilder;
 use bevy::prelude::*;
 use bevy::window::WindowResolution;
 
-use crate::game::{GAME_AREA_HEIGHT, GAME_AREA_WIDTH, GAME_TITLE, GamePlugin};
+use crate::game::{GamePlugin, GAME_AREA_HEIGHT, GAME_AREA_WIDTH, GAME_TITLE};
 
 mod game;
-mod pixel_art;
+mod pixel_canvas;
 
 const WINDOW_WIDTH: u32 = 960;
 const WINDOW_HEIGHT: u32 = 384;
@@ -37,10 +37,16 @@ fn main() {
         }),
         ..default()
     };
-    #[cfg(not(feature = "print_system_sets_diagram"))]
-        let default_plugins: PluginGroupBuilder = DefaultPlugins.set(window_plugin);
-    #[cfg(feature = "print_system_sets_diagram")]
-        let default_plugins: PluginGroupBuilder = DefaultPlugins
+    #[cfg(all(
+        not(feature = "visualize_schedule_main"),
+        not(feature = "visualize_schedule_fixed_update")
+    ))]
+    let default_plugins: PluginGroupBuilder = DefaultPlugins.set(window_plugin);
+    #[cfg(any(
+        feature = "visualize_schedule_main",
+        feature = "visualize_schedule_fixed_update"
+    ))]
+    let default_plugins: PluginGroupBuilder = DefaultPlugins
         .set(window_plugin)
         .disable::<bevy::log::LogPlugin>();
     app.add_plugins(default_plugins);
@@ -61,10 +67,29 @@ fn main() {
     #[cfg(debug_assertions)]
     app.add_system(bevy::window::close_on_esc);
 
-    #[cfg(feature = "print_system_sets_diagram")]
-    bevy_mod_debugdump::print_main_schedule(&mut app);
+    #[cfg(feature = "visualize_schedule_main")]
+    println!(
+        "{}",
+        bevy_mod_debugdump::schedule_graph_dot(
+            &mut app,
+            CoreSchedule::Main,
+            &bevy_mod_debugdump::schedule_graph::Settings::default(),
+        )
+    );
+    #[cfg(feature = "visualize_schedule_fixed_update")]
+    println!(
+        "{}",
+        bevy_mod_debugdump::schedule_graph_dot(
+            &mut app,
+            CoreSchedule::FixedUpdate,
+            &bevy_mod_debugdump::schedule_graph::Settings::default(),
+        )
+    );
 
-    #[cfg(not(feature = "print_system_sets_diagram"))]
+    #[cfg(all(
+        not(feature = "visualize_schedule_main"),
+        not(feature = "visualize_schedule_fixed_update")
+    ))]
     app.run();
 }
 

@@ -1,14 +1,3 @@
-use bevy::app::App;
-use bevy::prelude::Plugin;
-
-use crate::game::input::keyboard_controls::KeyboardControlsPlugin;
+pub use crate::game::input::keyboard_controls::KeyboardControlsSystems;
 
 mod keyboard_controls;
-
-pub struct GameInputPlugin;
-
-impl Plugin for GameInputPlugin {
-    fn build(&self, app: &mut App) {
-        app.add_plugin(KeyboardControlsPlugin);
-    }
-}
