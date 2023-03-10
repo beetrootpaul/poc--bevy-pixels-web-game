@@ -1,6 +1,10 @@
 use bevy::prelude::*;
 use bevy::window::{close_on_esc, WindowResolution};
 
+use crate::pixel_art::{PixelCanvas, PixelCanvasPlugin, PixelCanvasSystemSet};
+
+mod pixel_art;
+
 fn main() {
     let mut app = App::new();
 
@@ -14,12 +18,18 @@ fn main() {
             // TODO: extract game title as constant
             title: "Bevy/pixels web game PoC".to_string(),
             // TODO: extract window size as constants
-            resolution: WindowResolution::new(512., 512.).with_scale_factor_override(1.),
+            resolution: WindowResolution::new(512., 512.),
             // TODO: any other props to set?
             ..default()
         }),
         ..default()
     }));
+
+    // TODO: extract canvas size as constants
+    app.add_plugin(PixelCanvasPlugin {
+        canvas_width: 16,
+        canvas_height: 16,
+    });
 
     // TODO: ImagePlugin::default_nearest()
     //       comment: Prevent blurring of scaled up pixel art sprites
@@ -30,7 +40,32 @@ fn main() {
     #[cfg(debug_assertions)]
     app.add_system(close_on_esc);
 
+    // TODO: TMP
+    app.add_systems(
+        (draw_background, draw_pixel)
+            .chain()
+            .in_base_set(PixelCanvasSystemSet::Render),
+    );
+
     app.run();
+}
+
+// TODO: TMP
+fn draw_background(mut pixels_resource: ResMut<PixelCanvas>) {
+    // TODO: encapsulate frame access
+    let frame = pixels_resource.pixels.get_frame_mut();
+    frame.copy_from_slice(&[0x48, 0xb2, 0xe8, 0xff].repeat(frame.len() / 4));
+}
+
+// TODO: TMP
+fn draw_pixel(mut pixels_resource: ResMut<PixelCanvas>) {
+    // TODO: encapsulate frame access
+    let frame = pixels_resource.pixels.get_frame_mut();
+    let pixel_index = 17;
+    frame[4 * pixel_index] = 0xff;
+    frame[4 * pixel_index + 1] = 0x00;
+    frame[4 * pixel_index + 2] = 0x55;
+    frame[4 * pixel_index + 3] = 0xff;
 }
 
 // TODO: anything left in https://github.com/bevyengine/bevy/tree/main/examples worth applying on this app?
