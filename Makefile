@@ -19,6 +19,7 @@ format:
 check:
 	cargo clippy --all-targets
 	cargo clippy --all-targets --features print_system_sets_diagram
+	cargo clippy --all-targets --release
 
 run: run_desktop_debug
 

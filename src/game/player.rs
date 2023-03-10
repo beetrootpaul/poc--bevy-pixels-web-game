@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 
 use crate::game::GameSystemSet;
-use crate::game::xy::{xy, Xy};
+use crate::game::xy::Xy;
 use crate::pixel_art::PixelCanvas;
 
 // TODO: fixed FPS
@@ -71,7 +71,7 @@ fn spawn_player(
     commands.spawn(PlayerBundle {
         player: Player,
         player_movement: PlayerMovement::Right,
-        xy: xy(1., 1.),
+        xy: Xy(1., 1.),
         // TODO: ???
         // sprite_sheet_bundle: SpriteSheetBundle {
         // TODO: reorganize game area position calculations

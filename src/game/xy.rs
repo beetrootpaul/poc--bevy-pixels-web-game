@@ -1,10 +1,5 @@
 use bevy::prelude::Component;
 
-#[inline(always)]
-pub const fn xy(x: f32, y: f32) -> Xy {
-    Xy(x as f32, y as f32)
-}
-
 // TODO: should we use Vec2 instead?
 #[derive(Component)]
 pub struct Xy(pub f32, pub f32);

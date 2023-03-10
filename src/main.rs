@@ -1,6 +1,6 @@
 use bevy::app::PluginGroupBuilder;
 use bevy::prelude::*;
-use bevy::window::{close_on_esc, WindowResolution};
+use bevy::window::WindowResolution;
 
 use crate::game::{GAME_AREA_HEIGHT, GAME_AREA_WIDTH, GAME_TITLE, GamePlugin};
 
@@ -45,6 +45,11 @@ fn main() {
         .disable::<bevy::log::LogPlugin>();
     app.add_plugins(default_plugins);
 
+    // https://bevy-cheatbook.github.io/cookbook/print-framerate.html
+    #[cfg(debug_assertions)]
+    app.add_plugin(bevy::diagnostic::LogDiagnosticsPlugin::default())
+        .add_plugin(bevy::diagnostic::FrameTimeDiagnosticsPlugin::default());
+
     app.add_plugin(GamePlugin);
 
     // TODO: ImagePlugin::default_nearest()
@@ -54,7 +59,7 @@ fn main() {
     //       comment: Get rid of edges of neighbour sprites visible around the given sprite from the sprite sheet
 
     #[cfg(debug_assertions)]
-    app.add_system(close_on_esc);
+    app.add_system(bevy::window::close_on_esc);
 
     #[cfg(feature = "print_system_sets_diagram")]
     bevy_mod_debugdump::print_main_schedule(&mut app);
