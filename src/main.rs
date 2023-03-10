@@ -7,8 +7,8 @@ use crate::game::{GamePlugin, GAME_AREA_HEIGHT, GAME_AREA_WIDTH, GAME_TITLE};
 mod game;
 mod pixel_canvas;
 
-const WINDOW_WIDTH: u32 = 960;
-const WINDOW_HEIGHT: u32 = 384;
+const WINDOW_WIDTH: u32 = 512;
+const WINDOW_HEIGHT: u32 = 512;
 
 // TODO: improve window size management in relation to pixel canvas
 
@@ -21,11 +21,6 @@ fn main() {
     );
 
     let mut app = App::new();
-
-    // TODO: ???
-    // app.insert_resource(ScheduleRunnerSettings::run_loop(Duration::from_secs_f64(
-    //     1.0 / 60.0,
-    // )));
 
     let window_plugin = WindowPlugin {
         primary_window: Some(Window {

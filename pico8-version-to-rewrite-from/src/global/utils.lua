@@ -4,12 +4,11 @@
 
 u = {
     buttons = {
-        -- TODO
         -- left, right, up, down
-        --l = 0,
-        --r = 1,
-        --u = 2,
-        --d = 3,
+        l = 0,
+        r = 1,
+        u = 2,
+        d = 3,
         -- TODO
         -- button O (Z), button X
         --o = 4,
@@ -36,8 +35,8 @@ u = {
     --    salmon = 15,
     --},
 
+    screen_px = 128,
     -- TODO
-    --screen_px = 128,
     --screen_tiles = 16,
 
     -- TODO

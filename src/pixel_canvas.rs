@@ -52,47 +52,49 @@ impl Plugin for PixelCanvasPlugin {
             height: self.height,
         });
 
-        app.add_startup_system(setup);
+        app.add_startup_system(Self::setup);
 
         app.configure_set(PixelCanvasSystemSet::RenderPixelCanvas.after(CoreSet::PostUpdate));
-        app.add_system(render_canvas.in_base_set(PixelCanvasSystemSet::RenderPixelCanvas));
+        app.add_system(Self::render.in_base_set(PixelCanvasSystemSet::RenderPixelCanvas));
     }
 }
 
-fn setup(
-    primary_window_query: Query<Entity, With<PrimaryWindow>>,
-    // TODO:: what does NonSend do?
-    winit_windows: NonSend<WinitWindows>,
-    canvas_config: Res<PixelCanvasConfig>,
-    mut commands: Commands,
-) {
-    let primary_window = primary_window_query
-        .get_single()
-        .expect("should query single primary window");
+impl PixelCanvasPlugin {
+    fn setup(
+        primary_window_query: Query<Entity, With<PrimaryWindow>>,
+        // TODO:: what does NonSend do?
+        winit_windows: NonSend<WinitWindows>,
+        canvas_config: Res<PixelCanvasConfig>,
+        mut commands: Commands,
+    ) {
+        let primary_window = primary_window_query
+            .get_single()
+            .expect("should query single primary window");
 
-    let winit_window = winit_windows
-        .get_window(primary_window)
-        .expect("should get winit window for a given primary window");
+        let winit_window = winit_windows
+            .get_window(primary_window)
+            .expect("should get winit window for a given primary window");
 
-    let surface_texture = SurfaceTexture::new(
-        winit_window.inner_size().width,
-        winit_window.inner_size().height,
-        winit_window,
-    );
+        let surface_texture = SurfaceTexture::new(
+            winit_window.inner_size().width,
+            winit_window.inner_size().height,
+            winit_window,
+        );
 
-    // TODO: WASM: Pixels::new_async(canvas_width, canvas_height, surface_texture).block_on()
-    let pixels = Pixels::new(canvas_config.width, canvas_config.height, surface_texture)
-        .expect("should create pixels");
+        // TODO: WASM: Pixels::new_async(canvas_width, canvas_height, surface_texture).block_on()
+        let pixels = Pixels::new(canvas_config.width, canvas_config.height, surface_texture)
+            .expect("should create pixels");
 
-    commands.insert_resource(PixelCanvas {
-        pixels,
-        width: canvas_config.width,
-        height: canvas_config.height,
-    })
-}
+        commands.insert_resource(PixelCanvas {
+            pixels,
+            width: canvas_config.width,
+            height: canvas_config.height,
+        })
+    }
 
-fn render_canvas(resource: Res<PixelCanvas>) {
-    resource.pixels.render().expect("should render pixels");
+    fn render(resource: Res<PixelCanvas>) {
+        resource.pixels.render().expect("should render pixels");
+    }
 }
 
 // TODO: bevy_pixels for Bevy 0.9 . Anything else to be taken from here?

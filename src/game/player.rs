@@ -107,8 +107,6 @@ impl PlayerSystems {
             // Option<&SpriteDimensions>
         )>,
     ) {
-        debug!("> move_player");
-
         // TODO: ???
         // TODO: is it possible to bind speed to FPS (change in FPS -> automatic change of speed to make it constant in result), without allowing for non-integers?
         // const MOVEMENT_PER_FRAME: f32 = 2.;
@@ -145,8 +143,6 @@ impl PlayerSystems {
     // TODO: extract pixel drawing to a separate module
     // TODO: implement sprite drawing instead of a temporary pixel drawing
     pub fn draw_player(mut pixel_canvas: ResMut<PixelCanvas>, query: Query<&Xy, With<Player>>) {
-        debug!("> draw_player");
-
         for xy in query.iter() {
             if let Some(pixel_index) = pixel_canvas.pixel_index_at(xy) {
                 // TODO: encapsulate frame access
