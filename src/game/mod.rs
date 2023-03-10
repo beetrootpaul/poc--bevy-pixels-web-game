@@ -6,12 +6,14 @@ use bevy::diagnostic::Diagnostic;
 use bevy::diagnostic::{DiagnosticId, Diagnostics};
 use bevy::prelude::*;
 
+use crate::game::game_state::GameState;
 pub use xy::Xy;
 
 use crate::game::input::KeyboardControlsSystems;
 use crate::game::player::PlayerSystems;
 use crate::pixel_canvas::{PixelCanvas, PixelCanvasPlugin};
 
+mod game_state;
 mod input;
 mod player;
 mod xy;
@@ -27,6 +29,8 @@ pub struct GamePlugin;
 
 impl Plugin for GamePlugin {
     fn build(&self, app: &mut App) {
+        app.add_state::<GameState>();
+
         app.add_plugin(PixelCanvasPlugin {
             width: GAME_AREA_WIDTH,
             height: GAME_AREA_HEIGHT,
@@ -41,16 +45,22 @@ impl Plugin for GamePlugin {
 
         app.insert_resource(Self::fixed_time());
         app.add_systems(
+            // TODO: how to make parts of these systems run in parallel instead of all of them being sequential?
             (
-                PlayerSystems::spawn_player.run_if(PlayerSystems::there_is_no_player),
+                PlayerSystems::spawn_player
+                    // TODO: how two run_if s work together
+                    .run_if(PlayerSystems::there_is_no_player)
+                    .run_if(GameState::should_game_update),
                 //
                 // flush commands in order to have access to spawned player in the very same frame
                 apply_system_buffers,
                 //
-                PlayerSystems::move_player,
+                PlayerSystems::move_player.run_if(GameState::should_game_update),
                 //
                 Self::clear_screen,
                 PlayerSystems::draw_player,
+                //
+                GameState::update_game_state,
                 //
                 #[cfg(debug_assertions)]
                 Self::perform_measurements,
