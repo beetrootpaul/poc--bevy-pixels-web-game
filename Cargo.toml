@@ -10,6 +10,18 @@ license = "MIT"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
+# Enable a small amount of optimization in debug mode.
+# See: https://bevyengine.org/learn/book/getting-started/setup/#compile-with-performance-optimizations
+# See: https://bevy-cheatbook.github.io/pitfalls/performance.html#unoptimized-debug-builds
+[profile.dev]
+opt-level = 1
+
+# Enable high optimizations for dependencies (incl. Bevy), but not for our code.
+# See: https://bevyengine.org/learn/book/getting-started/setup/#compile-with-performance-optimizations
+# See: https://bevy-cheatbook.github.io/pitfalls/performance.html#unoptimized-debug-builds
+[profile.dev.package."*"]
+opt-level = 3
+
 [features]
 default = []
 visualize_schedule_main = ["dep:bevy_mod_debugdump"]

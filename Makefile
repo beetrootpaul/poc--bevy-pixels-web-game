@@ -43,7 +43,7 @@ visualize_schedule_fixed_update:
 	echo "Graph data is in your clipboard now. Visit https://edotor.net/ and paste it there 🙂"
 
 run_desktop_debug:
-	$(rust_log_debug) cargo run
+	$(rust_log_debug) cargo run --features bevy/dynamic_linking
 
 run_desktop_release:
 	cargo run --release
