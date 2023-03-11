@@ -92,6 +92,8 @@ fn main() {
 // TODO: anything left in https://github.com/bevyengine/bevy/tree/main/examples worth applying on this app?
 
 // TODO: TESTS: https://chadnauseam.com/coding/gamedev/automated-testing-in-bevy
+// TODO: TESTS: https://github.com/bevyengine/bevy/blob/latest/tests/how_to_test_systems.rs
+// TODO: TESTS: https://bevy-cheatbook.github.io/programming/system-tests.html
 
 // TODO: WASM: https://github.com/bevyengine/bevy/tree/main/examples#wasm
 // TODO: WASM: https://bfnightly.bracketproductions.com/rustbook/webbuild.html

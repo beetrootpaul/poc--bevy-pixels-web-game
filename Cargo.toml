@@ -43,3 +43,6 @@ default-features = false
 features = [
     "bevy_winit",
 ]
+
+[dev-dependencies]
+itertools = "0.10.5" # https://github.com/rust-itertools/itertools

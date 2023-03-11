@@ -5,8 +5,8 @@ use bevy::winit::WinitWindows;
 use pixels::{Pixels, SurfaceTexture};
 
 pub struct PixelCanvasPlugin {
-    pub width: u32,
-    pub height: u32,
+    pub width: usize,
+    pub height: usize,
 }
 
 #[derive(SystemSet, Debug, Hash, PartialEq, Eq, Clone)]
@@ -16,8 +16,8 @@ enum PixelCanvasSystemSet {
 }
 #[derive(Resource)]
 struct PixelCanvasConfig {
-    width: u32,
-    height: u32,
+    width: usize,
+    height: usize,
 }
 
 // TODO: check if there is a new release of bevy_pixels, adjusted for Bevy 0.10
@@ -58,8 +58,13 @@ impl PixelCanvasPlugin {
         );
 
         // TODO: WASM: Pixels::new_async(canvas_width, canvas_height, surface_texture).block_on()
-        let pixels = Pixels::new(canvas_config.width, canvas_config.height, surface_texture)
-            .expect("should create pixels");
+        let pixels = Pixels::new(
+            // TODO: better way for number type conversion?
+            canvas_config.width as u32,
+            canvas_config.height as u32,
+            surface_texture,
+        )
+        .expect("should create pixels");
 
         commands.insert_resource(PixelCanvas {
             pixels,

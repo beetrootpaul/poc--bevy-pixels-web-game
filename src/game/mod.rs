@@ -33,8 +33,9 @@ impl Plugin for GamePlugin {
         app.add_state::<GameState>();
 
         app.add_plugin(PixelCanvasPlugin {
-            width: GAME_AREA_WIDTH,
-            height: GAME_AREA_HEIGHT,
+            // TODO: better way for number type conversion?
+            width: GAME_AREA_WIDTH as usize,
+            height: GAME_AREA_HEIGHT as usize,
         });
 
         #[cfg(debug_assertions)]
