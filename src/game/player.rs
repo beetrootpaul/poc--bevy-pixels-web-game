@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 
 use crate::game::xy::Xy;
-use crate::pixel_canvas::PixelCanvas;
+use crate::pixel_canvas::{Pico8Color, PixelCanvas};
 
 // TODO: fixed FPS
 // TODO: adjust movement
@@ -140,18 +140,10 @@ impl PlayerSystems {
         }
     }
 
-    // TODO: extract pixel drawing to a separate module
     // TODO: implement sprite drawing instead of a temporary pixel drawing
-    pub fn draw_player(mut pixel_canvas: ResMut<PixelCanvas>, query: Query<&Xy, With<Player>>) {
+    pub fn draw_player(query: Query<&Xy, With<Player>>, mut pixel_canvas: ResMut<PixelCanvas>) {
         for xy in query.iter() {
-            if let Some(pixel_index) = pixel_canvas.pixel_index_at(xy) {
-                // TODO: encapsulate frame access
-                let frame = pixel_canvas.pixels.get_frame_mut();
-                frame[4 * pixel_index] = 0xff;
-                frame[4 * pixel_index + 1] = 0x00;
-                frame[4 * pixel_index + 2] = 0x55;
-                frame[4 * pixel_index + 3] = 0xff;
-            }
+            pixel_canvas.set_pixel(xy, Pico8Color::Green.into());
         }
     }
 }

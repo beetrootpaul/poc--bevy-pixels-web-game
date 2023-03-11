@@ -1,36 +1,12 @@
+use crate::pixel_canvas::PixelCanvas;
 use bevy::prelude::*;
 use bevy::window::PrimaryWindow;
 use bevy::winit::WinitWindows;
 use pixels::{Pixels, SurfaceTexture};
 
-use crate::game::Xy;
-
 pub struct PixelCanvasPlugin {
     pub width: u32,
     pub height: u32,
-}
-
-#[derive(Resource)]
-pub struct PixelCanvas {
-    // TODO: make private, hide implementation details
-    pub pixels: Pixels,
-    width: u32,
-    height: u32,
-}
-
-impl PixelCanvas {
-    pub fn pixel_index_at(&self, xy: &Xy) -> Option<usize> {
-        // TODO: better way for number type conversion?
-        let w = self.width as i32;
-        let h = self.height as i32;
-        let (x, y) = xy.rounded();
-        if x >= 0 && x < w && y >= 0 && y < h {
-            // TODO: better way for number type conversion?
-            Some((y * w + x) as usize)
-        } else {
-            None
-        }
-    }
 }
 
 #[derive(SystemSet, Debug, Hash, PartialEq, Eq, Clone)]

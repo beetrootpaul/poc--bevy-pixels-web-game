@@ -1,6 +1,6 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="Run bevy-pixels-web-game-poc" type="CargoCommandRunConfiguration" factoryName="Cargo Command">
-    <option name="command" value="run --package bevy-pixels-web-game-poc --bin bevy-pixels-web-game-poc" />
+    <option name="command" value="run --package bevy_pixels_web_game_poc --bin bevy_pixels_web_game_poc" />
     <option name="workingDirectory" value="file://$PROJECT_DIR$" />
     <option name="emulateTerminal" value="false" />
     <option name="channel" value="DEFAULT" />
