@@ -5,6 +5,7 @@ use bevy::window::WindowResolution;
 use crate::game::{GamePlugin, GAME_AREA_HEIGHT, GAME_AREA_WIDTH, GAME_TITLE};
 
 mod game;
+mod pico8;
 mod pixel_canvas;
 
 const WINDOW_WIDTH: u32 = 512;

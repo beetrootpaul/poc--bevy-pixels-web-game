@@ -2,7 +2,8 @@ use crate::game::{GAME_AREA_HEIGHT, GAME_AREA_WIDTH};
 use bevy::prelude::*;
 
 use crate::game::xy::Xy;
-use crate::pixel_canvas::{Pico8Color, PixelCanvas};
+use crate::pico8::Pico8Color;
+use crate::pixel_canvas::PixelCanvas;
 
 // TODO: fixed FPS
 // TODO: adjust movement

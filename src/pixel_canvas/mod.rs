@@ -2,13 +2,11 @@ use bevy::prelude::Resource;
 use pixels::Pixels;
 
 pub use color::Color;
-pub use pico8_color::Pico8Color;
 pub use plugin::PixelCanvasPlugin;
 
 use crate::game::Xy;
 
 mod color;
-mod pico8_color;
 mod plugin;
 
 #[derive(Resource)]
