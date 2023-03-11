@@ -95,16 +95,16 @@ impl GamePlugin {
         diagnostics.add(
             Diagnostic::new(
                 Self::DIAGNOSTIC_FRAME_DURATION,
-                "fixed timestamp frame duration",
+                "fixed timestamp: frame duration",
                 20,
             )
             .with_smoothing_factor(0.)
-            .with_suffix("s"),
+            .with_suffix("ms"),
         );
         diagnostics.add(
             Diagnostic::new(
                 Self::DIAGNOSTIC_TIME_ACCRUED,
-                "fixed timestamp time accrued",
+                "fixed timestamp: time accrued",
                 20,
             )
             .with_smoothing_factor(0.)
