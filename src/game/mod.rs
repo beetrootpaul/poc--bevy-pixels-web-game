@@ -26,6 +26,14 @@ pub const GAME_AREA_HEIGHT: u32 = 128;
 
 const DESIRED_FPS: u64 = 30;
 
+#[allow(clippy::enum_variant_names)]
+#[derive(SystemSet, Debug, Hash, PartialEq, Eq, Clone)]
+enum FixedFpsSystemSet {
+    FixedFpsSpawning,
+    FixedFpsUpdateAndDraw,
+    FixedFpsLast,
+}
+
 pub struct GamePlugin;
 
 impl Plugin for GamePlugin {
@@ -46,42 +54,45 @@ impl Plugin for GamePlugin {
         );
 
         app.insert_resource(Self::fixed_time());
-        app.add_systems(
-            // TODO: how to make parts of these systems run in parallel instead of all of them being sequential?
-            (
+        app.edit_schedule(CoreSchedule::FixedUpdate, |schedule| {
+            schedule.configure_sets(
+                (
+                    FixedFpsSystemSet::FixedFpsSpawning,
+                    FixedFpsSystemSet::FixedFpsUpdateAndDraw,
+                    FixedFpsSystemSet::FixedFpsLast,
+                )
+                    .chain(),
+            );
+            schedule.add_system(
                 PlayerSystems::spawn_player
-                    // TODO: how two run_if s work together
                     .run_if(PlayerSystems::there_is_no_player)
-                    .run_if(GameState::should_game_update),
-                //
-                // flush commands in order to have access to spawned player in the very same frame
-                apply_system_buffers,
-                //
-                PlayerSystems::move_player.run_if(GameState::should_game_update),
-                //
-                Self::clear_screen,
-                PlayerSystems::draw_player,
-                //
-                GameState::update_game_state,
-                //
-                #[cfg(debug_assertions)]
-                Self::perform_measurements,
-            )
-                .chain()
-                .in_schedule(CoreSchedule::FixedUpdate),
-        );
+                    .in_set(FixedFpsSystemSet::FixedFpsSpawning)
+                    .run_if(GameState::is_game_running),
+            );
+            schedule.add_system(
+                apply_system_buffers
+                    .after(FixedFpsSystemSet::FixedFpsSpawning)
+                    .before(FixedFpsSystemSet::FixedFpsUpdateAndDraw),
+            );
+            schedule
+                .add_system(Self::clear_screen.before(FixedFpsSystemSet::FixedFpsUpdateAndDraw));
+            schedule.add_systems(
+                (
+                    PlayerSystems::move_player.run_if(GameState::is_game_running),
+                    PlayerSystems::draw_player,
+                )
+                    .chain()
+                    .in_set(FixedFpsSystemSet::FixedFpsUpdateAndDraw),
+            );
+            schedule
+                .add_system(GameState::update_game_state.in_set(FixedFpsSystemSet::FixedFpsLast));
+            #[cfg(debug_assertions)]
+            schedule.add_system(Self::perform_measurements.after(FixedFpsSystemSet::FixedFpsLast));
+        });
     }
 }
 
 impl GamePlugin {
-    // TODO: how to come up with a good ID value?
-    #[cfg(debug_assertions)]
-    pub const DIAGNOSTIC_FRAME_DURATION: DiagnosticId =
-        DiagnosticId::from_u128(1187582084072456577959028643519383692);
-    #[cfg(debug_assertions)]
-    pub const DIAGNOSTIC_TIME_ACCRUED: DiagnosticId =
-        DiagnosticId::from_u128(1187582084072339571239028643519383692);
-
     fn fixed_time() -> FixedTime {
         let desired_frame_duration = Duration::from_nanos(1_000_000_000 / DESIRED_FPS);
         let mut fixed_time = FixedTime::new(desired_frame_duration);
@@ -91,6 +102,18 @@ impl GamePlugin {
 
         fixed_time
     }
+
+    fn clear_screen(mut pixel_canvas: ResMut<PixelCanvas>) {
+        pixel_canvas.clear(Pico8Color::DarkBlue.into());
+    }
+
+    // TODO: how to come up with a good ID value?
+    #[cfg(debug_assertions)]
+    pub const DIAGNOSTIC_FRAME_DURATION: DiagnosticId =
+        DiagnosticId::from_u128(1187582084072456577959028643519383692);
+    #[cfg(debug_assertions)]
+    pub const DIAGNOSTIC_TIME_ACCRUED: DiagnosticId =
+        DiagnosticId::from_u128(1187582084072339571239028643519383692);
 
     #[cfg(debug_assertions)]
     fn setup_measurements(mut diagnostics: ResMut<Diagnostics>) {
@@ -112,10 +135,6 @@ impl GamePlugin {
             .with_smoothing_factor(0.)
             .with_suffix("ms"),
         );
-    }
-
-    fn clear_screen(mut pixel_canvas: ResMut<PixelCanvas>) {
-        pixel_canvas.clear(Pico8Color::DarkBlue.into());
     }
 
     #[cfg(debug_assertions)]
