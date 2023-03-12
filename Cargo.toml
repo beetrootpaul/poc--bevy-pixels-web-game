@@ -28,15 +28,15 @@ visualize_schedule_main = ["dep:bevy_mod_debugdump"]
 visualize_schedule_fixed_update = ["dep:bevy_mod_debugdump"]
 
 [dependencies]
-pixels = "0.11.0" # https://github.com/parasyte/pixels
-bevy_mod_debugdump = { version = "0.7.0", optional = true } # https://github.com/jakobhellermann/bevy_mod_debugdump
+pixels = "0.11.0" # https://crates.io/crates/pixels
+bevy_mod_debugdump = { version = "0.7.0", optional = true } # https://crates.io/crates/bevy_mod_debugdump
 
-# https://github.com/bevyengine/bevy
+# https://crates.io/crates/bevy
 [dependencies.bevy]
 version = "0.10.0"
 # Available features: https://docs.rs/crate/bevy/latest/features
 #
-# Please, keep bevy's render and bevy_wgpu features disabled, since (according to https://github.com/dtcristo/bevy_pixels )
+# Please, keep bevy's render and bevy_wgpu features disabled, since (according to https://crates.io/crates/bevy_pixels )
 # they will conflict with rendering based on `pixels`, which we have implemented in `pixel_art/pixel_canvas.rs` here.
 #
 default-features = false
@@ -45,4 +45,4 @@ features = [
 ]
 
 [dev-dependencies]
-itertools = "0.10.5" # https://github.com/rust-itertools/itertools
+itertools = "0.10.5" # https://crates.io/crates/itertools
