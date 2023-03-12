@@ -7,16 +7,19 @@ use bevy::diagnostic::{DiagnosticId, Diagnostics};
 use bevy::prelude::*;
 
 pub use xy::Xy;
+use FixedFpsSystemSet::{FixedFpsLast, FixedFpsSpawning, FixedFpsUpdateAndDraw};
 
 use crate::game::game_state::GameState;
 use crate::game::input::KeyboardControlsSystems;
 use crate::game::player::PlayerSystems;
+use crate::game::sprites::SpritesSystems;
 use crate::pico8::Pico8Color;
 use crate::pixel_canvas::{PixelCanvas, PixelCanvasPlugin};
 
 mod game_state;
 mod input;
 mod player;
+mod sprites;
 mod xy;
 
 pub const GAME_TITLE: &str = "Bevy/pixels web game PoC";
@@ -48,6 +51,7 @@ impl Plugin for GamePlugin {
 
         #[cfg(debug_assertions)]
         app.add_startup_system(Self::setup_measurements);
+        app.add_startup_system(SpritesSystems::load_sprite_sheet);
 
         app.add_system(
             KeyboardControlsSystems::handle_keyboard_input.in_base_set(CoreSet::PreUpdate),
@@ -55,39 +59,31 @@ impl Plugin for GamePlugin {
 
         app.insert_resource(Self::fixed_time());
         app.edit_schedule(CoreSchedule::FixedUpdate, |schedule| {
-            schedule.configure_sets(
-                (
-                    FixedFpsSystemSet::FixedFpsSpawning,
-                    FixedFpsSystemSet::FixedFpsUpdateAndDraw,
-                    FixedFpsSystemSet::FixedFpsLast,
-                )
-                    .chain(),
-            );
+            schedule
+                .configure_sets((FixedFpsSpawning, FixedFpsUpdateAndDraw, FixedFpsLast).chain());
             schedule.add_system(
                 PlayerSystems::spawn_player
                     .run_if(PlayerSystems::there_is_no_player)
-                    .in_set(FixedFpsSystemSet::FixedFpsSpawning)
+                    .in_set(FixedFpsSpawning)
                     .run_if(GameState::is_game_running),
             );
             schedule.add_system(
                 apply_system_buffers
-                    .after(FixedFpsSystemSet::FixedFpsSpawning)
-                    .before(FixedFpsSystemSet::FixedFpsUpdateAndDraw),
+                    .after(FixedFpsSpawning)
+                    .before(FixedFpsUpdateAndDraw),
             );
-            schedule
-                .add_system(Self::clear_screen.before(FixedFpsSystemSet::FixedFpsUpdateAndDraw));
+            schedule.add_system(Self::clear_screen.before(FixedFpsUpdateAndDraw));
             schedule.add_systems(
                 (
                     PlayerSystems::move_player.run_if(GameState::is_game_running),
                     PlayerSystems::draw_player,
                 )
                     .chain()
-                    .in_set(FixedFpsSystemSet::FixedFpsUpdateAndDraw),
+                    .in_set(FixedFpsUpdateAndDraw),
             );
-            schedule
-                .add_system(GameState::update_game_state.in_set(FixedFpsSystemSet::FixedFpsLast));
+            schedule.add_system(GameState::update_game_state.in_set(FixedFpsLast));
             #[cfg(debug_assertions)]
-            schedule.add_system(Self::perform_measurements.after(FixedFpsSystemSet::FixedFpsLast));
+            schedule.add_system(Self::perform_measurements.after(FixedFpsLast));
         });
     }
 }

@@ -44,5 +44,14 @@ features = [
     "bevy_winit",
 ]
 
+# https://crates.io/crates/image
+[dependencies.image]
+version = "0.24.5"
+# Available features: https://docs.rs/crate/image/latest/features
+default-features = false
+features = [
+    "png",
+]
+
 [dev-dependencies]
 itertools = "0.10.5" # https://crates.io/crates/itertools
