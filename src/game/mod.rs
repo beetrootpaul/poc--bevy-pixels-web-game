@@ -11,7 +11,8 @@ pub use xy::Xy;
 use crate::game::game_state::GameState;
 use crate::game::input::KeyboardControlsSystems;
 use crate::game::player::PlayerSystems;
-use crate::pixel_canvas::{Pico8Color, PixelCanvas, PixelCanvasPlugin};
+use crate::pico8::Pico8Color;
+use crate::pixel_canvas::{PixelCanvas, PixelCanvasPlugin};
 
 mod game_state;
 mod input;
@@ -32,8 +33,9 @@ impl Plugin for GamePlugin {
         app.add_state::<GameState>();
 
         app.add_plugin(PixelCanvasPlugin {
-            width: GAME_AREA_WIDTH,
-            height: GAME_AREA_HEIGHT,
+            // TODO: better way for number type conversion?
+            width: GAME_AREA_WIDTH as usize,
+            height: GAME_AREA_HEIGHT as usize,
         });
 
         #[cfg(debug_assertions)]

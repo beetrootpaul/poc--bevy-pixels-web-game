@@ -1,7 +1,9 @@
+use crate::game::{GAME_AREA_HEIGHT, GAME_AREA_WIDTH};
 use bevy::prelude::*;
 
 use crate::game::xy::Xy;
-use crate::pixel_canvas::{Pico8Color, PixelCanvas};
+use crate::pico8::Pico8Color;
+use crate::pixel_canvas::PixelCanvas;
 
 // TODO: fixed FPS
 // TODO: adjust movement
@@ -120,6 +122,12 @@ impl PlayerSystems {
                 PlayerMovement::Up => xy.1 -= MOVEMENT_PER_FRAME,
                 PlayerMovement::Down => xy.1 += MOVEMENT_PER_FRAME,
             }
+
+            // TODO: consider having kind of a movement boundary component instead of referring to GAME_AREA_* directly here
+            // TODO: implement clamp on entire Xy at once
+            // TODO: better way for number type conversion?
+            xy.0 = xy.0.clamp(0., (GAME_AREA_WIDTH - 1) as f32);
+            xy.1 = xy.1.clamp(0., (GAME_AREA_HEIGHT - 1) as f32);
 
             // TODO: ???
             // let sprite_dimensions = maybe_sprite_dimensions

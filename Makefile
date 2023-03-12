@@ -22,17 +22,25 @@ setup:
 format:
 	cargo fmt
 
-check:
-	cargo clippy --all-targets
-	cargo clippy --all-targets --features visualize_schedule_main
-	cargo clippy --all-targets --features visualize_schedule_fixed_update
-	cargo clippy --all-targets --release
+check: test clippy
 
 run: run_desktop_debug
 
 # # # # # # # # # # # # #
 # specialized commands
 #
+
+test:
+	cargo test --all-targets
+	cargo test --all-targets --features visualize_schedule_main
+	cargo test --all-targets --features visualize_schedule_fixed_update
+	cargo test --all-targets --release
+
+clippy:
+	cargo clippy --all-targets
+	cargo clippy --all-targets --features visualize_schedule_main
+	cargo clippy --all-targets --features visualize_schedule_fixed_update
+	cargo clippy --all-targets --release
 
 visualize_schedule_main:
 	cargo run --quiet --features visualize_schedule_main | pbcopy
