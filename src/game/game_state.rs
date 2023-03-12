@@ -9,7 +9,7 @@ pub enum GameState {
 }
 
 impl GameState {
-    pub fn should_game_update(current_state: Res<State<GameState>>) -> bool {
+    pub fn is_game_running(current_state: Res<State<GameState>>) -> bool {
         matches!(
             *current_state,
             State(GameState::InGame) | State(GameState::DebugResumeFor1Frame)
