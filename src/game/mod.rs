@@ -39,6 +39,7 @@ fn load_sprite_sheet(
     asset_server: Res<AssetServer>,
     mut texture_atlases: ResMut<Assets<TextureAtlas>>,
 ) {
+    // TODO: implement missing parts below once resolving issue with rendering
     // let image_handle: Handle<Image> = asset_server.load("spritesheet.png");
     // let texture_atlas = TextureAtlas::from_grid(
     //     image_handle,
@@ -126,7 +127,7 @@ impl GamePlugin {
     }
 
     fn clear_screen(mut pixel_canvas: ResMut<PixelCanvas>) {
-        pixel_canvas.clear(Pico8Color::DarkBlue.into());
+        pixel_canvas.clear(Pico8Color::LightPeach.into());
     }
 
     // TODO: how to come up with a good ID value?
