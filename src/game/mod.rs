@@ -127,7 +127,7 @@ impl GamePlugin {
     }
 
     fn clear_screen(mut pixel_canvas: ResMut<PixelCanvas>) {
-        pixel_canvas.clear(Pico8Color::LightPeach.into());
+        pixel_canvas.clear(Pico8Color::DarkBlue.into());
     }
 
     // TODO: how to come up with a good ID value?

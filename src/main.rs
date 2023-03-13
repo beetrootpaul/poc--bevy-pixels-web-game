@@ -1,4 +1,3 @@
-use bevy::app::PluginGroupBuilder;
 use bevy::prelude::*;
 use bevy::window::WindowResolution;
 
@@ -23,7 +22,19 @@ fn main() {
 
     let mut app = App::new();
 
-    let window_plugin = WindowPlugin {
+    app.add_plugins(MinimalPlugins);
+
+    #[cfg(all(
+        not(feature = "visualize_schedule_main"),
+        not(feature = "visualize_schedule_fixed_update")
+    ))]
+    app.add_plugin(bevy::log::LogPlugin::default());
+
+    app.add_plugin(bevy::diagnostic::DiagnosticsPlugin::default());
+
+    app.add_plugin(bevy::input::InputPlugin::default());
+
+    app.add_plugin(WindowPlugin {
         primary_window: Some(Window {
             title: GAME_TITLE.to_string(),
             // TODO: better way for number type conversion?
@@ -32,22 +43,11 @@ fn main() {
             ..default()
         }),
         ..default()
-    };
-    let default_plugins: PluginGroupBuilder = DefaultPlugins
-        .set(window_plugin)
-        .disable::<bevy::sprite::SpritePlugin>();
+    });
+    app.add_plugin(bevy::a11y::AccessibilityPlugin);
+    app.add_plugin(bevy::winit::WinitPlugin::default());
 
-    #[cfg(all(
-        not(feature = "visualize_schedule_main"),
-        not(feature = "visualize_schedule_fixed_update")
-    ))]
-    app.add_plugins(default_plugins);
-    #[cfg(any(
-        feature = "visualize_schedule_main",
-        feature = "visualize_schedule_fixed_update"
-    ))]
-    app.add_plugins(default_plugins.disable::<bevy::log::LogPlugin>());
-
+    app.add_plugin(bevy::asset::AssetPlugin::default());
     app.add_asset::<TextureAtlas>()
         .register_asset_reflect::<TextureAtlas>();
 
