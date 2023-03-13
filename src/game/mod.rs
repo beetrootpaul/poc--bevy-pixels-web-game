@@ -1,9 +1,10 @@
 use std::time::Duration;
 
 #[cfg(debug_assertions)]
-use bevy::diagnostic::Diagnostic;
-#[cfg(debug_assertions)]
 use bevy::diagnostic::{DiagnosticId, Diagnostics};
+#[cfg(debug_assertions)]
+use bevy::diagnostic::Diagnostic;
+use bevy::math::vec2;
 use bevy::prelude::*;
 
 pub use xy::Xy;
@@ -34,25 +35,25 @@ enum FixedFpsSystemSet {
     FixedFpsLast,
 }
 
+// TODO: move to a dedicated module
+#[derive(Resource, Default)]
+pub struct SpriteSheet {
+    pub maybe_texture_atlas_handle: Option<Handle<TextureAtlas>>,
+}
+
+// TODO: move to a dedicated module
+// TODO: refactor
 fn load_sprite_sheet(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
     mut texture_atlases: ResMut<Assets<TextureAtlas>>,
 ) {
-    // TODO: implement missing parts below once resolving issue with rendering
-    // let image_handle: Handle<Image> = asset_server.load("spritesheet.png");
-    // let texture_atlas = TextureAtlas::from_grid(
-    //     image_handle,
-    //     vec2(SpriteSheet::DEFAULT_SPRITE_W, SpriteSheet::DEFAULT_SPRITE_H),
-    //     SpriteSheet::COLUMNS,
-    //     SpriteSheet::ROWS,
-    //     None,
-    //     None,
-    // );
-    // let texture_atlas_handle = texture_atlases.add(texture_atlas);
-    // commands.insert_resource(SpriteSheet {
-    //     texture_atlas_handle: Some(texture_atlas_handle),
-    // });
+    let image_handle: Handle<Image> = asset_server.load("spritesheet.png");
+    let texture_atlas = TextureAtlas::from_grid(image_handle, vec2(8., 8.), 16, 4, None, None);
+    let texture_atlas_handle = texture_atlases.add(texture_atlas);
+    commands.insert_resource(SpriteSheet {
+        maybe_texture_atlas_handle: Some(texture_atlas_handle),
+    });
 }
 
 pub struct GamePlugin;
@@ -70,6 +71,7 @@ impl Plugin for GamePlugin {
         #[cfg(debug_assertions)]
         app.add_startup_system(Self::setup_measurements);
 
+        app.init_resource::<SpriteSheet>();
         app.add_startup_system(load_sprite_sheet);
 
         app.add_system(

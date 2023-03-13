@@ -1,4 +1,4 @@
-use crate::game::{GAME_AREA_HEIGHT, GAME_AREA_WIDTH};
+use crate::game::{SpriteSheet, GAME_AREA_HEIGHT, GAME_AREA_WIDTH};
 use bevy::prelude::*;
 
 use crate::game::xy::Xy;
@@ -149,7 +149,19 @@ impl PlayerSystems {
     }
 
     // TODO: implement sprite drawing instead of a temporary pixel drawing
-    pub fn draw_player(query: Query<&Xy, With<Player>>, mut pixel_canvas: ResMut<PixelCanvas>) {
+    pub fn draw_player(
+        query: Query<&Xy, With<Player>>,
+        mut pixel_canvas: ResMut<PixelCanvas>,
+        sprite_sheet: Res<SpriteSheet>,
+    ) {
+        println!(
+            "sprite_sheet.maybe_texture_atlas_handle: {:?}",
+            sprite_sheet.maybe_texture_atlas_handle
+        );
+        if let Some(texture_atlas_handle) = sprite_sheet.maybe_texture_atlas_handle.as_ref() {
+            println!("texture_atlas_handle: {:?}", texture_atlas_handle);
+        }
+
         for xy in query.iter() {
             pixel_canvas.set_pixel(xy, Pico8Color::Green.into());
         }

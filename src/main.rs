@@ -48,6 +48,7 @@ fn main() {
     app.add_plugin(bevy::winit::WinitPlugin::default());
 
     app.add_plugin(bevy::asset::AssetPlugin::default());
+    app.add_plugin(bevy::render::texture::ImagePlugin::default());
     app.add_asset::<TextureAtlas>()
         .register_asset_reflect::<TextureAtlas>();
 
