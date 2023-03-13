@@ -33,19 +33,23 @@ fn main() {
         }),
         ..default()
     };
+    let default_plugins: PluginGroupBuilder = DefaultPlugins
+        .set(window_plugin)
+        .disable::<bevy::sprite::SpritePlugin>();
+
     #[cfg(all(
         not(feature = "visualize_schedule_main"),
         not(feature = "visualize_schedule_fixed_update")
     ))]
-    let default_plugins: PluginGroupBuilder = DefaultPlugins.set(window_plugin);
+    app.add_plugins(default_plugins);
     #[cfg(any(
         feature = "visualize_schedule_main",
         feature = "visualize_schedule_fixed_update"
     ))]
-    let default_plugins: PluginGroupBuilder = DefaultPlugins
-        .set(window_plugin)
-        .disable::<bevy::log::LogPlugin>();
-    app.add_plugins(default_plugins);
+    app.add_plugins(default_plugins.disable::<bevy::log::LogPlugin>());
+
+    app.add_asset::<TextureAtlas>()
+        .register_asset_reflect::<TextureAtlas>();
 
     // https://bevy-cheatbook.github.io/cookbook/print-framerate.html
     #[cfg(debug_assertions)]

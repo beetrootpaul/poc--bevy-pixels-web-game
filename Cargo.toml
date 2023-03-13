@@ -42,7 +42,7 @@ version = "0.10.0"
 default-features = false
 features = [
     "bevy_asset",
-    "bevy_core_pipeline",
+#    "bevy_core_pipeline",
     "bevy_sprite",
     "bevy_winit",
     "png",
