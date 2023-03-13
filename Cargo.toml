@@ -41,7 +41,10 @@ version = "0.10.0"
 #
 default-features = false
 features = [
+    "bevy_asset",
+    "bevy_sprite",
     "bevy_winit",
+    "png",
 ]
 
 [dev-dependencies]

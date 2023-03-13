@@ -34,6 +34,26 @@ enum FixedFpsSystemSet {
     FixedFpsLast,
 }
 
+fn load_sprite_sheet(
+    mut commands: Commands,
+    asset_server: Res<AssetServer>,
+    mut texture_atlases: ResMut<Assets<TextureAtlas>>,
+) {
+    // let image_handle: Handle<Image> = asset_server.load("spritesheet.png");
+    // let texture_atlas = TextureAtlas::from_grid(
+    //     image_handle,
+    //     vec2(SpriteSheet::DEFAULT_SPRITE_W, SpriteSheet::DEFAULT_SPRITE_H),
+    //     SpriteSheet::COLUMNS,
+    //     SpriteSheet::ROWS,
+    //     None,
+    //     None,
+    // );
+    // let texture_atlas_handle = texture_atlases.add(texture_atlas);
+    // commands.insert_resource(SpriteSheet {
+    //     texture_atlas_handle: Some(texture_atlas_handle),
+    // });
+}
+
 pub struct GamePlugin;
 
 impl Plugin for GamePlugin {
@@ -48,6 +68,8 @@ impl Plugin for GamePlugin {
 
         #[cfg(debug_assertions)]
         app.add_startup_system(Self::setup_measurements);
+
+        app.add_startup_system(load_sprite_sheet);
 
         app.add_system(
             KeyboardControlsSystems::handle_keyboard_input.in_base_set(CoreSet::PreUpdate),
