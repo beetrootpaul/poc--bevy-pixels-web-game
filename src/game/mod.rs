@@ -60,15 +60,15 @@ impl Plugin for GamePlugin {
         app.insert_resource(Self::fixed_time());
         app.edit_schedule(CoreSchedule::FixedUpdate, |fixed_update_schedule| {
             let spawn_entities_systems = (
-                PlayerSystems::spawn_player
-                    .run_if(PlayerSystems::there_is_no_player)
-                    .run_if(GameState::is_game_running),
-                some_other_spawn_system.run_if(GameState::is_game_running),
-            );
+                PlayerSystems::spawn_player.run_if(PlayerSystems::there_is_no_player),
+                some_other_spawn_system,
+            )
+                .run_if(GameState::is_game_running);
             let update_entities_systems = (
-                PlayerSystems::move_player.run_if(GameState::is_game_running),
-                some_other_update_entities_system.run_if(GameState::is_game_running),
-            );
+                PlayerSystems::move_player,
+                some_other_update_entities_system,
+            )
+                .run_if(GameState::is_game_running);
             let draw_entities_systems = (PlayerSystems::draw_player, some_other_draw_system);
             fixed_update_schedule.add_systems(
                 (
