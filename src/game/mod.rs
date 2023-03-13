@@ -26,13 +26,17 @@ pub const GAME_AREA_HEIGHT: u32 = 128;
 
 const DESIRED_FPS: u64 = 30;
 
-#[allow(clippy::enum_variant_names)]
-#[derive(SystemSet, Debug, Hash, PartialEq, Eq, Clone)]
-enum FixedFpsSystemSet {
-    FixedFpsSpawning,
-    FixedFpsUpdateAndDraw,
-    FixedFpsLast,
-}
+// #[allow(clippy::enum_variant_names)]
+// #[derive(SystemSet, Debug, Hash, PartialEq, Eq, Clone)]
+// enum FixedFpsSystemSet {
+//     FixedFpsSpawning,
+//     FixedFpsUpdateAndDraw,
+//     FixedFpsLast,
+// }
+
+fn some_other_spawn_system(mut commands: Commands) {}
+fn some_other_update_entities_system(mut commands: Commands) {}
+fn some_other_draw_system(mut commands: Commands) {}
 
 pub struct GamePlugin;
 
@@ -54,40 +58,36 @@ impl Plugin for GamePlugin {
         );
 
         app.insert_resource(Self::fixed_time());
-        app.edit_schedule(CoreSchedule::FixedUpdate, |schedule| {
-            schedule.configure_sets(
+        app.edit_schedule(CoreSchedule::FixedUpdate, |fixed_update_schedule| {
+            let spawn_entities_systems = (
+                PlayerSystems::spawn_player.run_if(PlayerSystems::there_is_no_player),
+                some_other_spawn_system,
+            )
+                .run_if(GameState::is_game_running);
+            let update_entities_systems = (
+                PlayerSystems::move_player,
+                some_other_update_entities_system,
+            )
+                .run_if(GameState::is_game_running);
+            let draw_entities_systems = (PlayerSystems::draw_player, some_other_draw_system);
+            fixed_update_schedule.add_systems(
                 (
-                    FixedFpsSystemSet::FixedFpsSpawning,
-                    FixedFpsSystemSet::FixedFpsUpdateAndDraw,
-                    FixedFpsSystemSet::FixedFpsLast,
+                    (
+                        Self::clear_screen,
+                        (
+                            spawn_entities_systems,
+                            apply_system_buffers,
+                            update_entities_systems,
+                        )
+                            .chain(),
+                    ),
+                    draw_entities_systems,
+                    GameState::update_game_state,
+                    #[cfg(debug_assertions)]
+                    Self::perform_measurements,
                 )
                     .chain(),
             );
-            schedule.add_system(
-                PlayerSystems::spawn_player
-                    .run_if(PlayerSystems::there_is_no_player)
-                    .in_set(FixedFpsSystemSet::FixedFpsSpawning)
-                    .run_if(GameState::is_game_running),
-            );
-            schedule.add_system(
-                apply_system_buffers
-                    .after(FixedFpsSystemSet::FixedFpsSpawning)
-                    .before(FixedFpsSystemSet::FixedFpsUpdateAndDraw),
-            );
-            schedule
-                .add_system(Self::clear_screen.before(FixedFpsSystemSet::FixedFpsUpdateAndDraw));
-            schedule.add_systems(
-                (
-                    PlayerSystems::move_player.run_if(GameState::is_game_running),
-                    PlayerSystems::draw_player,
-                )
-                    .chain()
-                    .in_set(FixedFpsSystemSet::FixedFpsUpdateAndDraw),
-            );
-            schedule
-                .add_system(GameState::update_game_state.in_set(FixedFpsSystemSet::FixedFpsLast));
-            #[cfg(debug_assertions)]
-            schedule.add_system(Self::perform_measurements.after(FixedFpsSystemSet::FixedFpsLast));
         });
     }
 }
