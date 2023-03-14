@@ -10,6 +10,12 @@ Cargo.lock
 **/*.rs.bk
 
 # # # # # # # # #
+# dist pacakges
+#
+
+/dist/wasm/
+
+# # # # # # # # #
 # other entries
 #
 
