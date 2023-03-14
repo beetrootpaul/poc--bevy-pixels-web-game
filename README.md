@@ -10,7 +10,8 @@ TODO: Deployed to https://beetrootpaul.itch.io/bevy-pixels-web-game-poc
 ## Quick start
 
 - `make setup` – initial Rust toolchain setup
-- `make run` – run the app in debug mode on target of your current host machine
+- `make run` – build the app for your host OS and run it
+- `make web` – build the app for the web and run it (requires opening a printed URL in a browser)
 
 ## Controls
 
