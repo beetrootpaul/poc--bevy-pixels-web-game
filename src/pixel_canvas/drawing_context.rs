@@ -5,8 +5,8 @@ pub const PX_LEN: usize = 4;
 
 pub struct DrawingContext<'a> {
     pub frame: &'a mut [u8],
-    w: usize, // width
-    h: usize, // height
+    pub w: usize, // width
+    pub h: usize, // height
 }
 
 impl<'a> DrawingContext<'a> {

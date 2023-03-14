@@ -44,5 +44,17 @@ features = [
     "bevy_winit",
 ]
 
+# https://crates.io/crates/image
+[dependencies.image]
+version = "0.24.5"
+# Available features: https://docs.rs/crate/image/latest/features
+default-features = false
+features = [
+    "png",
+]
+
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+pollster = "0.3.0"
+
 [dev-dependencies]
 itertools = "0.10.5" # https://crates.io/crates/itertools

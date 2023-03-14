@@ -1,8 +1,8 @@
-use crate::game::{GAME_AREA_HEIGHT, GAME_AREA_WIDTH};
 use bevy::prelude::*;
 
+use crate::game::sprites::SpriteSheet;
 use crate::game::xy::Xy;
-use crate::pico8::Pico8Color;
+use crate::game::{GAME_AREA_HEIGHT, GAME_AREA_WIDTH};
 use crate::pixel_canvas::PixelCanvas;
 
 // TODO: fixed FPS
@@ -148,10 +148,16 @@ impl PlayerSystems {
         }
     }
 
-    // TODO: implement sprite drawing instead of a temporary pixel drawing
-    pub fn draw_player(query: Query<&Xy, With<Player>>, mut pixel_canvas: ResMut<PixelCanvas>) {
-        for xy in query.iter() {
-            pixel_canvas.set_pixel(xy, Pico8Color::Green.into());
+    // TODO: implement correct player sprite drawing instead of this TMP version
+    pub fn draw_player(
+        sprite_sheet: ResMut<SpriteSheet>,
+        query: Query<&Xy, With<Player>>,
+        mut pixel_canvas: ResMut<PixelCanvas>,
+    ) {
+        if let Some(rgba_image) = sprite_sheet.maybe_rgba_image.as_ref() {
+            for xy in query.iter() {
+                pixel_canvas.draw_sprite(xy, rgba_image);
+            }
         }
     }
 }

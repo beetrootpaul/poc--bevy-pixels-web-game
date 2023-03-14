@@ -1,4 +1,5 @@
 use bevy::prelude::Resource;
+use image::RgbaImage;
 use pixels::Pixels;
 
 pub use color::Color;
@@ -25,12 +26,20 @@ impl PixelCanvas {
         DrawingContext::new(self.pixels.get_frame_mut(), self.width, self.height)
     }
 
+    #[allow(dead_code)]
     pub fn clear(&mut self, color: Color) {
         DrawOnFrame::clear(&mut self.drawing_context(), color);
     }
 
     // TODO: it doesn't feel right to pass simple XY as a reference :thinking:
+    #[allow(dead_code)]
     pub fn set_pixel(&mut self, xy: &Xy, color: Color) {
         DrawOnFrame::set_pixel(&mut self.drawing_context(), xy, color);
+    }
+
+    // TODO: TMP implementation
+    #[allow(dead_code)]
+    pub fn draw_sprite(&mut self, xy: &Xy, rgba_image: &RgbaImage) {
+        DrawOnFrame::draw_sprite(&mut self.drawing_context(), xy, rgba_image);
     }
 }
