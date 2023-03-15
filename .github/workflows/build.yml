@@ -1,0 +1,41 @@
+name: "build"
+
+on:
+  push:
+    branches: [ "main", "dev" ]
+  pull_request:
+    branches: [ "main" ]
+
+env:
+  CARGO_TERM_COLOR: always
+
+# TODO: consider adding a release job on git tags, based on https://github.com/bevyengine/bevy_github_ci_template/blob/main/.github/workflows/release.yaml
+
+jobs:
+
+  build:
+    strategy:
+      # https://docs.github.com/en/actions/using-jobs/using-a-matrix-for-your-jobs#handling-failures
+      fail-fast: false
+      # https://docs.github.com/en/actions/using-jobs/using-a-matrix-for-your-jobs#using-a-matrix-strategy
+      matrix:
+        command_variant:
+          - cache_sub_key: "variant-debug-host"
+            lint_flags: "-D warnings"
+            params: ""
+          - cache_sub_key: "variant-debug-web"
+            lint_flags: "-D warnings"
+            params: "--target wasm32-unknown-unknown"
+          - cache_sub_key: "variant-release-host"
+            lint_flags: "-D warnings -A dead_code -A unused-imports -A unused_mut -A unused-variables"
+            params: "--release"
+          - cache_sub_key: "variant-release-web"
+            lint_flags: "-D warnings -A dead_code -A unused-imports -A unused_mut -A unused-variables"
+            params: "--target wasm32-unknown-unknown --release"
+    runs-on: ubuntu-latest
+    steps:
+      # https://github.com/marketplace/actions/checkout
+      - uses: actions/checkout@v3
+      - uses: ./.github/shared-steps
+      # --features bevy/x11: we need Bevy's support for X11 in GitHub Actions on Ubuntu
+      - run: RUSTFLAGS="${{ matrix.command_variant.lint_flags }}" cargo build --features bevy/x11 ${{ matrix.command_variant.params }}
