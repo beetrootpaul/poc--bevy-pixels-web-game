@@ -1,0 +1,119 @@
+# TODO: split into several files
+name: "build, test, lint"
+
+on:
+  push:
+    branches: [ "main", "dev" ]
+  pull_request:
+    branches: [ "main" ]
+
+env:
+  CARGO_TERM_COLOR: always
+
+# TODO: consider adding a release job on git tags, based on https://github.com/bevyengine/bevy_github_ci_template/blob/main/.github/workflows/release.yaml
+
+# actions/checkout@v3: https://github.com/marketplace/actions/checkout
+#
+# --features bevy/x11: Required on those jobs, which build for
+#                      the host platform inside GitHub Actions.
+#
+
+jobs:
+
+  test_default:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: ./.github/shared-steps
+      - run: cargo test --features bevy/x11
+
+  test_visualize_schedule_main:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: ./.github/shared-steps
+      - run: cargo test --features visualize_schedule_main --features bevy/x11
+
+  test_visualize_schedule_fixed_update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: ./.github/shared-steps
+      - run: cargo test --features visualize_schedule_fixed_update --features bevy/x11
+
+  test_release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: ./.github/shared-steps
+      - run: cargo test --release --features bevy/x11
+
+  clippy_default:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: ./.github/shared-steps
+      - run: cargo clippy --features bevy/x11 -- -D warnings
+
+  clippy_visualize_schedule_main:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: ./.github/shared-steps
+      - run: cargo clippy --features visualize_schedule_main --features bevy/x11 -- -D warnings
+
+  clippy_visualize_schedule_fixed_update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: ./.github/shared-steps
+      - run: cargo clippy --features visualize_schedule_fixed_update --features bevy/x11 -- -D warnings
+
+  clippy_release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: ./.github/shared-steps
+      - run: cargo clippy --release --features bevy/x11 -- -D warnings
+
+  clippy_wasm32:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: ./.github/shared-steps
+      - run: cargo clippy --target wasm32-unknown-unknown -- -D warnings
+
+  clippy_wasm32_release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: ./.github/shared-steps
+      - run: cargo clippy --target wasm32-unknown-unknown --release -- -D warnings
+
+  build_debug_host:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: ./.github/shared-steps
+      - run: cargo build --features bevy/x11
+
+  build_debug_web:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: ./.github/shared-steps
+      - run: cargo build --target wasm32-unknown-unknown
+
+  build_release_host:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: ./.github/shared-steps
+      - run: RUSTFLAGS="-D warnings -A dead_code -A unused-imports -A unused_mut -A unused-variables" cargo build --release --features bevy/x11
+
+  build_release_web:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: ./.github/shared-steps
+      - run: RUSTFLAGS="-D warnings -A dead_code -A unused-imports -A unused_mut -A unused-variables" cargo build --target wasm32-unknown-unknown --release

@@ -1,0 +1,23 @@
+name: "shared steps"
+description: "Shared steps used to setup prerequisites for other jobs."
+
+# dtolnay/rust-toolchain@stable: https://github.com/marketplace/actions/rustup-toolchain-install
+# Swatinem/rust-cache@v2:        https://github.com/marketplace/actions/rust-cache
+
+runs:
+  using: "composite"
+  steps:
+    # order of commands: `Swatinem/rust-cache@v2` relies on `rustc` version activated by `dtolnay/rust-toolchain@stable`
+    #
+    - uses: dtolnay/rust-toolchain@stable
+    - uses: Swatinem/rust-cache@v2
+
+
+# TODO: some other lines of code that might become useful one day
+#      run: sudo apt-get update; sudo apt-get install pkg-config libx11-dev libasound2-dev libudev-dev libxcb-render0-dev libxcb-shape0-dev libxcb-xfixes0-dev
+#      run: sudo apt-get update; sudo apt-get install pkg-config libx11-dev libasound2-dev libudev-dev
+# See https://github.com/Spotifyd/spotifyd/issues/659#issuecomment-737730954
+# and https://users.rust-lang.org/t/failed-to-run-custom-build-command-for-libudev-sys-v0-1-4/53926/2
+#    - name: "Install missing alsa and libudev dependencies"
+#      shell: sh
+#      run: sudo apt install librust-alsa-sys-dev libudev-dev
