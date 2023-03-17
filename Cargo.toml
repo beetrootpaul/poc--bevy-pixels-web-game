@@ -31,8 +31,7 @@ visualize_schedule_fixed_update = ["dep:bevy_mod_debugdump"]
 pixels = "0.11.0" # https://crates.io/crates/pixels
 bevy_mod_debugdump = { version = "0.7.0", optional = true } # https://crates.io/crates/bevy_mod_debugdump
 
-# https://crates.io/crates/bevy
-[dependencies.bevy]
+[dependencies.bevy] # https://crates.io/crates/bevy
 version = "0.10.0"
 # Available features: https://docs.rs/crate/bevy/latest/features
 #
@@ -41,11 +40,13 @@ version = "0.10.0"
 #
 default-features = false
 features = [
+    "bevy_audio",
+    "bevy_asset",
     "bevy_winit",
+    "vorbis",
 ]
 
-# https://crates.io/crates/image
-[dependencies.image]
+[dependencies.image] # https://crates.io/crates/image
 version = "0.24.5"
 # Available features: https://docs.rs/crate/image/latest/features
 default-features = false
@@ -54,7 +55,10 @@ features = [
 ]
 
 [target.'cfg(target_arch = "wasm32")'.dependencies]
-pollster = "0.3.0"
+# See: https://bevy-cheatbook.github.io/platforms/wasm/panic-console.html#panic-messages
+console_error_panic_hook = "0.1.7" # https://crates.io/crates/console_error_panic_hook
+# Required by `Pixels::new_async(…).block_on()`
+pollster = "0.3.0" # https://crates.io/crates/pollster
 
 [dev-dependencies]
 itertools = "0.10.5" # https://crates.io/crates/itertools

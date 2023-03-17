@@ -71,12 +71,15 @@ build_debug_web:
 	$(rust_log_debug) cargo build --target wasm32-unknown-unknown
 	rm -rf ./dist/wasm/debug/
 	wasm-bindgen \
-		--target web \
+		--target no-modules \
+		--no-modules-global load_game \
 		--out-dir ./dist/wasm/debug/ \
 		--out-name bevy_pixels_web_game_poc \
 		--no-typescript \
 		target/wasm32-unknown-unknown/debug/bevy_pixels_web_game_poc.wasm
 	cp ./dist/wasm_template/index.html ./dist/wasm/debug/index.html
+	mkdir -p ./dist/wasm/debug/assets/
+	cp ./assets/*.ogg ./dist/wasm/debug/assets/
 
 build_release_host:
 	$(rust_flags_release) cargo build --release
@@ -86,13 +89,16 @@ build_release_web:
 	$(rust_flags_release) cargo build --target wasm32-unknown-unknown --release
 	rm -rf ./dist/wasm/release/
 	wasm-bindgen \
-		--target web \
+		--target no-modules \
+		--no-modules-global load_game \
 		--out-dir ./dist/wasm/release/ \
 		--out-name bevy_pixels_web_game_poc \
 		--no-typescript \
 		--no-demangle \
 		target/wasm32-unknown-unknown/release/bevy_pixels_web_game_poc.wasm
 	cp ./dist/wasm_template/index.html ./dist/wasm/release/index.html
+	mkdir -p ./dist/wasm/release/assets/
+	cp ./assets/*.ogg ./dist/wasm/release/assets/
 
 run_debug_host:
 	$(rust_log_debug) cargo run --features bevy/dynamic_linking
@@ -110,9 +116,10 @@ run_release_web: build_release_web
 	miniserve --port 9090 --index index.html ./dist/wasm/release/
 
 dist_release_web: build_release_web
-	rm -f ./dist/wasm/bevy_pixels_web_game_poc.zip
-	mkdir -p ./dist/wasm/release/
-	cd ./dist/wasm/release/ && zip ../bevy_pixels_web_game_poc.zip \
+	rm -f ./dist/wasm/bevy_pixels_web_game_poc__itch_io.zip
+	rm -rf ./dist/wasm/bevy_pixels_web_game_poc__itch_io/ # in case ZIP was extracted there
+	cd ./dist/wasm/release/ && zip ../bevy_pixels_web_game_poc__itch_io.zip \
+		./assets/*.ogg \
 		./index.html \
 	 	./bevy_pixels_web_game_poc.js \
 	 	./bevy_pixels_web_game_poc_bg.wasm

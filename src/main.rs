@@ -21,6 +21,10 @@ fn main() {
         WINDOW_HEIGHT % GAME_AREA_HEIGHT
     );
 
+    // https://bevy-cheatbook.github.io/platforms/wasm/panic-console.html#panic-messages
+    #[cfg(target_arch = "wasm32")]
+    console_error_panic_hook::set_once();
+
     let mut app = App::new();
 
     let window_plugin = WindowPlugin {

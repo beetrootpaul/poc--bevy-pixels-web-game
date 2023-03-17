@@ -2,6 +2,7 @@ use bevy::prelude::Resource;
 
 #[derive(Resource, Default)]
 pub struct SpriteSheet {
+    // TODO: consider making it non-option or panicking on runtime if asset is not loaded yet
     pub maybe_rgba_image: Option<image::RgbaImage>,
 }
 
