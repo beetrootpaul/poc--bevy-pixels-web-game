@@ -27,5 +27,33 @@
     Javascript and support for canvas is required
 </canvas>
 
+<div id="overlay_for_grabbing_initial_user_interaction"></div>
+
+<script>
+    const overlay = document.getElementById("overlay_for_grabbing_initial_user_interaction");
+    function overlayEventListener(event) {
+        window.__resumeAllContexts(event)
+
+        console.log("[[[");
+        console.log("- remove listeners");
+        console.log("]]]");
+        window.__userInputEventNames.forEach(eventName => {
+            overlay.removeEventListener(eventName, overlayEventListener);
+        });
+
+        console.log("[[[");
+        console.log("- remove overlay");
+        console.log("]]]");
+        overlay.remove();
+    }
+
+    console.log("[[[");
+    console.log("+ ADD listeners");
+    console.log("]]]");
+    window.__userInputEventNames.forEach(eventName => {
+        overlay.addEventListener(eventName, overlayEventListener);
+    });
+</script>
+
 </body>
 </html>

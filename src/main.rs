@@ -29,11 +29,11 @@ fn main() {
 
     app.add_plugin(bevy::log::LogPlugin::default());
 
-    #[cfg(debug_assertions)]
-    app.add_plugin(bevy::diagnostic::DiagnosticsPlugin::default())
-        .add_plugin(bevy::diagnostic::LogDiagnosticsPlugin::default())
+    // #[cfg(debug_assertions)]
+    // app.add_plugin(bevy::diagnostic::DiagnosticsPlugin::default())
+    //     .add_plugin(bevy::diagnostic::LogDiagnosticsPlugin::default())
         // https://bevy-cheatbook.github.io/cookbook/print-framerate.html
-        .add_plugin(bevy::diagnostic::FrameTimeDiagnosticsPlugin::default());
+        // .add_plugin(bevy::diagnostic::FrameTimeDiagnosticsPlugin::default());
 
     app.add_plugin(bevy::window::WindowPlugin {
         primary_window: Some(bevy::window::Window {

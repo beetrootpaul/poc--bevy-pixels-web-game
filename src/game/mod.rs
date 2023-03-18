@@ -53,8 +53,8 @@ impl Plugin for GamePlugin {
             height: GAME_AREA_HEIGHT as usize,
         });
 
-        #[cfg(debug_assertions)]
-        app.add_startup_system(Self::setup_measurements);
+        // #[cfg(debug_assertions)]
+        // app.add_startup_system(Self::setup_measurements);
         app.add_startup_system(SpritesSystems::load_sprite_sheet);
         app.add_startup_system(AudioSystems::load_music_files);
 
@@ -94,8 +94,8 @@ impl Plugin for GamePlugin {
                     .in_set(FixedFpsUpdateAndDraw),
             );
             schedule.add_system(GameState::update_game_state.in_set(FixedFpsLast));
-            #[cfg(debug_assertions)]
-            schedule.add_system(Self::perform_measurements.after(FixedFpsLast));
+            // #[cfg(debug_assertions)]
+            // schedule.add_system(Self::perform_measurements.after(FixedFpsLast));
         });
     }
 }

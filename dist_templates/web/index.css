@@ -12,3 +12,11 @@ body {
 #start {
     margin: 2rem;
 }
+
+#overlay_for_grabbing_initial_user_interaction {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+}
