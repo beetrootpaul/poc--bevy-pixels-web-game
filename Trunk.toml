@@ -8,6 +8,7 @@ filehash = true
 [watch]
 watch = [
     "assets",
+    "dist_templates/web",
     "src",
 ]
 
