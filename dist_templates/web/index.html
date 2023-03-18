@@ -31,11 +31,18 @@
 </div>
 
 <script>
-    const capturing_element = document.getElementById("overlay_for_grabbing_initial_user_interaction");
+    // const capturing_element = document.getElementById("overlay_for_grabbing_initial_user_interaction");
+    const capturing_elements = [
+        document.getElementById("overlay_for_grabbing_initial_user_interaction"),
+        document.getElementById("bevy_pixels_web_game_poc__canvas")]
+    ;
     // const capturing_element = document.getElementById("capture_area");
     // const capturing_element = document;
 
     function overlayEventListener(event) {
+        console.log("[[[");
+        console.log(event);
+        console.log("]]]");
         // TODO: debounce/throttle?
         window.__resumeAllContexts(event)
 
@@ -55,8 +62,10 @@
     console.log("[[[");
     console.log("+ add LISTENERS");
     console.log("]]]");
-    window.__userInputEventNames.forEach(eventName => {
-        capturing_element.addEventListener(eventName, overlayEventListener);
+    capturing_elements.forEach(element => {
+        window.__userInputEventNames.forEach(eventName => {
+            element.addEventListener(eventName, overlayEventListener);
+        });
     });
 </script>
 
