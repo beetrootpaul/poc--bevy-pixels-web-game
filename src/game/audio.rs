@@ -7,6 +7,8 @@ pub struct AudioFiles {
     pub music_base: Handle<AudioSource>,
 }
 
+// TODO: assets loading from https://github.com/NiklasEi/bevy_game_template
+
 impl AudioFiles {
     pub fn all_handles(&self) -> Vec<Handle<AudioSource>> {
         vec![self.music_base.clone()]

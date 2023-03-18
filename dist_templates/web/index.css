@@ -1,0 +1,14 @@
+html {
+    height: 100%;
+    background-color: darkslateblue;
+}
+
+body {
+    height: 100%;
+    margin: 0;
+    overflow: hidden;
+}
+
+#start {
+    margin: 2rem;
+}

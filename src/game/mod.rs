@@ -6,9 +6,9 @@ use bevy::diagnostic::Diagnostic;
 use bevy::diagnostic::{DiagnosticId, Diagnostics};
 use bevy::prelude::*;
 
+use crate::game::audio::AudioSystems;
 pub use xy::Xy;
 use FixedFpsSystemSet::{FixedFpsLast, FixedFpsSpawning, FixedFpsUpdateAndDraw};
-use crate::game::audio::AudioSystems;
 
 use crate::game::game_state::GameState;
 use crate::game::input::KeyboardControlsSystems;
@@ -40,6 +40,8 @@ enum FixedFpsSystemSet {
 }
 
 pub struct GamePlugin;
+
+// TODO: do modules & plugins the way it is done in https://github.com/NiklasEi/bevy_game_template
 
 impl Plugin for GamePlugin {
     fn build(&self, app: &mut App) {
