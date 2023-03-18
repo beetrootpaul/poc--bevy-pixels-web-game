@@ -45,7 +45,7 @@ impl GameState {
                 }
             },
             State(GameState::DebugResumeFor1Frame) => {
-                next_state.set(GameState::InGame);
+                next_state.set(GameState::DebugPause);
             },
             _ => {},
         };
