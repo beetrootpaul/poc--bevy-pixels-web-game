@@ -12,7 +12,7 @@ use FixedFpsSystemSet::{FixedFpsLast, FixedFpsSpawning, FixedFpsUpdateAndDraw};
 
 use crate::game::game_state::GameState;
 use crate::game::input::KeyboardControlsSystems;
-use crate::game::player::PlayerSystems;
+use crate::game::player::{PlayerMovement, PlayerSystems};
 use crate::game::sprites::SpritesSystems;
 use crate::pico8::Pico8Color;
 use crate::pixel_canvas::{PixelCanvas, PixelCanvasPlugin};
@@ -61,6 +61,16 @@ impl Plugin for GamePlugin {
         app.add_system(AudioSystems::play_music.run_if(GameState::is_game_running));
         app.add_system(
             KeyboardControlsSystems::handle_keyboard_input
+                .in_base_set(CoreSet::PreUpdate)
+                .run_if(GameState::is_game_loaded),
+        );
+        app.add_system(
+            touch_system
+                .in_base_set(CoreSet::PreUpdate)
+                .run_if(GameState::is_game_loaded),
+        );
+        app.add_system(
+            mouse_click_system
                 .in_base_set(CoreSet::PreUpdate)
                 .run_if(GameState::is_game_loaded),
         );
@@ -160,5 +170,65 @@ impl GamePlugin {
             fixed_time.accumulated().as_millis() as f64
         });
         *prev_elapsed_seconds = time.raw_elapsed_seconds_f64();
+    }
+}
+
+fn touch_system(touches: Res<Touches>, mut player_movement_query: Query<&mut PlayerMovement>) {
+    for touch in touches.iter_just_pressed() {
+        info!(
+            "just pressed touch with id: {:?}, at: {:?}",
+            touch.id(),
+            touch.position()
+        );
+        for mut player_movement in player_movement_query.iter_mut() {
+            *player_movement = match *player_movement {
+                PlayerMovement::Right => PlayerMovement::Down,
+                PlayerMovement::Down => PlayerMovement::Left,
+                PlayerMovement::Left => PlayerMovement::Up,
+                PlayerMovement::Up => PlayerMovement::Right,
+            };
+        }
+    }
+
+    for touch in touches.iter_just_released() {
+        info!(
+            "just released touch with id: {:?}, at: {:?}",
+            touch.id(),
+            touch.position()
+        );
+    }
+
+    for touch in touches.iter_just_cancelled() {
+        info!("cancelled touch with id: {:?}", touch.id());
+    }
+
+    // you can also iterate all current touches and retrieve their state like this:
+    for touch in touches.iter() {
+        info!("active touch: {:?}", touch);
+        info!("  just_pressed: {}", touches.just_pressed(touch.id()));
+    }
+}
+fn mouse_click_system(
+    mouse_button_input: Res<Input<MouseButton>>,
+    mut player_movement_query: Query<&mut PlayerMovement>,
+) {
+    if mouse_button_input.pressed(MouseButton::Left) {
+        info!("left mouse currently pressed");
+        for mut player_movement in player_movement_query.iter_mut() {
+            *player_movement = match *player_movement {
+                PlayerMovement::Left => PlayerMovement::Right,
+                PlayerMovement::Right => PlayerMovement::Left,
+                PlayerMovement::Up => PlayerMovement::Down,
+                PlayerMovement::Down => PlayerMovement::Up,
+            };
+        }
+    }
+
+    if mouse_button_input.just_pressed(MouseButton::Left) {
+        info!("left mouse just pressed");
+    }
+
+    if mouse_button_input.just_released(MouseButton::Left) {
+        info!("left mouse just released");
     }
 }

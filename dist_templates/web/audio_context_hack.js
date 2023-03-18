@@ -25,7 +25,7 @@
     self.AudioContext = new Proxy(self.AudioContext, {
         construct(target, args) {
             console.log("[[[");
-            console.log("new AudioContext");
+            console.log("=== NEW AUDIO CONTEXT ===");
             console.log("]]]");
             const result = new target(...args);
             audioContextList.push(result);

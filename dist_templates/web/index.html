@@ -21,37 +21,42 @@
     <link data-trunk rel="inline" href="../../dist_templates/web/audio_context_hack.js"/>
 
 </head>
-<body>
+<body id="capture_area">
 
-<canvas id="bevy_pixels_web_game_poc__canvas">
-    Javascript and support for canvas is required
-</canvas>
 
-<div id="overlay_for_grabbing_initial_user_interaction"></div>
+<div id="overlay_for_grabbing_initial_user_interaction">
+    <canvas id="bevy_pixels_web_game_poc__canvas">
+        Javascript and support for canvas is required
+    </canvas>
+</div>
 
 <script>
-    const overlay = document.getElementById("overlay_for_grabbing_initial_user_interaction");
+    const capturing_element = document.getElementById("overlay_for_grabbing_initial_user_interaction");
+    // const capturing_element = document.getElementById("capture_area");
+    // const capturing_element = document;
+
     function overlayEventListener(event) {
+        // TODO: debounce/throttle?
         window.__resumeAllContexts(event)
 
-        console.log("[[[");
-        console.log("- remove listeners");
-        console.log("]]]");
-        window.__userInputEventNames.forEach(eventName => {
-            overlay.removeEventListener(eventName, overlayEventListener);
-        });
+        // console.log("[[[");
+        // console.log("- remove listeners");
+        // console.log("]]]");
+        // window.__userInputEventNames.forEach(eventName => {
+        //     capturing_element.removeEventListener(eventName, overlayEventListener);
+        // });
 
-        console.log("[[[");
-        console.log("- remove overlay");
-        console.log("]]]");
-        overlay.remove();
+        // console.log("[[[");
+        // console.log("- remove overlay");
+        // console.log("]]]");
+        // capturing_element.remove();
     }
 
     console.log("[[[");
-    console.log("+ ADD listeners");
+    console.log("+ add LISTENERS");
     console.log("]]]");
     window.__userInputEventNames.forEach(eventName => {
-        overlay.addEventListener(eventName, overlayEventListener);
+        capturing_element.addEventListener(eventName, overlayEventListener);
     });
 </script>
 
