@@ -1,5 +1,3 @@
-use bevy::app::PluginGroupBuilder;
-use bevy::prelude::*;
 use bevy::window::WindowResolution;
 
 use crate::game::{GamePlugin, GAME_AREA_HEIGHT, GAME_AREA_WIDTH, GAME_TITLE};
@@ -21,36 +19,41 @@ fn main() {
         WINDOW_HEIGHT % GAME_AREA_HEIGHT
     );
 
-    let mut app = App::new();
+    // https://bevy-cheatbook.github.io/platforms/wasm/panic-console.html#panic-messages
+    #[cfg(target_arch = "wasm32")]
+    console_error_panic_hook::set_once();
 
-    let window_plugin = WindowPlugin {
-        primary_window: Some(Window {
+    let mut app = bevy::app::App::new();
+
+    app.add_plugins(bevy::MinimalPlugins);
+
+    app.add_plugin(bevy::log::LogPlugin::default());
+
+    #[cfg(debug_assertions)]
+    app.add_plugin(bevy::diagnostic::DiagnosticsPlugin::default())
+        .add_plugin(bevy::diagnostic::LogDiagnosticsPlugin::default())
+        // https://bevy-cheatbook.github.io/cookbook/print-framerate.html
+        .add_plugin(bevy::diagnostic::FrameTimeDiagnosticsPlugin::default());
+
+    app.add_plugin(bevy::window::WindowPlugin {
+        primary_window: Some(bevy::window::Window {
             title: GAME_TITLE.to_string(),
             // TODO: better way for number type conversion?
             resolution: WindowResolution::new(WINDOW_WIDTH as f32, WINDOW_HEIGHT as f32),
+            #[cfg(target_arch = "wasm32")]
+            canvas: Some("#bevy_pixels_web_game_poc__canvas".to_string()),
             // TODO: any other props to set?
-            ..default()
+            ..bevy::utils::default()
         }),
-        ..default()
-    };
-    #[cfg(all(
-        not(feature = "visualize_schedule_main"),
-        not(feature = "visualize_schedule_fixed_update")
-    ))]
-    let default_plugins: PluginGroupBuilder = DefaultPlugins.set(window_plugin);
-    #[cfg(any(
-        feature = "visualize_schedule_main",
-        feature = "visualize_schedule_fixed_update"
-    ))]
-    let default_plugins: PluginGroupBuilder = DefaultPlugins
-        .set(window_plugin)
-        .disable::<bevy::log::LogPlugin>();
-    app.add_plugins(default_plugins);
+        ..bevy::utils::default()
+    });
+    app.add_plugin(bevy::a11y::AccessibilityPlugin);
+    app.add_plugin(bevy::winit::WinitPlugin::default());
 
-    // https://bevy-cheatbook.github.io/cookbook/print-framerate.html
-    #[cfg(debug_assertions)]
-    app.add_plugin(bevy::diagnostic::LogDiagnosticsPlugin::default())
-        .add_plugin(bevy::diagnostic::FrameTimeDiagnosticsPlugin::default());
+    app.add_plugin(bevy::input::InputPlugin::default());
+
+    app.add_plugin(bevy::asset::AssetPlugin::default());
+    app.add_plugin(bevy::audio::AudioPlugin::default());
 
     app.add_plugin(GamePlugin);
 
@@ -68,7 +71,7 @@ fn main() {
         "{}",
         bevy_mod_debugdump::schedule_graph_dot(
             &mut app,
-            CoreSchedule::Main,
+            bevy::app::CoreSchedule::Main,
             &bevy_mod_debugdump::schedule_graph::Settings::default(),
         )
     );
@@ -77,7 +80,7 @@ fn main() {
         "{}",
         bevy_mod_debugdump::schedule_graph_dot(
             &mut app,
-            CoreSchedule::FixedUpdate,
+            bevy::app::CoreSchedule::FixedUpdate,
             &bevy_mod_debugdump::schedule_graph::Settings::default(),
         )
     );

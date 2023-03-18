@@ -14,8 +14,8 @@ rust_flags_release := RUSTFLAGS="-D warnings -A dead_code -A unused-imports -A u
 
 setup:
 	rustup default stable
-	cargo install wasm-bindgen-cli
-	cargo install miniserve
+	cargo install --locked wasm-bindgen-cli # required by `trunk`
+	cargo install --locked trunk
 
 # # # # # # # # #
 # main commands
@@ -28,7 +28,6 @@ check: test clippy
 
 run: run_debug_host
 
-# TODO: describe in README a simple command needed to generate a final production ready dist package for itch.io
 web: run_debug_web
 
 # TODO: describe in README
@@ -42,7 +41,10 @@ update_rust_toolchain:
 	rustup update stable
 
 clean_up:
-	rm -rf ./target/
+	trunk clean
+	trunk clean --dist ./dist/web_release/
+	cargo clean
+	rm -rf ./dist/
 
 test:
 	cargo test
@@ -66,54 +68,54 @@ visualize_schedule_fixed_update:
 	cargo run --quiet --features visualize_schedule_fixed_update | pbcopy
 	echo "Graph data is in your clipboard now. Visit https://edotor.net/ and paste it there 🙂"
 
-# TODO: make RUST_LOG work for web. Should it be applied on serving instead of building?
-build_debug_web:
-	$(rust_log_debug) cargo build --target wasm32-unknown-unknown
-	rm -rf ./dist/wasm/debug/
-	wasm-bindgen \
-		--target web \
-		--out-dir ./dist/wasm/debug/ \
-		--out-name bevy_pixels_web_game_poc \
-		--no-typescript \
-		target/wasm32-unknown-unknown/debug/bevy_pixels_web_game_poc.wasm
-	cp ./dist/wasm_template/index.html ./dist/wasm/debug/index.html
-
+# # # # # # # # # #
+# build commands
+#
 build_release_host:
 	$(rust_flags_release) cargo build --release
+	rm -rf ./target/release/assets/
+	mkdir -p ./target/release/assets/
+	cp ./assets/*.ogg ./target/release/assets/
 
-# TODO: make RUST_LOG work for web. Should it be applied on serving instead of building?
-build_release_web:
-	$(rust_flags_release) cargo build --target wasm32-unknown-unknown --release
-	rm -rf ./dist/wasm/release/
-	wasm-bindgen \
-		--target web \
-		--out-dir ./dist/wasm/release/ \
-		--out-name bevy_pixels_web_game_poc \
-		--no-typescript \
-		--no-demangle \
-		target/wasm32-unknown-unknown/release/bevy_pixels_web_game_poc.wasm
-	cp ./dist/wasm_template/index.html ./dist/wasm/release/index.html
+# # # # # # # # #
+# run commands
+#
 
 run_debug_host:
 	$(rust_log_debug) cargo run --features bevy/dynamic_linking
 
 # TODO: [ERROR] Route /favicon.ico could not be found
-run_debug_web: build_debug_web
-	miniserve --port 8080 --index index.html ./dist/wasm/debug/
+# TODO: does rust_log_debug work here?
+# `trunk` docs: https://trunkrs.dev
+run_debug_web:
+	mkdir -p ./dist/web/
+	$(rust_log_debug) trunk serve --open
 
 run_release_host: build_release_host
 	./target/release/bevy_pixels_web_game_poc
 
 # TODO: [ERROR] Route /favicon.ico could not be found
 # TODO: check app size after build, wonder how heavy file would it be for web
-run_release_web: build_release_web
-	miniserve --port 9090 --index index.html ./dist/wasm/release/
+# TODO: does rust_flags_release work here?
+run_release_web:
+	$(rust_flags_release) trunk serve \
+		--release \
+		--dist ./dist/web_release/ \
+		--no-autoreload \
+		--port 9090 \
+		--open
 
-dist_release_web: build_release_web
-	rm -f ./dist/wasm/bevy_pixels_web_game_poc.zip
-	mkdir -p ./dist/wasm/release/
-	cd ./dist/wasm/release/ && zip ../bevy_pixels_web_game_poc.zip \
-		./index.html \
-	 	./bevy_pixels_web_game_poc.js \
-	 	./bevy_pixels_web_game_poc_bg.wasm
-	 echo "Dist package is ready: ./dist/wasm/bevy_pixels_web_game_poc.zip"
+# # # # # # # # #
+# dist commands
+#
+
+# TODO: is it possible to zip correctly without "cd"-ing into the folder?
+dist_release_web:
+	trunk clean --dist ./dist/web_release/
+	$(rust_flags_release) trunk build \
+		--release \
+		--dist ./dist/web_release/
+	rm -f ./dist/bevy_pixels_web_game_poc__itch_io.zip
+	rm -rf ./dist/bevy_pixels_web_game_poc__itch_io/ # in case ZIP was extracted there
+	cd ./dist/web_release/ && zip -r ../bevy_pixels_web_game_poc__itch_io.zip ./
+	echo "Dist package is ready: ./dist/bevy_pixels_web_game_poc__itch_io.zip"

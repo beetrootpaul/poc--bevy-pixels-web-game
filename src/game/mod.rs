@@ -6,6 +6,7 @@ use bevy::diagnostic::Diagnostic;
 use bevy::diagnostic::{DiagnosticId, Diagnostics};
 use bevy::prelude::*;
 
+use crate::game::audio::AudioSystems;
 pub use xy::Xy;
 use FixedFpsSystemSet::{FixedFpsLast, FixedFpsSpawning, FixedFpsUpdateAndDraw};
 
@@ -16,6 +17,7 @@ use crate::game::sprites::SpritesSystems;
 use crate::pico8::Pico8Color;
 use crate::pixel_canvas::{PixelCanvas, PixelCanvasPlugin};
 
+mod audio;
 mod game_state;
 mod input;
 mod player;
@@ -39,6 +41,8 @@ enum FixedFpsSystemSet {
 
 pub struct GamePlugin;
 
+// TODO: do modules & plugins the way it is done in https://github.com/NiklasEi/bevy_game_template
+
 impl Plugin for GamePlugin {
     fn build(&self, app: &mut App) {
         app.add_state::<GameState>();
@@ -52,9 +56,13 @@ impl Plugin for GamePlugin {
         #[cfg(debug_assertions)]
         app.add_startup_system(Self::setup_measurements);
         app.add_startup_system(SpritesSystems::load_sprite_sheet);
+        app.add_startup_system(AudioSystems::load_music_files);
 
+        app.add_system(AudioSystems::play_music.run_if(GameState::is_game_running));
         app.add_system(
-            KeyboardControlsSystems::handle_keyboard_input.in_base_set(CoreSet::PreUpdate),
+            KeyboardControlsSystems::handle_keyboard_input
+                .in_base_set(CoreSet::PreUpdate)
+                .run_if(GameState::is_game_loaded),
         );
 
         app.insert_resource(Self::fixed_time());
@@ -72,11 +80,15 @@ impl Plugin for GamePlugin {
                     .after(FixedFpsSpawning)
                     .before(FixedFpsUpdateAndDraw),
             );
-            schedule.add_system(Self::clear_screen.before(FixedFpsUpdateAndDraw));
+            schedule.add_system(
+                Self::clear_screen
+                    .before(FixedFpsUpdateAndDraw)
+                    .run_if(GameState::is_game_loaded),
+            );
             schedule.add_systems(
                 (
                     PlayerSystems::move_player.run_if(GameState::is_game_running),
-                    PlayerSystems::draw_player,
+                    PlayerSystems::draw_player.run_if(GameState::is_game_loaded),
                 )
                     .chain()
                     .in_set(FixedFpsUpdateAndDraw),
