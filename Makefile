@@ -74,9 +74,6 @@ visualize_schedule_fixed_update:
 #
 build_release_host:
 	$(rust_flags_release) cargo build --release
-	rm -rf ./target/release/assets/
-	mkdir -p ./target/release/assets/
-	cp ./assets/*.ogg ./target/release/assets/
 
 # # # # # # # # #
 # run commands

@@ -1,4 +1,5 @@
 use bevy::prelude::*;
+use image::EncodableLayout;
 
 pub struct AudioSystems;
 
@@ -9,19 +10,14 @@ pub struct AudioFiles {
 
 // TODO: assets loading from https://github.com/NiklasEi/bevy_game_template
 
-impl AudioFiles {
-    pub fn all_handles(&self) -> Vec<Handle<AudioSource>> {
-        vec![self.music_base.clone()]
-    }
-}
-
 // TODO: add a button which mutes all sounds
 
 impl AudioSystems {
-    pub fn load_music_files(mut commands: Commands, asset_server: Res<AssetServer>) {
-        // TODO: make it debug and visible as web console log?
-        info!("Loading music files…");
-        let handle = asset_server.load("music_base.ogg");
+    pub fn load_music_files(mut commands: Commands, mut audio_assets: ResMut<Assets<AudioSource>>) {
+        let bytes: &[u8] = include_bytes!("../../assets/music_base.ogg");
+        let handle = audio_assets.add(AudioSource {
+            bytes: bytes.as_bytes().into(),
+        });
         commands.insert_resource(AudioFiles { music_base: handle });
     }
 
