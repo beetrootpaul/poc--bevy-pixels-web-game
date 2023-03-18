@@ -2,12 +2,13 @@
 
 [build]
 target = "dist_templates/web/index.html"
-dist = "dist/web_debug"
+release = true
+dist = "dist/web_release"
 filehash = true
 
 [serve]
-port = 8080
+port = 9090
 open = true
 
 [clean]
-dist = "dist/web_debug"
+dist = "dist/web_release"

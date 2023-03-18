@@ -31,7 +31,7 @@ run: run_debug_host
 web: run_debug_web
 
 # TODO: describe in README
-dist: dist_release_web
+dist: dist_itch_io
 
 # # # # # # # # # # # # #
 # specialized commands
@@ -42,9 +42,10 @@ update_rust_toolchain:
 
 clean_up:
 	trunk clean
-	trunk clean --dist ./dist/web_release/
-	cargo clean
+	trunk --config ./Trunk.release.toml clean
+	trunk --config ./Trunk.itch_io.toml clean
 	rm -rf ./dist/
+	cargo clean
 
 test:
 	cargo test
@@ -88,8 +89,8 @@ run_debug_host:
 # TODO: does rust_log_debug work here?
 # `trunk` docs: https://trunkrs.dev
 run_debug_web:
-	mkdir -p ./dist/web/
-	$(rust_log_debug) trunk serve --open
+	mkdir -p ./dist/web_debug/
+	$(rust_log_debug) trunk serve
 
 run_release_host: build_release_host
 	./target/release/bevy_pixels_web_game_poc
@@ -98,24 +99,17 @@ run_release_host: build_release_host
 # TODO: check app size after build, wonder how heavy file would it be for web
 # TODO: does rust_flags_release work here?
 run_release_web:
-	$(rust_flags_release) trunk serve \
-		--release \
-		--dist ./dist/web_release/ \
-		--no-autoreload \
-		--port 9090 \
-		--open
+	$(rust_flags_release) trunk --config ./Trunk.release.toml serve
 
 # # # # # # # # #
 # dist commands
 #
 
 # TODO: is it possible to zip correctly without "cd"-ing into the folder?
-dist_release_web:
-	trunk clean --dist ./dist/web_release/
-	$(rust_flags_release) trunk build \
-		--release \
-		--dist ./dist/web_release/
+dist_itch_io:
+	trunk --config ./Trunk.itch_io.toml clean
+	$(rust_flags_release) trunk --config ./Trunk.itch_io.toml build
 	rm -f ./dist/bevy_pixels_web_game_poc__itch_io.zip
 	rm -rf ./dist/bevy_pixels_web_game_poc__itch_io/ # in case ZIP was extracted there
-	cd ./dist/web_release/ && zip -r ../bevy_pixels_web_game_poc__itch_io.zip ./
+	cd ./dist/itch_io/ && zip -r ../bevy_pixels_web_game_poc__itch_io.zip ./
 	echo "Dist package is ready: ./dist/bevy_pixels_web_game_poc__itch_io.zip"
