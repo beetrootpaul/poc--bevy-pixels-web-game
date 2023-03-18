@@ -83,6 +83,9 @@ build_debug_web:
 
 build_release_host:
 	$(rust_flags_release) cargo build --release
+	rm -rf ./target/release/assets/
+	mkdir -p ./target/release/assets/
+	cp ./assets/*.ogg ./target/release/assets/
 
 # TODO: make RUST_LOG work for web. Should it be applied on serving instead of building?
 build_release_web:
