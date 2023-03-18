@@ -15,7 +15,6 @@ struct PlayerBundle {
     player_movement: PlayerMovement,
     xy: Xy,
     // TODO: ???
-    // sprite_sheet_bundle: SpriteSheetBundle,
     // sprite_dimensions: SpriteDimensions,
     // hit_circle: HitCircle,
     // trail_origin: TrailOrigin,
@@ -24,7 +23,7 @@ struct PlayerBundle {
 #[derive(Component)]
 pub struct Player;
 
-#[derive(Component, Debug)]
+#[derive(Component, Debug, Clone)]
 pub enum PlayerMovement {
     Left,
     Right,
@@ -58,29 +57,21 @@ impl PlayerSystems {
         // offset: vec3(-0.5, 0.5, 0.),
         // };
 
+        let initial_movement = PlayerMovement::Right;
+
         // TODO: ???
         // let mut parent_command = commands.spawn(PlayerBundle {
         commands.spawn(PlayerBundle {
             player: Player,
-            player_movement: PlayerMovement::Right,
+            player_movement: initial_movement.clone(),
             xy: Xy(1., 1.),
-            // TODO: ???
-            // sprite_sheet_bundle: SpriteSheetBundle {
             // TODO: reorganize game area position calculations
             // TODO: add helpers for translating from window-centered coors to game area coords
+            // TODO: ???
             // transform: Transform::from_xyz(0., -TOPBAR_H / 2., Z_LAYER_SPRITES_PLAYER),
-            // texture_atlas: sprite_sheet.texture_atlas_handle.clone().unwrap(),
-            // sprite: TextureAtlasSprite {
-            //     index: get_sprite_index_for_movement(&initial_movement),
-            //     anchor: Anchor::Center,
-            //     ..default()
-            // },
-            // ..default()
-            // },
             // sprite_dimensions: SpriteDimensions {
             //     padding_right: 1.,
             //     padding_bottom: 1.,
-            //     ..default()
             // },
             // hit_circle: hit_circle.clone(),
             // TODO: express time in frames, instead of seconds maybe?
@@ -113,8 +104,6 @@ impl PlayerSystems {
         // TODO: is it possible to bind speed to FPS (change in FPS -> automatic change of speed to make it constant in result), without allowing for non-integers?
         // const MOVEMENT_PER_FRAME: f32 = 2.;
 
-        // TODO: ???
-        // for (player_movement, mut transform, maybe_sprite_dimensions) in query.iter_mut() {
         for (player_movement, mut xy) in query.iter_mut() {
             match player_movement {
                 PlayerMovement::Left => xy.0 -= MOVEMENT_PER_FRAME,
@@ -151,13 +140,26 @@ impl PlayerSystems {
     // TODO: implement correct player sprite drawing instead of this TMP version
     pub fn draw_player(
         sprite_sheet: ResMut<SpriteSheet>,
-        query: Query<&Xy, With<Player>>,
+        query: Query<(&Xy, &PlayerMovement), With<Player>>,
         mut pixel_canvas: ResMut<PixelCanvas>,
     ) {
         if let Some(rgba_image) = sprite_sheet.maybe_rgba_image.as_ref() {
-            for xy in query.iter() {
-                pixel_canvas.draw_sprite(xy, rgba_image);
+            for (xy, player_movement) in query.iter() {
+                // TODO: cache it
+                let source_rect = SpriteSheet::source_rect_of_cell(
+                    Self::get_sprite_index_for_movement(player_movement),
+                );
+                pixel_canvas.draw_sprite(xy, rgba_image, source_rect);
             }
+        }
+    }
+
+    fn get_sprite_index_for_movement(movement: &PlayerMovement) -> usize {
+        match *movement {
+            PlayerMovement::Left => SpriteSheet::PLAYER_LEFT,
+            PlayerMovement::Right => SpriteSheet::PLAYER_RIGHT,
+            PlayerMovement::Up => SpriteSheet::PLAYER_UP,
+            PlayerMovement::Down => SpriteSheet::PLAYER_DOWN,
         }
     }
 }

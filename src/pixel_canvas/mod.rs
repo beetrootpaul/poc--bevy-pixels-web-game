@@ -1,4 +1,4 @@
-use bevy::prelude::Resource;
+use bevy::prelude::{Rect, Resource};
 use image::RgbaImage;
 use pixels::Pixels;
 
@@ -39,7 +39,7 @@ impl PixelCanvas {
 
     // TODO: TMP implementation
     #[allow(dead_code)]
-    pub fn draw_sprite(&mut self, xy: &Xy, rgba_image: &RgbaImage) {
-        DrawOnFrame::draw_sprite(&mut self.drawing_context(), xy, rgba_image);
+    pub fn draw_sprite(&mut self, target_xy: &Xy, rgba_image: &RgbaImage, source_rect: Rect) {
+        DrawOnFrame::draw_sprite(&mut self.drawing_context(), target_xy, rgba_image, source_rect);
     }
 }

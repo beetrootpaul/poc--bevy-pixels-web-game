@@ -9,6 +9,9 @@ mod pixel_canvas;
 const WINDOW_WIDTH: u32 = 512;
 const WINDOW_HEIGHT: u32 = 512;
 
+#[cfg(target_arch = "wasm32")]
+const HTML_CANVAS_SELECTOR: &str = "#bevy_pixels_web_game_poc__canvas";
+
 // TODO: improve window size management in relation to pixel canvas
 
 fn main() {
@@ -41,7 +44,7 @@ fn main() {
             // TODO: better way for number type conversion?
             resolution: WindowResolution::new(WINDOW_WIDTH as f32, WINDOW_HEIGHT as f32),
             #[cfg(target_arch = "wasm32")]
-            canvas: Some("#bevy_pixels_web_game_poc__canvas".to_string()),
+            canvas: Some(HTML_CANVAS_SELECTOR.to_string()),
             // TODO: any other props to set?
             ..bevy::utils::default()
         }),
@@ -98,19 +101,10 @@ fn main() {
 // TODO: TESTS: https://github.com/bevyengine/bevy/blob/latest/tests/how_to_test_systems.rs
 // TODO: TESTS: https://bevy-cheatbook.github.io/programming/system-tests.html
 
-// TODO: WASM: https://github.com/bevyengine/bevy/tree/main/examples#wasm
-// TODO: WASM: https://bfnightly.bracketproductions.com/rustbook/webbuild.html
-
 // TODO: anything from this list?
 //       - [ahash](https://crates.io/crates/ahash)
 //       - [bitflags](https://crates.io/crates/bitflags)
-//       - [bracket-pathfinding](https://crates.io/crates/bracket-pathfinding)
-//       - [bracket-random](https://crates.io/crates/bracket-random)
-//       - [console_error_panic_hook](https://crates.io/crates/console_error_panic_hook)
 //       - [console_log](https://crates.io/crates/console_log)
-//       - [egui](https://crates.io/crates/egui)
-//       - [egui-wgpu](https://crates.io/crates/egui-wgpu)
-//       - [egui-winit](https://crates.io/crates/egui-winit)
 //       - [env_logger](https://crates.io/crates/env_logger)
 //       - [glam](https://crates.io/crates/glam)
 //       - [hecs](https://crates.io/crates/hecs)
@@ -121,19 +115,11 @@ fn main() {
 //       - [lazy_static](https://crates.io/crates/lazy_static)
 //       - [log](https://crates.io/crates/log)
 //       - [num](https://crates.io/crates/num)
-//       - [pollster](https://crates.io/crates/pollster)
 //       - [rand](https://crates.io/crates/rand)
 //       - [resources](https://crates.io/crates/resources)
-//       - [rotsprite](https://crates.io/crates/rotsprite)
 //       - [rust-embed](https://crates.io/crates/rust-embed)
 //       - [rustc-hash](https://crates.io/crates/rustc-hash)
-//       - [wasm-bindgen](https://crates.io/crates/wasm-bindgen)
 //       - [wasm-bindgen-futures](https://crates.io/crates/wasm-bindgen-futures)
 //       - [web-sys](https://crates.io/crates/web-sys)
-//       - [wgpu](https://crates.io/crates/wgpu)
-//       - [winit](https://crates.io/crates/winit)
-//       - [winit_input_helper](https://crates.io/crates/winit_input_helper)
 
 // TODO: check license of each dependency
-
-// TODO: https://github.com/jakobhellermann/bevy_mod_debugdump

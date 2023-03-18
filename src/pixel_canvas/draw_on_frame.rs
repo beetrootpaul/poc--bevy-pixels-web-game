@@ -1,8 +1,9 @@
+use bevy::math::Rect;
 use image::{EncodableLayout, RgbaImage};
 
 use crate::game::Xy;
-use crate::pixel_canvas::drawing_context::{DrawingContext, PX_LEN};
 use crate::pixel_canvas::Color;
+use crate::pixel_canvas::drawing_context::{DrawingContext, PX_LEN};
 
 pub struct DrawOnFrame;
 
@@ -25,22 +26,31 @@ impl DrawOnFrame {
         }
     }
 
+    // TODO: clean this function up!
     // TODO: it doesn't feel right to pass simple XY as a reference :thinking:
     #[allow(dead_code)]
-    pub fn draw_sprite(ctx: &mut DrawingContext, xy: &Xy, rgba_image: &RgbaImage) {
-        // TODO: TMP IMPLEMENTATION, also incorrect, needs some adjustments
-        if let Some(pixel_index) = ctx.pixel_first_index_for(xy) {
-            let sprite_w: usize = rgba_image.width() as usize;
-            let sprite_h: usize = rgba_image.height() as usize;
+    pub fn draw_sprite(
+        ctx: &mut DrawingContext,
+        target_xy: &Xy,
+        rgba_image: &RgbaImage,
+        source_rect: Rect,
+    ) {
+        if let Some(pixel_index) = ctx.pixel_first_index_for(target_xy) {
+            // TODO: better way for number type conversion?
+            let sprite_w: usize = source_rect.width() as usize;
+            let sprite_h: usize = source_rect.height() as usize;
             let sprite_bytes: &[u8] = rgba_image.as_bytes();
             for sprite_row in 0..sprite_h {
                 for sprite_column in 0..sprite_w {
-                    let target_i_r =
-                        pixel_index + sprite_row * ctx.w * PX_LEN + sprite_column * PX_LEN;
+                    let target_i_r = pixel_index + (sprite_row * ctx.w + sprite_column) * PX_LEN;
                     let target_i_g = target_i_r + 1;
                     let target_i_b = target_i_g + 1;
                     let target_i_a = target_i_b + 1;
-                    let source_i_r = sprite_row * sprite_w * PX_LEN + sprite_column * PX_LEN;
+                    // TODO: better way for number type conversion?
+                    let source_i_r = ((source_rect.min.y as usize + sprite_row)
+                        * (rgba_image.width() as usize)
+                        + (source_rect.min.x as usize + sprite_column))
+                        * PX_LEN;
                     let source_i_g = source_i_r + 1;
                     let source_i_b = source_i_g + 1;
                     let source_i_a = source_i_b + 1;
