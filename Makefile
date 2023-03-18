@@ -115,6 +115,12 @@ dist_release_web:
 	$(rust_flags_release) trunk build \
 		--release \
 		--dist ./dist/web_release/
+	# `trunk` generates absolute path link to resources. They do not work on itch.io,
+	#   because the game is served from the subdirectory there. Therefore, we need to
+	#   replace those links with relative ones.
+	sed -i '' -E "s|init from '/|init from './|g" ./dist/web_release/index.html
+	sed -i '' -E "s|init\('/|init\('./|g" ./dist/web_release/index.html
+	sed -i '' -E "s|href=\"/|href=\"./|g" ./dist/web_release/index.html
 	rm -f ./dist/bevy_pixels_web_game_poc__itch_io.zip
 	rm -rf ./dist/bevy_pixels_web_game_poc__itch_io/ # in case ZIP was extracted there
 	cd ./dist/web_release/ && zip -r ../bevy_pixels_web_game_poc__itch_io.zip ./
