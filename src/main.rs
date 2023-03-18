@@ -32,6 +32,8 @@ fn main() {
             title: GAME_TITLE.to_string(),
             // TODO: better way for number type conversion?
             resolution: WindowResolution::new(WINDOW_WIDTH as f32, WINDOW_HEIGHT as f32),
+            #[cfg(target_arch = "wasm32")]
+            canvas: Some("#bevy_pixels_web_game_poc__canvas".to_string()),
             // TODO: any other props to set?
             ..default()
         }),

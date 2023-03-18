@@ -105,7 +105,7 @@ run_debug_host:
 
 # TODO: [ERROR] Route /favicon.ico could not be found
 run_debug_web: build_debug_web
-	miniserve --port 8080 --index index.html ./dist/wasm/debug/
+	miniserve --port 8081 --index index.html ./dist/wasm/debug/
 
 run_release_host: build_release_host
 	./target/release/bevy_pixels_web_game_poc
@@ -113,7 +113,7 @@ run_release_host: build_release_host
 # TODO: [ERROR] Route /favicon.ico could not be found
 # TODO: check app size after build, wonder how heavy file would it be for web
 run_release_web: build_release_web
-	miniserve --port 9090 --index index.html ./dist/wasm/release/
+	miniserve --port 9091 --index index.html ./dist/wasm/release/
 
 dist_release_web: build_release_web
 	rm -f ./dist/wasm/bevy_pixels_web_game_poc__itch_io.zip
