@@ -105,6 +105,8 @@ run_release_web:
 # dist commands
 #
 
+# TODO: create itch.io package on CI as well
+
 # TODO: is it possible to zip correctly without "cd"-ing into the folder?
 dist_itch_io:
 	trunk --config ./Trunk.itch_io.toml clean

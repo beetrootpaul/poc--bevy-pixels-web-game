@@ -5,6 +5,12 @@ target = "dist_templates/web/index.html"
 dist = "dist/web_debug"
 filehash = true
 
+[watch]
+watch = [
+    "assets",
+    "src",
+]
+
 [serve]
 port = 8080
 open = true
