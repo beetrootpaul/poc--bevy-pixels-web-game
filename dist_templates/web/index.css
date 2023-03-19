@@ -16,3 +16,9 @@ body {
     top: 0;
     left: 0;
 }
+
+#bevy_pixels_web_game_poc__canvas {
+    /* Crucial for the game to adjust rendered game size to available viewport area: */
+    width: 100% !important;
+    height: 100% !important;
+}

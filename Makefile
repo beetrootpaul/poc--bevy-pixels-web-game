@@ -103,4 +103,4 @@ dist_itch_io:
 	rm -f ./dist/bevy_pixels_web_game_poc__itch_io.zip
 	rm -rf ./dist/bevy_pixels_web_game_poc__itch_io/ # in case ZIP was extracted there
 	cd ./dist/itch_io/ && zip -r ../bevy_pixels_web_game_poc__itch_io.zip ./
-	echo "Dist package is ready: ./dist/bevy_pixels_web_game_poc__itch_io.zip"
+	echo "✅ Dist package is ready: ./dist/bevy_pixels_web_game_poc__itch_io.zip"
