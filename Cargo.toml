@@ -58,6 +58,7 @@ features = [
 console_error_panic_hook = "0.1.7" # https://crates.io/crates/console_error_panic_hook
 # Required by `Pixels::new_async(…).block_on()`
 pollster = "0.3.0" # https://crates.io/crates/pollster
+wasm-bindgen = "0.2.84" # https://crates.io/crates/wasm-bindgen
 
 [dev-dependencies]
 itertools = "0.10.5" # https://crates.io/crates/itertools
