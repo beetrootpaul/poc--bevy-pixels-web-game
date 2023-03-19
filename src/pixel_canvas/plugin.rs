@@ -6,6 +6,7 @@ use pixels::{Pixels, SurfaceTexture};
 #[cfg(target_arch = "wasm32")]
 use pollster::FutureExt;
 
+use crate::game::{GameArea, GameAreaVariant};
 use crate::pixel_canvas::PixelCanvas;
 
 pub struct PixelCanvasPlugin {
@@ -91,7 +92,7 @@ impl PixelCanvasPlugin {
             pixels,
             width: canvas_config.width,
             height: canvas_config.height,
-        })
+        });
     }
 
     fn render(pixel_canvas: Res<PixelCanvas>) {
@@ -103,6 +104,8 @@ impl PixelCanvasPlugin {
         primary_window_query: Query<Entity, With<PrimaryWindow>>,
         winit_windows: NonSend<WinitWindows>,
         mut pixel_canvas: ResMut<PixelCanvas>,
+        mut game_area: ResMut<GameArea>,
+        mut commands: Commands,
     ) {
         for event in window_resized_events.iter() {
             let primary_window = primary_window_query
@@ -112,13 +115,55 @@ impl PixelCanvasPlugin {
                 .get_window(primary_window)
                 .expect("should get winit window for a given primary window");
             if event.window == primary_window {
+                let w = winit_window.inner_size().width;
+                let h = winit_window.inner_size().height;
                 pixel_canvas
                     .pixels
-                    .resize_surface(
-                        winit_window.inner_size().width,
-                        winit_window.inner_size().height,
-                    )
+                    .resize_surface(w, h)
                     .expect("should resize pixels surface");
+                game_area.variant = if h > w {
+                    GameAreaVariant::Portrait
+                } else {
+                    GameAreaVariant::Landscape
+                };
+
+                let surface_texture = SurfaceTexture::new(
+                    winit_window.inner_size().width,
+                    winit_window.inner_size().height,
+                    winit_window,
+                );
+
+                let mut pixels = {
+                    #[cfg(not(target_arch = "wasm32"))]
+                    {
+                        Pixels::new(
+                            game_area.outer_width(),
+                            game_area.outer_height(),
+                            surface_texture,
+                        )
+                    }
+                    #[cfg(target_arch = "wasm32")]
+                    {
+                        Pixels::new_async(
+                            game_area.outer_width(),
+                            game_area.outer_height(),
+                            surface_texture,
+                        )
+                        .block_on()
+                    }
+                }
+                .expect("should create pixels");
+
+                // It would be nice to use any RGB8 color (e.g. one from Pico8Color enum), but
+                //   apparently they do not translate correctly when just dividing by 255.0.
+                //   Therefore, let's just use pure black.
+                pixels.set_clear_color(pixels::wgpu::Color::BLACK);
+
+                commands.insert_resource(PixelCanvas {
+                    pixels,
+                    width: game_area.outer_width() as usize,
+                    height: game_area.outer_height() as usize,
+                })
             }
         }
     }

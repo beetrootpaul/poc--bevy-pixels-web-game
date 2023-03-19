@@ -10,7 +10,7 @@ pub use xy::Xy;
 use FixedFpsSystemSet::{FixedFpsLast, FixedFpsSpawning, FixedFpsUpdateAndDraw};
 
 use crate::game::audio::AudioSystems;
-use crate::game::game_area::GameArea;
+pub use crate::game::game_area::{GameArea, GameAreaVariant};
 use crate::game::game_state::GameState;
 use crate::game::input::KeyboardControlsSystems;
 use crate::game::player::PlayerSystems;
@@ -44,9 +44,16 @@ impl Plugin for GamePlugin {
     fn build(&self, app: &mut App) {
         app.add_state::<GameState>();
 
+        let game_area = GameArea {
+            variant: GameAreaVariant::Landscape,
+        };
+        let game_area_outer_w = game_area.outer_width();
+        let game_area_outer_h = game_area.outer_height();
+        app.insert_resource(game_area);
+
         app.add_plugin(PixelCanvasPlugin {
-            width: GameArea::outer_width() as usize,
-            height: GameArea::outer_height() as usize,
+            width: game_area_outer_w as usize,
+            height: game_area_outer_h as usize,
         });
 
         #[cfg(debug_assertions)]
@@ -107,9 +114,9 @@ impl GamePlugin {
         fixed_time
     }
 
-    fn clear_canvas(mut pixel_canvas: ResMut<PixelCanvas>) {
-        pixel_canvas.draw_filled_rect(GameArea::rect(), Pico8Color::DarkBlue.into());
-        for outer_rect in GameArea::outer_rects().iter() {
+    fn clear_canvas(mut pixel_canvas: ResMut<PixelCanvas>, game_area: Res<GameArea>) {
+        pixel_canvas.draw_filled_rect(game_area.rect(), Pico8Color::DarkBlue.into());
+        for outer_rect in game_area.outer_rects().iter() {
             pixel_canvas.draw_filled_rect(*outer_rect, Pico8Color::DarkPurple.into());
         }
     }
