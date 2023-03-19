@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use bevy::window::PrimaryWindow;
+use bevy::window::{PrimaryWindow, WindowResized};
 use bevy::winit::WinitWindows;
 use pixels::{Pixels, SurfaceTexture};
 
@@ -32,6 +32,8 @@ impl Plugin for PixelCanvasPlugin {
         });
 
         app.add_startup_system(Self::setup);
+
+        app.add_system(Self::window_resize);
 
         app.configure_set(PixelCanvasSystemSet::RenderPixelCanvas.after(CoreSet::PostUpdate));
         app.add_system(Self::render.in_base_set(PixelCanvasSystemSet::RenderPixelCanvas));
@@ -87,7 +89,32 @@ impl PixelCanvasPlugin {
         })
     }
 
-    fn render(resource: Res<PixelCanvas>) {
-        resource.pixels.render().expect("should render pixels");
+    fn render(pixel_canvas: Res<PixelCanvas>) {
+        pixel_canvas.pixels.render().expect("should render pixels");
+    }
+
+    pub fn window_resize(
+        mut window_resized_events: EventReader<WindowResized>,
+        primary_window_query: Query<Entity, With<PrimaryWindow>>,
+        winit_windows: NonSend<WinitWindows>,
+        mut pixel_canvas: ResMut<PixelCanvas>,
+    ) {
+        for event in window_resized_events.iter() {
+            let primary_window = primary_window_query
+                .get_single()
+                .expect("should query single primary window");
+            let winit_window = winit_windows
+                .get_window(primary_window)
+                .expect("should get winit window for a given primary window");
+            if event.window == primary_window {
+                pixel_canvas
+                    .pixels
+                    .resize_surface(
+                        winit_window.inner_size().width,
+                        winit_window.inner_size().height,
+                    )
+                    .expect("should resize pixels surface");
+            }
+        }
     }
 }
