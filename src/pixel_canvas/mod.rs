@@ -32,12 +32,17 @@ impl PixelCanvas {
     }
 
     #[allow(dead_code)]
-    pub fn set_pixel(&mut self, xy: &Xy, color: Color) {
+    pub fn set_pixel(&mut self, xy: Xy, color: Color) {
         DrawOnFrame::set_pixel(&mut self.drawing_context(), xy, color);
     }
 
     #[allow(dead_code)]
-    pub fn draw_sprite(&mut self, target_xy: &Xy, rgba_image: &RgbaImage, source_rect: Rect) {
+    pub fn draw_filled_rect(&mut self, rect: Rect, color: Color) {
+        DrawOnFrame::draw_filled_rect(&mut self.drawing_context(), rect, color);
+    }
+
+    #[allow(dead_code)]
+    pub fn draw_sprite(&mut self, target_xy: Xy, rgba_image: &RgbaImage, source_rect: Rect) {
         DrawOnFrame::draw_sprite(
             &mut self.drawing_context(),
             target_xy,

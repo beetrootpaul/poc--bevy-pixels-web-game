@@ -14,7 +14,7 @@ impl<'a> DrawingContext<'a> {
         Self { frame, w, h }
     }
 
-    pub fn pixel_first_index_for(&self, xy: &Xy) -> Option<usize> {
+    pub fn pixel_first_index_for(&self, xy: Xy) -> Option<usize> {
         let w = self.w as i32;
         let h = self.h as i32;
         let (x, y) = xy.rounded();
@@ -39,15 +39,15 @@ mod tests {
         let mut frame = [0; PX_LEN * W * H];
         let ctx = DrawingContext::new(&mut frame, W, H);
 
-        assert_eq!(ctx.pixel_first_index_for(&Xy(0., 0.)), Some(0));
-        assert_eq!(ctx.pixel_first_index_for(&Xy(1., 0.)), Some(PX_LEN));
-        assert_eq!(ctx.pixel_first_index_for(&Xy(2., 0.)), Some(2 * PX_LEN));
-        assert_eq!(ctx.pixel_first_index_for(&Xy(0., 1.)), Some(3 * PX_LEN));
-        assert_eq!(ctx.pixel_first_index_for(&Xy(1., 1.)), Some(4 * PX_LEN));
-        assert_eq!(ctx.pixel_first_index_for(&Xy(2., 1.)), Some(5 * PX_LEN));
-        assert_eq!(ctx.pixel_first_index_for(&Xy(0., 2.)), Some(6 * PX_LEN));
-        assert_eq!(ctx.pixel_first_index_for(&Xy(1., 2.)), Some(7 * PX_LEN));
-        assert_eq!(ctx.pixel_first_index_for(&Xy(2., 2.)), Some(8 * PX_LEN));
+        assert_eq!(ctx.pixel_first_index_for(Xy(0., 0.)), Some(0));
+        assert_eq!(ctx.pixel_first_index_for(Xy(1., 0.)), Some(PX_LEN));
+        assert_eq!(ctx.pixel_first_index_for(Xy(2., 0.)), Some(2 * PX_LEN));
+        assert_eq!(ctx.pixel_first_index_for(Xy(0., 1.)), Some(3 * PX_LEN));
+        assert_eq!(ctx.pixel_first_index_for(Xy(1., 1.)), Some(4 * PX_LEN));
+        assert_eq!(ctx.pixel_first_index_for(Xy(2., 1.)), Some(5 * PX_LEN));
+        assert_eq!(ctx.pixel_first_index_for(Xy(0., 2.)), Some(6 * PX_LEN));
+        assert_eq!(ctx.pixel_first_index_for(Xy(1., 2.)), Some(7 * PX_LEN));
+        assert_eq!(ctx.pixel_first_index_for(Xy(2., 2.)), Some(8 * PX_LEN));
     }
 
     #[test]
@@ -57,9 +57,9 @@ mod tests {
         let mut frame = [0; PX_LEN * W * H];
         let ctx = DrawingContext::new(&mut frame, W, H);
 
-        assert_eq!(ctx.pixel_first_index_for(&Xy(-1., 0.)), None);
-        assert_eq!(ctx.pixel_first_index_for(&Xy(0., -1.)), None);
-        assert_eq!(ctx.pixel_first_index_for(&Xy(3., 0.)), None);
-        assert_eq!(ctx.pixel_first_index_for(&Xy(0., 3.)), None);
+        assert_eq!(ctx.pixel_first_index_for(Xy(-1., 0.)), None);
+        assert_eq!(ctx.pixel_first_index_for(Xy(0., -1.)), None);
+        assert_eq!(ctx.pixel_first_index_for(Xy(3., 0.)), None);
+        assert_eq!(ctx.pixel_first_index_for(Xy(0., 3.)), None);
     }
 }

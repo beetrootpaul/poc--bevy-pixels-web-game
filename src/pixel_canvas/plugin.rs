@@ -1,11 +1,11 @@
 use bevy::prelude::*;
 use bevy::window::{PrimaryWindow, WindowResized};
-use bevy::winit::WinitWindows;
 use pixels::{Pixels, SurfaceTexture};
 
 #[cfg(target_arch = "wasm32")]
 use pollster::FutureExt;
 
+use crate::game::{GameArea, GameAreaVariant, InputConfig};
 use crate::pixel_canvas::PixelCanvas;
 
 pub struct PixelCanvasPlugin {
@@ -43,14 +43,69 @@ impl Plugin for PixelCanvasPlugin {
 impl PixelCanvasPlugin {
     fn setup(
         primary_window_query: Query<Entity, With<PrimaryWindow>>,
-        winit_windows: NonSend<WinitWindows>,
+        winit_windows: NonSend<bevy::winit::WinitWindows>,
         canvas_config: Res<PixelCanvasConfig>,
         mut commands: Commands,
     ) {
         let primary_window = primary_window_query
             .get_single()
             .expect("should query single primary window");
+        commands.insert_resource(Self::new_pixel_canvas(
+            &winit_windows,
+            primary_window,
+            canvas_config.width as u32,
+            canvas_config.height as u32,
+        ));
+    }
 
+    fn render(pixel_canvas: Res<PixelCanvas>) {
+        pixel_canvas.pixels.render().expect("should render pixels");
+    }
+
+    pub fn window_resize(
+        mut window_resized_events: EventReader<WindowResized>,
+        primary_window_query: Query<Entity, With<PrimaryWindow>>,
+        input_config: Res<InputConfig>,
+        winit_windows: NonSend<bevy::winit::WinitWindows>,
+        mut game_area: ResMut<GameArea>,
+        mut commands: Commands,
+    ) {
+        for event in window_resized_events.iter() {
+            let primary_window = primary_window_query
+                .get_single()
+                .expect("should query single primary window");
+            if event.window == primary_window {
+                if input_config.is_touch_available {
+                    let winit_window = winit_windows
+                        .get_window(primary_window)
+                        .expect("should get winit window for a given primary window");
+                    let w = winit_window.inner_size().width;
+                    let h = winit_window.inner_size().height;
+                    game_area.variant = if h > w {
+                        GameAreaVariant::PortraitControls
+                    } else {
+                        GameAreaVariant::LandscapeControls
+                    };
+                } else {
+                    game_area.variant = GameAreaVariant::NoControls;
+                }
+
+                commands.insert_resource(Self::new_pixel_canvas(
+                    &winit_windows,
+                    primary_window,
+                    game_area.outer_width(),
+                    game_area.outer_height(),
+                ));
+            }
+        }
+    }
+
+    fn new_pixel_canvas(
+        winit_windows: &NonSend<bevy::winit::WinitWindows>,
+        primary_window: Entity,
+        width: u32,
+        height: u32,
+    ) -> PixelCanvas {
         let winit_window = winit_windows
             .get_window(primary_window)
             .expect("should get winit window for a given primary window");
@@ -64,20 +119,11 @@ impl PixelCanvasPlugin {
         let mut pixels = {
             #[cfg(not(target_arch = "wasm32"))]
             {
-                Pixels::new(
-                    canvas_config.width as u32,
-                    canvas_config.height as u32,
-                    surface_texture,
-                )
+                Pixels::new(width, height, surface_texture)
             }
             #[cfg(target_arch = "wasm32")]
             {
-                Pixels::new_async(
-                    canvas_config.width as u32,
-                    canvas_config.height as u32,
-                    surface_texture,
-                )
-                .block_on()
+                Pixels::new_async(width, height, surface_texture).block_on()
             }
         }
         .expect("should create pixels");
@@ -87,39 +133,10 @@ impl PixelCanvasPlugin {
         //   Therefore, let's just use pure black.
         pixels.set_clear_color(pixels::wgpu::Color::BLACK);
 
-        commands.insert_resource(PixelCanvas {
+        PixelCanvas {
             pixels,
-            width: canvas_config.width,
-            height: canvas_config.height,
-        })
-    }
-
-    fn render(pixel_canvas: Res<PixelCanvas>) {
-        pixel_canvas.pixels.render().expect("should render pixels");
-    }
-
-    pub fn window_resize(
-        mut window_resized_events: EventReader<WindowResized>,
-        primary_window_query: Query<Entity, With<PrimaryWindow>>,
-        winit_windows: NonSend<WinitWindows>,
-        mut pixel_canvas: ResMut<PixelCanvas>,
-    ) {
-        for event in window_resized_events.iter() {
-            let primary_window = primary_window_query
-                .get_single()
-                .expect("should query single primary window");
-            let winit_window = winit_windows
-                .get_window(primary_window)
-                .expect("should get winit window for a given primary window");
-            if event.window == primary_window {
-                pixel_canvas
-                    .pixels
-                    .resize_surface(
-                        winit_window.inner_size().width,
-                        winit_window.inner_size().height,
-                    )
-                    .expect("should resize pixels surface");
-            }
+            width: width as usize,
+            height: height as usize,
         }
     }
 }

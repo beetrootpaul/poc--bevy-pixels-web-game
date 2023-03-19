@@ -1,16 +1,20 @@
 use std::time::Duration;
 
 #[cfg(debug_assertions)]
-use bevy::diagnostic::Diagnostic;
-#[cfg(debug_assertions)]
 use bevy::diagnostic::{DiagnosticId, Diagnostics};
+#[cfg(debug_assertions)]
+use bevy::diagnostic::Diagnostic;
 use bevy::prelude::*;
 
-pub use xy::Xy;
 use FixedFpsSystemSet::{FixedFpsLast, FixedFpsSpawning, FixedFpsUpdateAndDraw};
+#[cfg(target_arch = "wasm32")]
+use wasm_bindgen::prelude::*;
+pub use xy::Xy;
 
 use crate::game::audio::AudioSystems;
+pub use crate::game::game_area::{GameArea, GameAreaVariant};
 use crate::game::game_state::GameState;
+pub use crate::game::input::InputConfig;
 use crate::game::input::KeyboardControlsSystems;
 use crate::game::player::PlayerSystems;
 use crate::game::sprites::SpritesSystems;
@@ -18,16 +22,20 @@ use crate::pico8::Pico8Color;
 use crate::pixel_canvas::{PixelCanvas, PixelCanvasPlugin};
 
 mod audio;
+mod game_area;
 mod game_state;
 mod input;
 mod player;
 mod sprites;
 mod xy;
 
-pub const GAME_TITLE: &str = "Bevy/pixels web game PoC";
+#[cfg(target_arch = "wasm32")]
+#[wasm_bindgen]
+extern "C" {
+    fn __is_touch_available__() -> bool;
+}
 
-pub const GAME_AREA_WIDTH: u32 = 128;
-pub const GAME_AREA_HEIGHT: u32 = 128;
+pub const GAME_TITLE: &str = "Bevy/pixels web game PoC";
 
 const DESIRED_FPS: u64 = 30;
 
@@ -43,13 +51,26 @@ pub struct GamePlugin;
 
 impl Plugin for GamePlugin {
     fn build(&self, app: &mut App) {
-        app.add_state::<GameState>();
-
-        app.add_plugin(PixelCanvasPlugin {
-            width: GAME_AREA_WIDTH as usize,
-            height: GAME_AREA_HEIGHT as usize,
+        app.insert_resource(InputConfig {
+            #[cfg(not(target_arch = "wasm32"))]
+            is_touch_available: false,
+            #[cfg(target_arch = "wasm32")]
+            is_touch_available: __is_touch_available__(),
         });
 
+        let game_area = GameArea {
+            variant: GameAreaVariant::NoControls,
+        };
+        let game_area_outer_w = game_area.outer_width();
+        let game_area_outer_h = game_area.outer_height();
+        app.insert_resource(game_area);
+
+        app.add_plugin(PixelCanvasPlugin {
+            width: game_area_outer_w as usize,
+            height: game_area_outer_h as usize,
+        });
+
+        app.add_state::<GameState>();
         #[cfg(debug_assertions)]
         app.add_startup_system(Self::setup_measurements);
         app.add_startup_system(SpritesSystems::load_sprite_sheet);
@@ -108,8 +129,11 @@ impl GamePlugin {
         fixed_time
     }
 
-    fn clear_canvas(mut pixel_canvas: ResMut<PixelCanvas>) {
-        pixel_canvas.clear(Pico8Color::DarkBlue.into());
+    fn clear_canvas(mut pixel_canvas: ResMut<PixelCanvas>, game_area: Res<GameArea>) {
+        pixel_canvas.draw_filled_rect(game_area.rect(), Pico8Color::DarkBlue.into());
+        for outer_rect in game_area.outer_rects().iter() {
+            pixel_canvas.draw_filled_rect(*outer_rect, Pico8Color::Black.into());
+        }
     }
 
     #[cfg(debug_assertions)]
