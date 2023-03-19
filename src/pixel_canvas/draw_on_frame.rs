@@ -2,8 +2,8 @@ use bevy::math::Rect;
 use image::{EncodableLayout, RgbaImage};
 
 use crate::game::Xy;
-use crate::pixel_canvas::Color;
 use crate::pixel_canvas::drawing_context::{DrawingContext, PX_LEN};
+use crate::pixel_canvas::Color;
 
 pub struct DrawOnFrame;
 

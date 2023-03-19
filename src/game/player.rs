@@ -32,9 +32,7 @@ impl PlayerSystems {
         query.iter().count() == 0
     }
 
-    pub fn spawn_player(
-        mut commands: Commands,
-    ) {
+    pub fn spawn_player(mut commands: Commands) {
         debug!("> SPAWN PLAYER");
 
         let initial_movement = PlayerMovement::Right;
@@ -46,12 +44,7 @@ impl PlayerSystems {
         });
     }
 
-    pub fn move_player(
-        mut query: Query<(
-            &PlayerMovement,
-            &mut Xy,
-        )>,
-    ) {
+    pub fn move_player(mut query: Query<(&PlayerMovement, &mut Xy)>) {
         for (player_movement, mut xy) in query.iter_mut() {
             match player_movement {
                 PlayerMovement::Left => xy.0 -= MOVEMENT_PER_FRAME,

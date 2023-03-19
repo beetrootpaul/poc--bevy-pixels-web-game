@@ -6,10 +6,10 @@ use bevy::diagnostic::Diagnostic;
 use bevy::diagnostic::{DiagnosticId, Diagnostics};
 use bevy::prelude::*;
 
-use crate::game::audio::AudioSystems;
 pub use xy::Xy;
 use FixedFpsSystemSet::{FixedFpsLast, FixedFpsSpawning, FixedFpsUpdateAndDraw};
 
+use crate::game::audio::AudioSystems;
 use crate::game::game_state::GameState;
 use crate::game::input::KeyboardControlsSystems;
 use crate::game::player::PlayerSystems;
@@ -78,7 +78,7 @@ impl Plugin for GamePlugin {
                     .before(FixedFpsUpdateAndDraw),
             );
             schedule.add_system(
-                Self::clear_screen
+                Self::clear_canvas
                     .before(FixedFpsUpdateAndDraw)
                     .run_if(GameState::is_game_loaded),
             );
@@ -108,7 +108,7 @@ impl GamePlugin {
         fixed_time
     }
 
-    fn clear_screen(mut pixel_canvas: ResMut<PixelCanvas>) {
+    fn clear_canvas(mut pixel_canvas: ResMut<PixelCanvas>) {
         pixel_canvas.clear(Pico8Color::DarkBlue.into());
     }
 

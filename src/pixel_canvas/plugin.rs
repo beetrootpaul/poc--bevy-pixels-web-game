@@ -61,7 +61,7 @@ impl PixelCanvasPlugin {
             winit_window,
         );
 
-        let pixels = {
+        let mut pixels = {
             #[cfg(not(target_arch = "wasm32"))]
             {
                 Pixels::new(
@@ -81,6 +81,11 @@ impl PixelCanvasPlugin {
             }
         }
         .expect("should create pixels");
+
+        // It would be nice to use any RGB8 color (e.g. one from Pico8Color enum), but
+        //   apparently they do not translate correctly when just dividing by 255.0.
+        //   Therefore, let's just use pure black.
+        pixels.set_clear_color(pixels::wgpu::Color::BLACK);
 
         commands.insert_resource(PixelCanvas {
             pixels,

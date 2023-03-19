@@ -1,5 +1,3 @@
-use crate::pixel_canvas::Color;
-
 #[allow(dead_code)]
 pub enum Pico8Color {
     Black,
@@ -42,17 +40,20 @@ impl Pico8Color {
             Pico8Color::LightPeach => "ffccaa",
         }
     }
+
+    fn rgb8(&self) -> (u8, u8, u8) {
+        let hex = self.hex();
+        (
+            u8::from_str_radix(&hex[0..2], 16).expect("should convert from string hex to number"),
+            u8::from_str_radix(&hex[2..4], 16).expect("should convert from string hex to number"),
+            u8::from_str_radix(&hex[4..6], 16).expect("should convert from string hex to number"),
+        )
+    }
 }
 
-impl From<Pico8Color> for Color {
+impl From<Pico8Color> for crate::pixel_canvas::Color {
     fn from(pico8_color: Pico8Color) -> Self {
-        let hex = pico8_color.hex();
-        let r =
-            u8::from_str_radix(&hex[0..2], 16).expect("should convert from string hex to number");
-        let g =
-            u8::from_str_radix(&hex[2..4], 16).expect("should convert from string hex to number");
-        let b =
-            u8::from_str_radix(&hex[4..6], 16).expect("should convert from string hex to number");
-        Color::Solid { r, g, b }
+        let (r, g, b) = pico8_color.rgb8();
+        crate::pixel_canvas::Color::Solid { r, g, b }
     }
 }

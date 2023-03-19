@@ -38,6 +38,11 @@ impl PixelCanvas {
 
     #[allow(dead_code)]
     pub fn draw_sprite(&mut self, target_xy: &Xy, rgba_image: &RgbaImage, source_rect: Rect) {
-        DrawOnFrame::draw_sprite(&mut self.drawing_context(), target_xy, rgba_image, source_rect);
+        DrawOnFrame::draw_sprite(
+            &mut self.drawing_context(),
+            target_xy,
+            rgba_image,
+            source_rect,
+        );
     }
 }
