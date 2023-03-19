@@ -10,6 +10,7 @@ pub use xy::Xy;
 use FixedFpsSystemSet::{FixedFpsLast, FixedFpsSpawning, FixedFpsUpdateAndDraw};
 
 use crate::game::audio::AudioSystems;
+use crate::game::game_area::GameArea;
 use crate::game::game_state::GameState;
 use crate::game::input::KeyboardControlsSystems;
 use crate::game::player::PlayerSystems;
@@ -18,6 +19,7 @@ use crate::pico8::Pico8Color;
 use crate::pixel_canvas::{PixelCanvas, PixelCanvasPlugin};
 
 mod audio;
+mod game_area;
 mod game_state;
 mod input;
 mod player;
@@ -25,9 +27,6 @@ mod sprites;
 mod xy;
 
 pub const GAME_TITLE: &str = "Bevy/pixels web game PoC";
-
-pub const GAME_AREA_WIDTH: u32 = 128;
-pub const GAME_AREA_HEIGHT: u32 = 128;
 
 const DESIRED_FPS: u64 = 30;
 
@@ -46,8 +45,8 @@ impl Plugin for GamePlugin {
         app.add_state::<GameState>();
 
         app.add_plugin(PixelCanvasPlugin {
-            width: GAME_AREA_WIDTH as usize,
-            height: GAME_AREA_HEIGHT as usize,
+            width: GameArea::outer_width() as usize,
+            height: GameArea::outer_height() as usize,
         });
 
         #[cfg(debug_assertions)]
@@ -109,7 +108,10 @@ impl GamePlugin {
     }
 
     fn clear_canvas(mut pixel_canvas: ResMut<PixelCanvas>) {
-        pixel_canvas.clear(Pico8Color::DarkBlue.into());
+        pixel_canvas.draw_filled_rect(GameArea::rect(), Pico8Color::DarkBlue.into());
+        for outer_rect in GameArea::outer_rects().iter() {
+            pixel_canvas.draw_filled_rect(*outer_rect, Pico8Color::DarkPurple.into());
+        }
     }
 
     #[cfg(debug_assertions)]
