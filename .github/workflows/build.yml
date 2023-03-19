@@ -9,8 +9,6 @@ on:
 env:
   CARGO_TERM_COLOR: always
 
-# TODO: consider adding a release job on git tags, based on https://github.com/bevyengine/bevy_github_ci_template/blob/main/.github/workflows/release.yaml
-
 jobs:
 
   build:

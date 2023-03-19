@@ -1,5 +1,3 @@
-# TODO: learn Makefile
-
 # # # # # # #
 # variables
 #
@@ -30,7 +28,6 @@ run: run_debug_host
 
 web: run_debug_web
 
-# TODO: describe in README
 dist: dist_itch_io
 
 # # # # # # # # # # # # #
@@ -85,8 +82,6 @@ build_release_host:
 run_debug_host:
 	$(rust_log_debug) cargo run --features bevy/dynamic_linking
 
-# TODO: [ERROR] Route /favicon.ico could not be found
-# TODO: does rust_log_debug work here?
 # `trunk` docs: https://trunkrs.dev
 run_debug_web:
 	mkdir -p ./dist/web_debug/
@@ -95,9 +90,6 @@ run_debug_web:
 run_release_host: build_release_host
 	./target/release/bevy_pixels_web_game_poc
 
-# TODO: [ERROR] Route /favicon.ico could not be found
-# TODO: check app size after build, wonder how heavy file would it be for web
-# TODO: does rust_flags_release work here?
 run_release_web:
 	$(rust_flags_release) trunk --config ./Trunk.release.toml serve
 
@@ -105,9 +97,6 @@ run_release_web:
 # dist commands
 #
 
-# TODO: create itch.io package on CI as well
-
-# TODO: is it possible to zip correctly without "cd"-ing into the folder?
 dist_itch_io:
 	trunk --config ./Trunk.itch_io.toml clean
 	$(rust_flags_release) trunk --config ./Trunk.itch_io.toml build

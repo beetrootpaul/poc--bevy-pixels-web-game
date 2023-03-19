@@ -1,5 +1,5 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="Test bevy_pixels_web_game_poc" type="CargoCommandRunConfiguration" factoryName="Cargo Command" activateToolWindowBeforeRun="false">
+  <configuration default="false" name="Test bevy_pixels_web_game_poc" type="CargoCommandRunConfiguration" factoryName="Cargo Command">
     <option name="command" value="test --package bevy_pixels_web_game_poc --bin bevy_pixels_web_game_poc --features bevy/dynamic_linking" />
     <option name="workingDirectory" value="file://$PROJECT_DIR$" />
     <option name="emulateTerminal" value="false" />

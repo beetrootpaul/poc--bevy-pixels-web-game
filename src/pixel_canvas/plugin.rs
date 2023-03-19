@@ -24,7 +24,6 @@ struct PixelCanvasConfig {
     height: usize,
 }
 
-// TODO: check if there is a new release of bevy_pixels, adjusted for Bevy 0.10
 impl Plugin for PixelCanvasPlugin {
     fn build(&self, app: &mut App) {
         app.insert_resource(PixelCanvasConfig {
@@ -42,7 +41,6 @@ impl Plugin for PixelCanvasPlugin {
 impl PixelCanvasPlugin {
     fn setup(
         primary_window_query: Query<Entity, With<PrimaryWindow>>,
-        // TODO:: what does NonSend do?
         winit_windows: NonSend<WinitWindows>,
         canvas_config: Res<PixelCanvasConfig>,
         mut commands: Commands,
@@ -65,7 +63,6 @@ impl PixelCanvasPlugin {
             #[cfg(not(target_arch = "wasm32"))]
             {
                 Pixels::new(
-                    // TODO: better way for number type conversion?
                     canvas_config.width as u32,
                     canvas_config.height as u32,
                     surface_texture,
@@ -74,7 +71,6 @@ impl PixelCanvasPlugin {
             #[cfg(target_arch = "wasm32")]
             {
                 Pixels::new_async(
-                    // TODO: better way for number type conversion?
                     canvas_config.width as u32,
                     canvas_config.height as u32,
                     surface_texture,

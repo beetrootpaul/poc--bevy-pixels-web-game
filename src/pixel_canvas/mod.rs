@@ -31,13 +31,11 @@ impl PixelCanvas {
         DrawOnFrame::clear(&mut self.drawing_context(), color);
     }
 
-    // TODO: it doesn't feel right to pass simple XY as a reference :thinking:
     #[allow(dead_code)]
     pub fn set_pixel(&mut self, xy: &Xy, color: Color) {
         DrawOnFrame::set_pixel(&mut self.drawing_context(), xy, color);
     }
 
-    // TODO: TMP implementation
     #[allow(dead_code)]
     pub fn draw_sprite(&mut self, target_xy: &Xy, rgba_image: &RgbaImage, source_rect: Rect) {
         DrawOnFrame::draw_sprite(&mut self.drawing_context(), target_xy, rgba_image, source_rect);

@@ -14,14 +14,11 @@ impl<'a> DrawingContext<'a> {
         Self { frame, w, h }
     }
 
-    // TODO: test it
     pub fn pixel_first_index_for(&self, xy: &Xy) -> Option<usize> {
-        // TODO: better way for number type conversion?
         let w = self.w as i32;
         let h = self.h as i32;
         let (x, y) = xy.rounded();
         if x >= 0 && x < w && y >= 0 && y < h {
-            // TODO: better way for number type conversion?
             Some(PX_LEN * (y * w + x) as usize)
         } else {
             None
@@ -42,7 +39,6 @@ mod tests {
         let mut frame = [0; PX_LEN * W * H];
         let ctx = DrawingContext::new(&mut frame, W, H);
 
-        // TODO: this API with floating points looks suspicious and it seems like something that we should test for fractions as well
         assert_eq!(ctx.pixel_first_index_for(&Xy(0., 0.)), Some(0));
         assert_eq!(ctx.pixel_first_index_for(&Xy(1., 0.)), Some(PX_LEN));
         assert_eq!(ctx.pixel_first_index_for(&Xy(2., 0.)), Some(2 * PX_LEN));
@@ -61,7 +57,6 @@ mod tests {
         let mut frame = [0; PX_LEN * W * H];
         let ctx = DrawingContext::new(&mut frame, W, H);
 
-        // TODO: this API with floating points looks suspicious and it seems like something that we should test for fractions as well
         assert_eq!(ctx.pixel_first_index_for(&Xy(-1., 0.)), None);
         assert_eq!(ctx.pixel_first_index_for(&Xy(0., -1.)), None);
         assert_eq!(ctx.pixel_first_index_for(&Xy(3., 0.)), None);
