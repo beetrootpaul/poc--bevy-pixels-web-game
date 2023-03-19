@@ -13,8 +13,3 @@ runs:
       with:
         prefix-key: "20230315-01"
         key: "-${{ matrix.command_variant.cache_sub_key }}-"
-
-# TODO: some other lines of code that might become useful one day:
-# sudo apt-get update
-# sudo apt-get install pkg-config libx11-dev libasound2-dev librust-alsa-sys-dev libudev-dev libxcb-render0-dev libxcb-shape0-dev libxcb-xfixes0-dev
-# sudo apt-get install --no-install-recommends libasound2-dev libudev-dev

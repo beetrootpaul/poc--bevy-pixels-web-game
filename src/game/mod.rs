@@ -41,14 +41,11 @@ enum FixedFpsSystemSet {
 
 pub struct GamePlugin;
 
-// TODO: do modules & plugins the way it is done in https://github.com/NiklasEi/bevy_game_template
-
 impl Plugin for GamePlugin {
     fn build(&self, app: &mut App) {
         app.add_state::<GameState>();
 
         app.add_plugin(PixelCanvasPlugin {
-            // TODO: better way for number type conversion?
             width: GAME_AREA_WIDTH as usize,
             height: GAME_AREA_HEIGHT as usize,
         });
@@ -115,7 +112,6 @@ impl GamePlugin {
         pixel_canvas.clear(Pico8Color::DarkBlue.into());
     }
 
-    // TODO: how to come up with a good ID value?
     #[cfg(debug_assertions)]
     pub const DIAGNOSTIC_FRAME_DURATION: DiagnosticId =
         DiagnosticId::from_u128(1187582084072456577959028643519383692);
@@ -156,7 +152,6 @@ impl GamePlugin {
             (time.raw_elapsed_seconds_f64() - *prev_elapsed_seconds) * 1_000.
         });
         diagnostics.add_measurement(Self::DIAGNOSTIC_TIME_ACCRUED, || {
-            // TODO: better way for number type conversion?
             fixed_time.accumulated().as_millis() as f64
         });
         *prev_elapsed_seconds = time.raw_elapsed_seconds_f64();

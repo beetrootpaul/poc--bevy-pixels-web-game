@@ -30,7 +30,6 @@
 
     function resume_audio_on_interactions_with(element) {
         userInputEventNames.forEach(eventName => {
-            // TODO: debounce/throttle?
             element.addEventListener(eventName, resumeAudioContexts);
         });
     }
