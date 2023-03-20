@@ -84,7 +84,7 @@ impl PlayerSystems {
         }
     }
 
-    fn get_sprite_index_for_movement(movement: &PlayerMovement) -> usize {
+    fn get_sprite_index_for_movement(movement: &PlayerMovement) -> i32 {
         match *movement {
             PlayerMovement::Left => SpriteSheet::PLAYER_LEFT,
             PlayerMovement::Right => SpriteSheet::PLAYER_RIGHT,

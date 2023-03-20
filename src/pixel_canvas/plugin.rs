@@ -144,8 +144,8 @@ impl PixelCanvasPlugin {
 
         PixelCanvas {
             pixels,
-            width: width as usize,
-            height: height as usize,
+            width: usize::try_from(width).unwrap(),
+            height: usize::try_from(height).unwrap(),
         }
     }
 }

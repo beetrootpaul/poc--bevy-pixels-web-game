@@ -1,3 +1,5 @@
+extern crate core;
+
 use crate::game::{GamePlugin, GAME_TITLE};
 
 mod game;
@@ -27,7 +29,6 @@ fn main() {
     app.add_plugin(bevy::window::WindowPlugin {
         primary_window: Some(bevy::window::Window {
             title: GAME_TITLE.to_string(),
-            // resolution: WindowResolution::new(WINDOW_WIDTH as f32, WINDOW_HEIGHT as f32),
             #[cfg(target_arch = "wasm32")]
             canvas: Some(HTML_CANVAS_SELECTOR.to_string()),
             // Crucial for `pixels` to render with a preserved aspect ratio instead of stretching to fill canvas whole:

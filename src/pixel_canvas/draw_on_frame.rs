@@ -56,9 +56,9 @@ impl DrawOnFrame {
                     let target_i_g = target_i_r + 1;
                     let target_i_b = target_i_g + 1;
                     let target_i_a = target_i_b + 1;
-                    let source_i_r = ((source_rect.0.y as usize + sprite_row)
-                        * (rgba_image.width() as usize)
-                        + (source_rect.0.x as usize + sprite_column))
+                    let source_i_r = ((usize::try_from(source_rect.0.y).unwrap() + sprite_row)
+                        * usize::try_from(rgba_image.width()).unwrap()
+                        + (usize::try_from(source_rect.0.x).unwrap() + sprite_column))
                         * PX_LEN;
                     let source_i_g = source_i_r + 1;
                     let source_i_b = source_i_g + 1;

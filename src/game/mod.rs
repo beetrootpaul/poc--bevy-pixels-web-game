@@ -175,7 +175,7 @@ impl GamePlugin {
             (time.raw_elapsed_seconds_f64() - *prev_elapsed_seconds) * 1_000.
         });
         diagnostics.add_measurement(Self::DIAGNOSTIC_TIME_ACCRUED, || {
-            fixed_time.accumulated().as_millis() as f64
+            f64::from(u32::try_from(fixed_time.accumulated().as_millis()).unwrap())
         });
         *prev_elapsed_seconds = time.raw_elapsed_seconds_f64();
     }

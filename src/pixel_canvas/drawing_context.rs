@@ -15,10 +15,10 @@ impl<'a> DrawingContext<'a> {
     }
 
     pub fn pixel_first_index_for(&self, xy: IVec2) -> Option<usize> {
-        let w = self.w as i32;
-        let h = self.h as i32;
+        let w = i32::try_from(self.w).unwrap();
+        let h = i32::try_from(self.h).unwrap();
         if xy.x >= 0 && xy.x < w && xy.y >= 0 && xy.y < h {
-            Some(PX_LEN * (xy.y * w + xy.x) as usize)
+            Some(PX_LEN * usize::try_from(xy.y * w + xy.x).unwrap())
         } else {
             None
         }
