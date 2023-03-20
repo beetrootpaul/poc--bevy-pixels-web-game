@@ -1,4 +1,4 @@
-use crate::game::{GAME_TITLE, GamePlugin};
+use crate::game::{GamePlugin, GAME_TITLE};
 
 mod game;
 mod pico8;

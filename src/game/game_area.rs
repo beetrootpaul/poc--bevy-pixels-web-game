@@ -1,13 +1,14 @@
-use bevy::prelude::{Rect, Resource};
+use std::ops::Add;
 
-use crate::game::Xy;
+use bevy::math::ivec2;
+use bevy::prelude::{IVec2, Resource};
 
-const GAME_AREA_WIDTH: u32 = 128;
-const GAME_AREA_HEIGHT: u32 = 128;
+const GAME_AREA_WIDTH: i32 = 128;
+const GAME_AREA_HEIGHT: i32 = 128;
 
-const LANDSCAPE_TOUCH_CONTROLS_SIDE_AREA_WIDTH: u32 = 64;
+const LANDSCAPE_TOUCH_CONTROLS_SIDE_AREA_WIDTH: i32 = 64;
 
-const PORTRAIT_TOUCH_CONTROLS_BOTTOM_AREA_HEIGHT: u32 = 128;
+const PORTRAIT_TOUCH_CONTROLS_BOTTOM_AREA_HEIGHT: i32 = 128;
 
 #[derive(Resource)]
 pub struct GameArea {
@@ -22,32 +23,31 @@ pub enum GameAreaVariant {
 }
 
 impl GameArea {
-    pub fn width(&self) -> u32 {
+    pub fn width(&self) -> i32 {
         GAME_AREA_WIDTH
     }
 
-    pub fn height(&self) -> u32 {
+    pub fn height(&self) -> i32 {
         GAME_AREA_HEIGHT
     }
 
-    pub fn rect(&self) -> Rect {
+    pub fn rect(&self) -> (IVec2, IVec2) {
         match self.variant {
-            GameAreaVariant::NoControls => {
-                Rect::new(0.0, 0.0, GAME_AREA_WIDTH as f32, GAME_AREA_HEIGHT as f32)
-            },
+            GameAreaVariant::NoControls => (ivec2(0, 0), ivec2(GAME_AREA_WIDTH, GAME_AREA_HEIGHT)),
             GameAreaVariant::PortraitControls => {
-                Rect::new(0.0, 0.0, GAME_AREA_WIDTH as f32, GAME_AREA_HEIGHT as f32)
+                (ivec2(0, 0), ivec2(GAME_AREA_WIDTH, GAME_AREA_HEIGHT))
             },
-            GameAreaVariant::LandscapeControls => Rect::new(
-                LANDSCAPE_TOUCH_CONTROLS_SIDE_AREA_WIDTH as f32,
-                0.0,
-                (LANDSCAPE_TOUCH_CONTROLS_SIDE_AREA_WIDTH + GAME_AREA_WIDTH) as f32,
-                GAME_AREA_HEIGHT as f32,
+            GameAreaVariant::LandscapeControls => (
+                ivec2(LANDSCAPE_TOUCH_CONTROLS_SIDE_AREA_WIDTH, 0),
+                ivec2(
+                    LANDSCAPE_TOUCH_CONTROLS_SIDE_AREA_WIDTH + GAME_AREA_WIDTH,
+                    GAME_AREA_HEIGHT,
+                ),
             ),
         }
     }
 
-    pub fn outer_width(&self) -> u32 {
+    pub fn outer_width(&self) -> i32 {
         match self.variant {
             GameAreaVariant::NoControls => GAME_AREA_WIDTH,
             GameAreaVariant::PortraitControls => GAME_AREA_WIDTH,
@@ -59,7 +59,7 @@ impl GameArea {
         }
     }
 
-    pub fn outer_height(&self) -> u32 {
+    pub fn outer_height(&self) -> i32 {
         match self.variant {
             GameAreaVariant::NoControls => GAME_AREA_HEIGHT,
             GameAreaVariant::PortraitControls => {
@@ -69,42 +69,44 @@ impl GameArea {
         }
     }
 
-    pub fn outer_rects(&self) -> Vec<Rect> {
+    pub fn outer_rects(&self) -> Vec<(IVec2, IVec2)> {
         match self.variant {
             GameAreaVariant::NoControls => vec![],
-            GameAreaVariant::PortraitControls => vec![Rect::new(
-                0.0,
-                GAME_AREA_HEIGHT as f32,
-                GAME_AREA_WIDTH as f32,
-                (GAME_AREA_HEIGHT + PORTRAIT_TOUCH_CONTROLS_BOTTOM_AREA_HEIGHT) as f32,
+            GameAreaVariant::PortraitControls => vec![(
+                ivec2(0, GAME_AREA_HEIGHT),
+                ivec2(
+                    GAME_AREA_WIDTH,
+                    GAME_AREA_HEIGHT + PORTRAIT_TOUCH_CONTROLS_BOTTOM_AREA_HEIGHT,
+                ),
             )],
             GameAreaVariant::LandscapeControls => vec![
-                Rect::new(
-                    0.0,
-                    0.0,
-                    LANDSCAPE_TOUCH_CONTROLS_SIDE_AREA_WIDTH as f32,
-                    GAME_AREA_HEIGHT as f32,
+                (
+                    ivec2(0, 0),
+                    ivec2(LANDSCAPE_TOUCH_CONTROLS_SIDE_AREA_WIDTH, GAME_AREA_HEIGHT),
                 ),
-                Rect::new(
-                    (LANDSCAPE_TOUCH_CONTROLS_SIDE_AREA_WIDTH + GAME_AREA_WIDTH) as f32,
-                    0.0,
-                    (LANDSCAPE_TOUCH_CONTROLS_SIDE_AREA_WIDTH
-                        + GAME_AREA_WIDTH
-                        + LANDSCAPE_TOUCH_CONTROLS_SIDE_AREA_WIDTH) as f32,
-                    GAME_AREA_HEIGHT as f32,
+                (
+                    ivec2(
+                        LANDSCAPE_TOUCH_CONTROLS_SIDE_AREA_WIDTH + GAME_AREA_WIDTH,
+                        0,
+                    ),
+                    ivec2(
+                        LANDSCAPE_TOUCH_CONTROLS_SIDE_AREA_WIDTH
+                            + GAME_AREA_WIDTH
+                            + LANDSCAPE_TOUCH_CONTROLS_SIDE_AREA_WIDTH,
+                        GAME_AREA_HEIGHT,
+                    ),
                 ),
             ],
         }
     }
 
-    pub fn game_area_xy_from(&self, xy: Xy) -> Xy {
+    pub fn game_area_xy_from(&self, xy: IVec2) -> IVec2 {
         match self.variant {
-            GameAreaVariant::NoControls => Xy(xy.0, xy.1),
-            GameAreaVariant::PortraitControls => Xy(xy.0, xy.1),
-            GameAreaVariant::LandscapeControls => Xy(
-                (LANDSCAPE_TOUCH_CONTROLS_SIDE_AREA_WIDTH as f32) + xy.0,
-                xy.1,
-            ),
+            GameAreaVariant::NoControls => xy,
+            GameAreaVariant::PortraitControls => xy,
+            GameAreaVariant::LandscapeControls => {
+                xy.add(ivec2(LANDSCAPE_TOUCH_CONTROLS_SIDE_AREA_WIDTH, 0))
+            },
         }
     }
 }

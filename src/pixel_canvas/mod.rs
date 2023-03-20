@@ -1,11 +1,11 @@
-use bevy::prelude::{Rect, Resource};
+use bevy::math::IVec2;
+use bevy::prelude::Resource;
 use image::RgbaImage;
 use pixels::Pixels;
 
 pub use color::Color;
 pub use plugin::PixelCanvasPlugin;
 
-use crate::game::Xy;
 use crate::pixel_canvas::draw_on_frame::DrawOnFrame;
 use crate::pixel_canvas::drawing_context::DrawingContext;
 
@@ -32,17 +32,22 @@ impl PixelCanvas {
     }
 
     #[allow(dead_code)]
-    pub fn set_pixel(&mut self, xy: Xy, color: Color) {
+    pub fn set_pixel(&mut self, xy: IVec2, color: Color) {
         DrawOnFrame::set_pixel(&mut self.drawing_context(), xy, color);
     }
 
     #[allow(dead_code)]
-    pub fn draw_filled_rect(&mut self, rect: Rect, color: Color) {
+    pub fn draw_filled_rect(&mut self, rect: (IVec2, IVec2), color: Color) {
         DrawOnFrame::draw_filled_rect(&mut self.drawing_context(), rect, color);
     }
 
     #[allow(dead_code)]
-    pub fn draw_sprite(&mut self, target_xy: Xy, rgba_image: &RgbaImage, source_rect: Rect) {
+    pub fn draw_sprite(
+        &mut self,
+        target_xy: IVec2,
+        rgba_image: &RgbaImage,
+        source_rect: (IVec2, IVec2),
+    ) {
         DrawOnFrame::draw_sprite(
             &mut self.drawing_context(),
             target_xy,

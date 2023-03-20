@@ -9,8 +9,8 @@ use crate::game::{GameArea, GameAreaVariant, InputConfig};
 use crate::pixel_canvas::PixelCanvas;
 
 pub struct PixelCanvasPlugin {
-    pub width: usize,
-    pub height: usize,
+    pub width: i32,
+    pub height: i32,
 }
 
 #[derive(SystemSet, Debug, Hash, PartialEq, Eq, Clone)]
@@ -20,8 +20,8 @@ enum PixelCanvasSystemSet {
 }
 #[derive(Resource)]
 struct PixelCanvasConfig {
-    width: usize,
-    height: usize,
+    width: i32,
+    height: i32,
 }
 
 impl Plugin for PixelCanvasPlugin {
@@ -53,8 +53,8 @@ impl PixelCanvasPlugin {
         commands.insert_resource(Self::new_pixel_canvas(
             &winit_windows,
             primary_window,
-            canvas_config.width as u32,
-            canvas_config.height as u32,
+            canvas_config.width,
+            canvas_config.height,
         ));
     }
 
@@ -103,8 +103,8 @@ impl PixelCanvasPlugin {
     fn new_pixel_canvas(
         winit_windows: &NonSend<bevy::winit::WinitWindows>,
         primary_window: Entity,
-        width: u32,
-        height: u32,
+        width: i32,
+        height: i32,
     ) -> PixelCanvas {
         let winit_window = winit_windows
             .get_window(primary_window)
@@ -119,11 +119,20 @@ impl PixelCanvasPlugin {
         let mut pixels = {
             #[cfg(not(target_arch = "wasm32"))]
             {
-                Pixels::new(width, height, surface_texture)
+                Pixels::new(
+                    u32::try_from(width).unwrap(),
+                    u32::try_from(height).unwrap(),
+                    surface_texture,
+                )
             }
             #[cfg(target_arch = "wasm32")]
             {
-                Pixels::new_async(width, height, surface_texture).block_on()
+                Pixels::new_async(
+                    u32::try_from(width).unwrap(),
+                    u32::try_from(height).unwrap(),
+                    surface_texture,
+                )
+                .block_on()
             }
         }
         .expect("should create pixels");

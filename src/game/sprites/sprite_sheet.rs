@@ -1,5 +1,5 @@
-use bevy::math::vec2;
-use bevy::prelude::{Rect, Resource};
+use bevy::math::ivec2;
+use bevy::prelude::{IVec2, Resource};
 
 #[derive(Resource, Default)]
 pub struct SpriteSheet {
@@ -16,7 +16,7 @@ impl SpriteSheet {
     pub const PLAYER_DOWN: usize = 36;
     pub const PLAYER_LEFT: usize = 37;
 
-    pub fn source_rect_of_cell(cell_index: usize) -> Rect {
+    pub fn source_rect_of_cell(cell_index: usize) -> (IVec2, IVec2) {
         let cell_index = cell_index as i32;
         let cols = Self::COLUMNS as i32;
         let cw = Self::CELL_W as i32;
@@ -24,9 +24,9 @@ impl SpriteSheet {
 
         let col = cell_index % cols;
         let row = (cell_index - col) / cols;
-        Rect::from_corners(
-            vec2((col * cw) as f32, (row * ch) as f32),
-            vec2(((col + 1) * cw) as f32, ((row + 1) * ch) as f32),
+        (
+            ivec2(col * cw, row * ch),
+            ivec2((col + 1) * cw, (row + 1) * ch),
         )
     }
 }
