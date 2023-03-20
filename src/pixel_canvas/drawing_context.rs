@@ -1,4 +1,4 @@
-use crate::game::Xy;
+use bevy::prelude::IVec2;
 
 // each pixel occupies 4 u8 bytes of a frame
 pub const PX_LEN: usize = 4;
@@ -14,12 +14,11 @@ impl<'a> DrawingContext<'a> {
         Self { frame, w, h }
     }
 
-    pub fn pixel_first_index_for(&self, xy: Xy) -> Option<usize> {
-        let w = self.w as i32;
-        let h = self.h as i32;
-        let (x, y) = xy.rounded();
-        if x >= 0 && x < w && y >= 0 && y < h {
-            Some(PX_LEN * (y * w + x) as usize)
+    pub fn pixel_first_index_for(&self, xy: IVec2) -> Option<usize> {
+        let w = i32::try_from(self.w).unwrap();
+        let h = i32::try_from(self.h).unwrap();
+        if xy.x >= 0 && xy.x < w && xy.y >= 0 && xy.y < h {
+            Some(PX_LEN * usize::try_from(xy.y * w + xy.x).unwrap())
         } else {
             None
         }
@@ -28,6 +27,8 @@ impl<'a> DrawingContext<'a> {
 
 #[cfg(test)]
 mod tests {
+    use bevy::math::ivec2;
+
     use crate::pixel_canvas::drawing_context::PX_LEN;
 
     use super::*;
@@ -39,15 +40,15 @@ mod tests {
         let mut frame = [0; PX_LEN * W * H];
         let ctx = DrawingContext::new(&mut frame, W, H);
 
-        assert_eq!(ctx.pixel_first_index_for(Xy(0., 0.)), Some(0));
-        assert_eq!(ctx.pixel_first_index_for(Xy(1., 0.)), Some(PX_LEN));
-        assert_eq!(ctx.pixel_first_index_for(Xy(2., 0.)), Some(2 * PX_LEN));
-        assert_eq!(ctx.pixel_first_index_for(Xy(0., 1.)), Some(3 * PX_LEN));
-        assert_eq!(ctx.pixel_first_index_for(Xy(1., 1.)), Some(4 * PX_LEN));
-        assert_eq!(ctx.pixel_first_index_for(Xy(2., 1.)), Some(5 * PX_LEN));
-        assert_eq!(ctx.pixel_first_index_for(Xy(0., 2.)), Some(6 * PX_LEN));
-        assert_eq!(ctx.pixel_first_index_for(Xy(1., 2.)), Some(7 * PX_LEN));
-        assert_eq!(ctx.pixel_first_index_for(Xy(2., 2.)), Some(8 * PX_LEN));
+        assert_eq!(ctx.pixel_first_index_for(ivec2(0, 0)), Some(0));
+        assert_eq!(ctx.pixel_first_index_for(ivec2(1, 0)), Some(PX_LEN));
+        assert_eq!(ctx.pixel_first_index_for(ivec2(2, 0)), Some(2 * PX_LEN));
+        assert_eq!(ctx.pixel_first_index_for(ivec2(0, 1)), Some(3 * PX_LEN));
+        assert_eq!(ctx.pixel_first_index_for(ivec2(1, 1)), Some(4 * PX_LEN));
+        assert_eq!(ctx.pixel_first_index_for(ivec2(2, 1)), Some(5 * PX_LEN));
+        assert_eq!(ctx.pixel_first_index_for(ivec2(0, 2)), Some(6 * PX_LEN));
+        assert_eq!(ctx.pixel_first_index_for(ivec2(1, 2)), Some(7 * PX_LEN));
+        assert_eq!(ctx.pixel_first_index_for(ivec2(2, 2)), Some(8 * PX_LEN));
     }
 
     #[test]
@@ -57,9 +58,9 @@ mod tests {
         let mut frame = [0; PX_LEN * W * H];
         let ctx = DrawingContext::new(&mut frame, W, H);
 
-        assert_eq!(ctx.pixel_first_index_for(Xy(-1., 0.)), None);
-        assert_eq!(ctx.pixel_first_index_for(Xy(0., -1.)), None);
-        assert_eq!(ctx.pixel_first_index_for(Xy(3., 0.)), None);
-        assert_eq!(ctx.pixel_first_index_for(Xy(0., 3.)), None);
+        assert_eq!(ctx.pixel_first_index_for(ivec2(-1, 0)), None);
+        assert_eq!(ctx.pixel_first_index_for(ivec2(0, -1)), None);
+        assert_eq!(ctx.pixel_first_index_for(ivec2(3, 0)), None);
+        assert_eq!(ctx.pixel_first_index_for(ivec2(0, 3)), None);
     }
 }

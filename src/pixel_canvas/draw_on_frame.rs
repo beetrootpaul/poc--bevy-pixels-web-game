@@ -1,7 +1,6 @@
-use bevy::math::Rect;
+use bevy::prelude::IVec2;
 use image::{EncodableLayout, RgbaImage};
 
-use crate::game::Xy;
 use crate::pixel_canvas::drawing_context::{DrawingContext, PX_LEN};
 use crate::pixel_canvas::Color;
 
@@ -17,7 +16,7 @@ impl DrawOnFrame {
     }
 
     #[allow(dead_code)]
-    pub fn set_pixel(ctx: &mut DrawingContext, xy: Xy, color: Color) {
+    pub fn set_pixel(ctx: &mut DrawingContext, xy: IVec2, color: Color) {
         if let Color::Solid { r, g, b } = color {
             if let Some(pixel_index) = ctx.pixel_first_index_for(xy) {
                 ctx.frame[pixel_index..(pixel_index + PX_LEN)].copy_from_slice(&[r, g, b, 0xff]);
@@ -26,11 +25,11 @@ impl DrawOnFrame {
     }
 
     #[allow(dead_code)]
-    pub fn draw_filled_rect(ctx: &mut DrawingContext, rect: Rect, color: Color) {
+    pub fn draw_filled_rect(ctx: &mut DrawingContext, rect: (IVec2, IVec2), color: Color) {
         if let Color::Solid { r, g, b } = color {
-            if let Some(pixel_index) = ctx.pixel_first_index_for(rect.min.into()) {
-                let rect_w = rect.width() as usize;
-                let rect_h = rect.height() as usize;
+            if let Some(pixel_index) = ctx.pixel_first_index_for(rect.0) {
+                let rect_w = usize::try_from(rect.1.x - rect.0.x).unwrap();
+                let rect_h = usize::try_from(rect.1.y - rect.0.y).unwrap();
                 for rect_row in 0..rect_h {
                     let target_i = pixel_index + (rect_row * ctx.w) * PX_LEN;
                     ctx.frame[target_i..(target_i + rect_w * PX_LEN)]
@@ -43,13 +42,13 @@ impl DrawOnFrame {
     #[allow(dead_code)]
     pub fn draw_sprite(
         ctx: &mut DrawingContext,
-        target_xy: Xy,
+        target_xy: IVec2,
         rgba_image: &RgbaImage,
-        source_rect: Rect,
+        source_rect: (IVec2, IVec2),
     ) {
         if let Some(pixel_index) = ctx.pixel_first_index_for(target_xy) {
-            let sprite_w: usize = source_rect.width() as usize;
-            let sprite_h: usize = source_rect.height() as usize;
+            let sprite_w = usize::try_from(source_rect.1.x - source_rect.0.x).unwrap();
+            let sprite_h = usize::try_from(source_rect.1.y - source_rect.0.y).unwrap();
             let sprite_bytes: &[u8] = rgba_image.as_bytes();
             for sprite_row in 0..sprite_h {
                 for sprite_column in 0..sprite_w {
@@ -57,9 +56,9 @@ impl DrawOnFrame {
                     let target_i_g = target_i_r + 1;
                     let target_i_b = target_i_g + 1;
                     let target_i_a = target_i_b + 1;
-                    let source_i_r = ((source_rect.min.y as usize + sprite_row)
-                        * (rgba_image.width() as usize)
-                        + (source_rect.min.x as usize + sprite_column))
+                    let source_i_r = ((usize::try_from(source_rect.0.y).unwrap() + sprite_row)
+                        * usize::try_from(rgba_image.width()).unwrap()
+                        + (usize::try_from(source_rect.0.x).unwrap() + sprite_column))
                         * PX_LEN;
                     let source_i_g = source_i_r + 1;
                     let source_i_b = source_i_g + 1;
@@ -78,7 +77,7 @@ impl DrawOnFrame {
 
 #[cfg(test)]
 mod tests {
-    use bevy::math::vec2;
+    use bevy::math::ivec2;
     use itertools::iproduct;
 
     use crate::pixel_canvas::drawing_context::DrawingContext;
@@ -107,8 +106,8 @@ mod tests {
         let mut ctx = DrawingContext::new(&mut frame, W, H);
         DrawOnFrame::clear(&mut ctx, Color::Solid { r: 9, g: 8, b: 7 });
 
-        DrawOnFrame::set_pixel(&mut ctx, Xy(0., 0.), Color::Solid { r: 1, g: 2, b: 3 });
-        DrawOnFrame::set_pixel(&mut ctx, Xy(2., 2.), Color::Solid { r: 2, g: 3, b: 4 });
+        DrawOnFrame::set_pixel(&mut ctx, ivec2(0, 0), Color::Solid { r: 1, g: 2, b: 3 });
+        DrawOnFrame::set_pixel(&mut ctx, ivec2(2, 2), Color::Solid { r: 2, g: 3, b: 4 });
 
         for (x, y) in iproduct!(0..W, 0..H) {
             match (x, y) {
@@ -129,7 +128,7 @@ mod tests {
 
         DrawOnFrame::draw_filled_rect(
             &mut ctx,
-            Rect::from_corners(vec2(1., 2.), vec2(4., 5.)),
+            (ivec2(1, 2), ivec2(4, 5)),
             Color::Solid { r: 1, g: 2, b: 3 },
         );
 
@@ -143,7 +142,10 @@ mod tests {
 
     fn assert_color(ctx: &DrawingContext, x: usize, y: usize, expected_color_slice: [u8; 4]) {
         assert_eq!(
-            get_pixel(ctx, x, y),
+            get_pixel(
+                ctx,
+                ivec2(i32::try_from(x).unwrap(), i32::try_from(y).unwrap())
+            ),
             expected_color_slice,
             "Color mismatch at ({},{})",
             x,
@@ -151,9 +153,9 @@ mod tests {
         );
     }
 
-    fn get_pixel(ctx: &DrawingContext, x: usize, y: usize) -> [u8; PX_LEN] {
+    fn get_pixel(ctx: &DrawingContext, xy: IVec2) -> [u8; PX_LEN] {
         let idx = ctx
-            .pixel_first_index_for(Xy(x as f32, y as f32))
+            .pixel_first_index_for(xy)
             .expect("should convert XY to pixel index");
         [
             ctx.frame[idx],

@@ -1,17 +1,18 @@
+use bevy::math::ivec2;
 use bevy::prelude::*;
 
 use crate::game::game_area::GameArea;
+use crate::game::position::Position;
 use crate::game::sprites::SpriteSheet;
-use crate::game::xy::Xy;
 use crate::pixel_canvas::PixelCanvas;
 
-const MOVEMENT_PER_FRAME: f32 = 1.;
+const MOVEMENT_PER_FRAME: i32 = 1;
 
 #[derive(Bundle)]
 struct PlayerBundle {
     player: Player,
     player_movement: PlayerMovement,
-    xy: Xy,
+    position: Position,
 }
 
 #[derive(Component)]
@@ -40,41 +41,50 @@ impl PlayerSystems {
         commands.spawn(PlayerBundle {
             player: Player,
             player_movement: initial_movement.clone(),
-            xy: Xy(1., 1.),
+            position: Position(ivec2(1, 1)),
         });
     }
 
-    pub fn move_player(mut query: Query<(&PlayerMovement, &mut Xy)>, game_area: Res<GameArea>) {
-        for (player_movement, mut xy) in query.iter_mut() {
+    pub fn move_player(
+        mut query: Query<(&PlayerMovement, &mut Position)>,
+        game_area: Res<GameArea>,
+    ) {
+        for (player_movement, mut position) in query.iter_mut() {
             match player_movement {
-                PlayerMovement::Left => xy.0 -= MOVEMENT_PER_FRAME,
-                PlayerMovement::Right => xy.0 += MOVEMENT_PER_FRAME,
-                PlayerMovement::Up => xy.1 -= MOVEMENT_PER_FRAME,
-                PlayerMovement::Down => xy.1 += MOVEMENT_PER_FRAME,
+                PlayerMovement::Left => position.0.x -= MOVEMENT_PER_FRAME,
+                PlayerMovement::Right => position.0.x += MOVEMENT_PER_FRAME,
+                PlayerMovement::Up => position.0.y -= MOVEMENT_PER_FRAME,
+                PlayerMovement::Down => position.0.y += MOVEMENT_PER_FRAME,
             }
 
-            xy.0 = xy.0.clamp(0., (game_area.width() - 1) as f32);
-            xy.1 = xy.1.clamp(0., (game_area.height() - 1) as f32);
+            position.0 = position.0.clamp(
+                ivec2(0, 0),
+                ivec2(game_area.width() - 1, game_area.height() - 1),
+            );
         }
     }
 
     pub fn draw_player(
         sprite_sheet: ResMut<SpriteSheet>,
-        query: Query<(&Xy, &PlayerMovement), With<Player>>,
+        query: Query<(&Position, &PlayerMovement), With<Player>>,
         mut pixel_canvas: ResMut<PixelCanvas>,
         game_area: Res<GameArea>,
     ) {
         if let Some(rgba_image) = sprite_sheet.maybe_rgba_image.as_ref() {
-            for (xy, player_movement) in query.iter() {
+            for (position, player_movement) in query.iter() {
                 let source_rect = SpriteSheet::source_rect_of_cell(
                     Self::get_sprite_index_for_movement(player_movement),
                 );
-                pixel_canvas.draw_sprite(game_area.game_area_xy_from(*xy), rgba_image, source_rect);
+                pixel_canvas.draw_sprite(
+                    game_area.game_area_xy_from(position.0),
+                    rgba_image,
+                    source_rect,
+                );
             }
         }
     }
 
-    fn get_sprite_index_for_movement(movement: &PlayerMovement) -> usize {
+    fn get_sprite_index_for_movement(movement: &PlayerMovement) -> i32 {
         match *movement {
             PlayerMovement::Left => SpriteSheet::PLAYER_LEFT,
             PlayerMovement::Right => SpriteSheet::PLAYER_RIGHT,

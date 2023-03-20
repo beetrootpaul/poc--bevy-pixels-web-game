@@ -1,15 +1,14 @@
 use std::time::Duration;
 
 #[cfg(debug_assertions)]
-use bevy::diagnostic::{DiagnosticId, Diagnostics};
-#[cfg(debug_assertions)]
 use bevy::diagnostic::Diagnostic;
+#[cfg(debug_assertions)]
+use bevy::diagnostic::{DiagnosticId, Diagnostics};
 use bevy::prelude::*;
 
-use FixedFpsSystemSet::{FixedFpsLast, FixedFpsSpawning, FixedFpsUpdateAndDraw};
 #[cfg(target_arch = "wasm32")]
 use wasm_bindgen::prelude::*;
-pub use xy::Xy;
+use FixedFpsSystemSet::{FixedFpsLast, FixedFpsSpawning, FixedFpsUpdateAndDraw};
 
 use crate::game::audio::AudioSystems;
 pub use crate::game::game_area::{GameArea, GameAreaVariant};
@@ -26,8 +25,8 @@ mod game_area;
 mod game_state;
 mod input;
 mod player;
+mod position;
 mod sprites;
-mod xy;
 
 #[cfg(target_arch = "wasm32")]
 #[wasm_bindgen]
@@ -66,8 +65,8 @@ impl Plugin for GamePlugin {
         app.insert_resource(game_area);
 
         app.add_plugin(PixelCanvasPlugin {
-            width: game_area_outer_w as usize,
-            height: game_area_outer_h as usize,
+            width: game_area_outer_w,
+            height: game_area_outer_h,
         });
 
         app.add_state::<GameState>();
@@ -176,7 +175,7 @@ impl GamePlugin {
             (time.raw_elapsed_seconds_f64() - *prev_elapsed_seconds) * 1_000.
         });
         diagnostics.add_measurement(Self::DIAGNOSTIC_TIME_ACCRUED, || {
-            fixed_time.accumulated().as_millis() as f64
+            f64::from(u32::try_from(fixed_time.accumulated().as_millis()).unwrap())
         });
         *prev_elapsed_seconds = time.raw_elapsed_seconds_f64();
     }
