@@ -1,13 +1,14 @@
 use bevy::math::ivec2;
 use bevy::prelude::{IVec2, Resource};
 
-#[derive(Resource, Default)]
-pub struct SpriteSheet {
-    pub maybe_rgba_image: Option<image::RgbaImage>,
-}
-
 pub struct Sprite {
     pub sheet_rect: (IVec2, IVec2),
+}
+
+#[derive(Resource)]
+pub struct SpriteSheet {
+    pub main: image::RgbaImage,
+    pub touch_controls: image::RgbaImage,
 }
 
 impl SpriteSheet {

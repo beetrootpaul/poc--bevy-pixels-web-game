@@ -70,15 +70,13 @@ impl PlayerSystems {
         mut pixel_canvas: ResMut<PixelCanvas>,
         game_area: Res<GameArea>,
     ) {
-        if let Some(rgba_image) = sprite_sheet.maybe_rgba_image.as_ref() {
-            for (position, player_movement) in query.iter() {
-                let sprite = Self::get_sprite_for_movement(player_movement);
-                pixel_canvas.draw_sprite(
-                    game_area.game_area_xy_from(position.0),
-                    rgba_image,
-                    sprite.sheet_rect,
-                );
-            }
+        for (position, player_movement) in query.iter() {
+            let sprite = Self::get_sprite_for_movement(player_movement);
+            pixel_canvas.draw_sprite(
+                game_area.game_area_xy_from(position.0),
+                &sprite_sheet.main,
+                sprite.sheet_rect,
+            );
         }
     }
 
