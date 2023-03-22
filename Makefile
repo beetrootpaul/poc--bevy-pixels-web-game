@@ -13,7 +13,7 @@ rust_flags_release := RUSTFLAGS="-D warnings -A dead_code -A unused-imports -A u
 setup:
 	rustup default stable
 	cargo install --locked wasm-bindgen-cli # required by `trunk`
-	cargo install --locked trunk
+	cargo install --locked trunk # https://trunkrs.dev/
 
 # # # # # # # # #
 # main commands
@@ -82,7 +82,6 @@ build_release_host:
 run_debug_host:
 	$(rust_log_debug) cargo run --features bevy/dynamic_linking
 
-# `trunk` docs: https://trunkrs.dev
 run_debug_web:
 	mkdir -p ./dist/web_debug/
 	$(rust_log_debug) trunk serve

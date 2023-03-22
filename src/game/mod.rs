@@ -14,7 +14,7 @@ use crate::game::audio::AudioSystems;
 pub use crate::game::game_area::{GameArea, GameAreaVariant};
 use crate::game::game_state::GameState;
 pub use crate::game::input::InputConfig;
-use crate::game::input::KeyboardControlsSystems;
+use crate::game::input::{KeyboardControlsSystems, TouchControlsSystems};
 use crate::game::player::PlayerSystems;
 use crate::game::sprites::SpritesSystems;
 use crate::pico8::Pico8Color;
@@ -75,12 +75,15 @@ impl Plugin for GamePlugin {
         app.add_startup_system(SpritesSystems::load_sprite_sheet);
         app.add_startup_system(AudioSystems::load_music_files);
 
-        app.add_system(AudioSystems::play_music.run_if(GameState::is_game_running));
+        app.add_system(
+            TouchControlsSystems::spawn_touch_controls.run_if(GameState::is_game_loaded),
+        );
         app.add_system(
             KeyboardControlsSystems::handle_keyboard_input
                 .in_base_set(CoreSet::PreUpdate)
                 .run_if(GameState::is_game_loaded),
         );
+        app.add_system(AudioSystems::play_music.run_if(GameState::is_game_running));
 
         app.insert_resource(Self::fixed_time());
         app.edit_schedule(CoreSchedule::FixedUpdate, |schedule| {
@@ -106,6 +109,7 @@ impl Plugin for GamePlugin {
                 (
                     PlayerSystems::move_player.run_if(GameState::is_game_running),
                     PlayerSystems::draw_player.run_if(GameState::is_game_loaded),
+                    TouchControlsSystems::draw_touch_controls.run_if(GameState::is_game_loaded),
                 )
                     .chain()
                     .in_set(FixedFpsUpdateAndDraw),

@@ -75,19 +75,23 @@ impl PixelCanvasPlugin {
                 .get_single()
                 .expect("should query single primary window");
             if event.window == primary_window {
-                if input_config.is_touch_available {
+                let game_area_variant = if input_config.is_touch_available {
                     let winit_window = winit_windows
                         .get_window(primary_window)
                         .expect("should get winit window for a given primary window");
                     let w = winit_window.inner_size().width;
                     let h = winit_window.inner_size().height;
-                    game_area.variant = if h > w {
+                    if h > w {
                         GameAreaVariant::PortraitControls
                     } else {
                         GameAreaVariant::LandscapeControls
-                    };
+                    }
                 } else {
-                    game_area.variant = GameAreaVariant::NoControls;
+                    GameAreaVariant::NoControls
+                };
+                if game_area.variant != game_area_variant {
+                    info!("set game area variant: {:?}", game_area_variant);
+                    game_area.variant = game_area_variant;
                 }
 
                 commands.insert_resource(Self::new_pixel_canvas(
