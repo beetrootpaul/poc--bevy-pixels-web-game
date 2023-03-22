@@ -76,7 +76,14 @@ impl Plugin for GamePlugin {
         app.add_startup_system(AudioSystems::load_music_files);
 
         app.add_system(
-            TouchControlsSystems::spawn_touch_controls.run_if(GameState::is_game_loaded),
+            TouchControlsSystems::spawn_touch_controls
+                .in_base_set(CoreSet::PreUpdate)
+                .run_if(GameState::is_game_loaded),
+        );
+        app.add_system(
+            TouchControlsSystems::handle_touch_input
+                .in_base_set(CoreSet::PreUpdate)
+                .run_if(GameState::is_game_loaded),
         );
         app.add_system(
             KeyboardControlsSystems::handle_keyboard_input

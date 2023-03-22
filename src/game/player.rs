@@ -18,7 +18,7 @@ struct PlayerBundle {
 #[derive(Component)]
 pub struct Player;
 
-#[derive(Component, Debug, Clone)]
+#[derive(Component, Debug, Clone, Copy)]
 pub enum PlayerMovement {
     Left,
     Right,
