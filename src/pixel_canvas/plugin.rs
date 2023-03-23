@@ -149,23 +149,18 @@ impl PixelCanvasPlugin {
         //   Therefore, let's just use pure black.
         pixels.set_clear_color(pixels::wgpu::Color::BLACK);
 
-        let viewport_w: i32 = i32::try_from(winit_window.inner_size().width).unwrap();
-        let viewport_h: i32 = i32::try_from(winit_window.inner_size().height).unwrap();
-        let scale_x: i32 = viewport_w / logical_width;
-        let scale_y: i32 = viewport_h / logical_height;
-        let scale_logical_to_real: i32 = scale_x.min(scale_y);
-        let real_w: i32 = logical_width * scale_logical_to_real;
-        let real_h: i32 = logical_height * scale_logical_to_real;
-        let viewport_scale_factor: f64 = winit_window.scale_factor();
+        let (real_x, real_y, real_w, _real_h) = pixels.context().scaling_renderer.clip_rect();
+        let real_x = i32::try_from(real_x).unwrap();
+        let real_y = i32::try_from(real_y).unwrap();
+        let real_w = i32::try_from(real_w).unwrap();
 
         PixelCanvas {
             pixels,
             logical_width: usize::try_from(logical_width).unwrap(),
             logical_height: usize::try_from(logical_height).unwrap(),
-            scale_logical_to_real,
-            real_position_inside_window: (ivec2(viewport_w, viewport_h).sub(ivec2(real_w, real_h)))
-                .div(2),
-            viewport_scale_factor,
+            scale_logical_to_real: real_w / logical_width,
+            real_position_inside_window: ivec2(real_x, real_y),
+            viewport_scale_factor: winit_window.scale_factor(),
         }
     }
 }
