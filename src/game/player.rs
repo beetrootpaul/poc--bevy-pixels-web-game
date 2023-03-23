@@ -3,7 +3,7 @@ use bevy::prelude::*;
 
 use crate::game::game_area::GameArea;
 use crate::game::position::Position;
-use crate::game::sprites::SpriteSheet;
+use crate::game::sprites::{Sprite, SpriteSheet};
 use crate::pixel_canvas::PixelCanvas;
 
 const MOVEMENT_PER_FRAME: i32 = 1;
@@ -18,7 +18,7 @@ struct PlayerBundle {
 #[derive(Component)]
 pub struct Player;
 
-#[derive(Component, Debug, Clone)]
+#[derive(Component, Debug, Clone, Copy)]
 pub enum PlayerMovement {
     Left,
     Right,
@@ -70,21 +70,17 @@ impl PlayerSystems {
         mut pixel_canvas: ResMut<PixelCanvas>,
         game_area: Res<GameArea>,
     ) {
-        if let Some(rgba_image) = sprite_sheet.maybe_rgba_image.as_ref() {
-            for (position, player_movement) in query.iter() {
-                let source_rect = SpriteSheet::source_rect_of_cell(
-                    Self::get_sprite_index_for_movement(player_movement),
-                );
-                pixel_canvas.draw_sprite(
-                    game_area.game_area_xy_from(position.0),
-                    rgba_image,
-                    source_rect,
-                );
-            }
+        for (position, player_movement) in query.iter() {
+            let sprite = Self::get_sprite_for_movement(player_movement);
+            pixel_canvas.draw_sprite(
+                game_area.game_area_xy_from(position.0),
+                &sprite_sheet.main,
+                sprite.sheet_rect,
+            );
         }
     }
 
-    fn get_sprite_index_for_movement(movement: &PlayerMovement) -> i32 {
+    fn get_sprite_for_movement(movement: &PlayerMovement) -> Sprite {
         match *movement {
             PlayerMovement::Left => SpriteSheet::PLAYER_LEFT,
             PlayerMovement::Right => SpriteSheet::PLAYER_RIGHT,

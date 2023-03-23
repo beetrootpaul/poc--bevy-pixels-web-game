@@ -23,8 +23,8 @@ opt-level = 3
 
 [features]
 default = []
-visualize_schedule_main = ["dep:bevy_mod_debugdump"]
-visualize_schedule_fixed_update = ["dep:bevy_mod_debugdump"]
+visualize_schedule_main = ["dep:bevy_mod_debugdump"] # enable this one to generate main schedule's diagram (w/o running the game)
+visualize_schedule_fixed_update = ["dep:bevy_mod_debugdump"] # enable this one to generate fixed update schedule's diagram (w/o running the game)
 
 [dependencies]
 bevy_mod_debugdump = { version = "0.7.0", optional = true } # https://crates.io/crates/bevy_mod_debugdump

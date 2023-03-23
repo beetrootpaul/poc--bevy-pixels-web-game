@@ -22,3 +22,21 @@ body {
     width: 100% !important;
     height: 100% !important;
 }
+
+/* Fix for iOS to not select canvas on a long press.
+   Based on: https://forum.babylonjs.com/t/prevent-unwanted-inputs-in-ios-safari-hold-click-selects-canvas/21409/4
+*/
+html, body {
+    touch-action: none;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    outline: none;
+}
+
+#bevy_pixels_web_game_poc__canvas {
+    touch-action: none;
+}

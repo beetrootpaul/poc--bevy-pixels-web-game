@@ -1,3 +1,6 @@
+use std::ops::{Div, Sub};
+
+use bevy::math::ivec2;
 use bevy::prelude::*;
 use bevy::window::{PrimaryWindow, WindowResized};
 use pixels::{Pixels, SurfaceTexture};
@@ -75,19 +78,23 @@ impl PixelCanvasPlugin {
                 .get_single()
                 .expect("should query single primary window");
             if event.window == primary_window {
-                if input_config.is_touch_available {
+                let game_area_variant = if input_config.is_touch_available {
                     let winit_window = winit_windows
                         .get_window(primary_window)
                         .expect("should get winit window for a given primary window");
                     let w = winit_window.inner_size().width;
                     let h = winit_window.inner_size().height;
-                    game_area.variant = if h > w {
+                    if h > w {
                         GameAreaVariant::PortraitControls
                     } else {
                         GameAreaVariant::LandscapeControls
-                    };
+                    }
                 } else {
-                    game_area.variant = GameAreaVariant::NoControls;
+                    GameAreaVariant::NoControls
+                };
+                if game_area.variant != game_area_variant {
+                    info!("set game area variant: {:?}", game_area_variant);
+                    game_area.variant = game_area_variant;
                 }
 
                 commands.insert_resource(Self::new_pixel_canvas(
@@ -103,8 +110,8 @@ impl PixelCanvasPlugin {
     fn new_pixel_canvas(
         winit_windows: &NonSend<bevy::winit::WinitWindows>,
         primary_window: Entity,
-        width: i32,
-        height: i32,
+        logical_width: i32,
+        logical_height: i32,
     ) -> PixelCanvas {
         let winit_window = winit_windows
             .get_window(primary_window)
@@ -120,16 +127,16 @@ impl PixelCanvasPlugin {
             #[cfg(not(target_arch = "wasm32"))]
             {
                 Pixels::new(
-                    u32::try_from(width).unwrap(),
-                    u32::try_from(height).unwrap(),
+                    u32::try_from(logical_width).unwrap(),
+                    u32::try_from(logical_height).unwrap(),
                     surface_texture,
                 )
             }
             #[cfg(target_arch = "wasm32")]
             {
                 Pixels::new_async(
-                    u32::try_from(width).unwrap(),
-                    u32::try_from(height).unwrap(),
+                    u32::try_from(logical_width).unwrap(),
+                    u32::try_from(logical_height).unwrap(),
                     surface_texture,
                 )
                 .block_on()
@@ -142,10 +149,23 @@ impl PixelCanvasPlugin {
         //   Therefore, let's just use pure black.
         pixels.set_clear_color(pixels::wgpu::Color::BLACK);
 
+        let viewport_w: i32 = i32::try_from(winit_window.inner_size().width).unwrap();
+        let viewport_h: i32 = i32::try_from(winit_window.inner_size().height).unwrap();
+        let scale_x: i32 = viewport_w / logical_width;
+        let scale_y: i32 = viewport_h / logical_height;
+        let scale_logical_to_real: i32 = scale_x.min(scale_y);
+        let real_w: i32 = logical_width * scale_logical_to_real;
+        let real_h: i32 = logical_height * scale_logical_to_real;
+        let viewport_scale_factor: f64 = winit_window.scale_factor();
+
         PixelCanvas {
             pixels,
-            width: usize::try_from(width).unwrap(),
-            height: usize::try_from(height).unwrap(),
+            logical_width: usize::try_from(logical_width).unwrap(),
+            logical_height: usize::try_from(logical_height).unwrap(),
+            scale_logical_to_real,
+            real_position_inside_window: (ivec2(viewport_w, viewport_h).sub(ivec2(real_w, real_h)))
+                .div(2),
+            viewport_scale_factor,
         }
     }
 }

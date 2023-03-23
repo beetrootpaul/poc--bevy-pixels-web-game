@@ -6,11 +6,15 @@ pub struct SpritesSystems;
 
 impl SpritesSystems {
     pub fn load_sprite_sheet(mut commands: Commands) {
-        let image_bytes = include_bytes!("../../../assets/spritesheet.png");
-        let loaded_image: image::DynamicImage =
-            image::load_from_memory(image_bytes).expect("should load image from memory");
+        let spritesheet_bytes_main = include_bytes!("../../../assets/spritesheet.png");
+        let spritesheet_bytes_touch_controls = include_bytes!("../../../assets/touch_controls.png");
         commands.insert_resource(SpriteSheet {
-            maybe_rgba_image: Some(loaded_image.to_rgba8()),
+            main: image::load_from_memory(spritesheet_bytes_main)
+                .expect("should load main spritesheet from memory")
+                .to_rgba8(),
+            touch_controls: image::load_from_memory(spritesheet_bytes_touch_controls)
+                .expect("should load touch controls spritesheet from memory")
+                .to_rgba8(),
         });
     }
 }

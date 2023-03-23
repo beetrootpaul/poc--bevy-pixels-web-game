@@ -1,3 +1,4 @@
+pub use sprite_sheet::Sprite;
 pub use sprite_sheet::SpriteSheet;
 pub use systems::SpritesSystems;
 
