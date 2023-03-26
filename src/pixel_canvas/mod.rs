@@ -2,6 +2,11 @@ use std::ops::{Div, Mul, Sub};
 
 use bevy::math::{dvec2, DVec2, IVec2};
 use bevy::prelude::Resource;
+use embedded_graphics::draw_target::DrawTarget;
+use embedded_graphics::geometry::{Dimensions, Point, Size};
+use embedded_graphics::pixelcolor::{Rgb888, RgbColor};
+use embedded_graphics::prelude::OriginDimensions;
+use embedded_graphics::Pixel;
 use image::RgbaImage;
 use pixels::Pixels;
 
@@ -9,7 +14,7 @@ pub use color::Color;
 pub use plugin::PixelCanvasPlugin;
 
 use crate::pixel_canvas::draw_on_frame::DrawOnFrame;
-use crate::pixel_canvas::drawing_context::DrawingContext;
+use crate::pixel_canvas::drawing_context::{DrawingContext, PX_LEN};
 
 mod color;
 mod draw_on_frame;
@@ -79,4 +84,60 @@ impl PixelCanvas {
             source_rect,
         );
     }
+}
+
+impl OriginDimensions for PixelCanvas {
+    fn size(&self) -> Size {
+        Size::new(
+            u32::try_from(self.logical_width).unwrap(),
+            u32::try_from(self.logical_height).unwrap(),
+        )
+    }
+}
+
+impl DrawTarget for PixelCanvas {
+    type Color = Rgb888;
+    // TODO: ???
+    type Error = core::convert::Infallible;
+
+    fn draw_iter<I>(&mut self, pixels: I) -> Result<(), Self::Error>
+    where
+        I: IntoIterator<Item = Pixel<Self::Color>>,
+    {
+        for p in pixels.into_iter() {
+            let coord: Point = p.0;
+            let color: Self::Color = p.1;
+
+            if self.bounding_box().contains(coord) {
+                let frame = self.pixels.get_frame_mut();
+
+                let x = usize::try_from(coord.x).unwrap();
+                let y = usize::try_from(coord.y).unwrap();
+                let w = usize::try_from(256).unwrap();
+
+                let target_i = (y * w * PX_LEN) + x * PX_LEN;
+                frame[target_i] = color.r();
+                frame[target_i + 1] = color.g();
+                frame[target_i + 2] = color.b();
+                frame[target_i + 3] = 0xff;
+            }
+        }
+
+        Ok(())
+    }
+
+    // TODO: ???
+    // fn fill_contiguous<I>(&mut self, area: &Rectangle, colors: I) -> Result<(), Self::Error> where I: IntoIterator<Item=Self::Color> {
+    //     todo!()
+    // }
+
+    // TODO: ???
+    // fn fill_solid(&mut self, area: &Rectangle, color: Self::Color) -> Result<(), Self::Error> {
+    //     todo!()
+    // }
+
+    // TODO: ???
+    // fn clear(&mut self, color: Self::Color) -> Result<(), Self::Error> {
+    //     todo!()
+    // }
 }

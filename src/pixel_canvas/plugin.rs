@@ -1,5 +1,3 @@
-use std::ops::{Div, Sub};
-
 use bevy::math::ivec2;
 use bevy::prelude::*;
 use bevy::window::{PrimaryWindow, WindowResized};
@@ -90,7 +88,8 @@ impl PixelCanvasPlugin {
                         GameAreaVariant::LandscapeControls
                     }
                 } else {
-                    GameAreaVariant::NoControls
+                    // GameAreaVariant::NoControls
+                    GameAreaVariant::LandscapeControls
                 };
                 if game_area.variant != game_area_variant {
                     info!("set game area variant: {:?}", game_area_variant);

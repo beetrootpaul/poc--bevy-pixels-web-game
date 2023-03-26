@@ -3,8 +3,8 @@ use std::ops::Add;
 use bevy::math::ivec2;
 use bevy::prelude::{IVec2, Resource};
 
-const GAME_AREA_WIDTH: i32 = 128;
-const GAME_AREA_HEIGHT: i32 = 128;
+pub const GAME_AREA_WIDTH: i32 = 128;
+pub const GAME_AREA_HEIGHT: i32 = 128;
 
 const LANDSCAPE_TOUCH_CONTROLS_LEFT_SIDE_AREA_WIDTH: i32 = 96;
 const LANDSCAPE_TOUCH_CONTROLS_RIGHT_AREA_WIDTH: i32 = 32;

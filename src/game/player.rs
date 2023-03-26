@@ -1,9 +1,14 @@
 use bevy::math::ivec2;
 use bevy::prelude::*;
+use embedded_graphics::pixelcolor::{Rgb888, RgbColor};
+use embedded_graphics::prelude::{Point, Primitive};
+use embedded_graphics::primitives::{Circle, PrimitiveStyle, PrimitiveStyleBuilder, StrokeAlignment};
+use embedded_graphics::Drawable;
 
 use crate::game::game_area::GameArea;
 use crate::game::position::Position;
 use crate::game::sprites::{Sprite, SpriteSheet};
+use crate::pico8::Pico8Color;
 use crate::pixel_canvas::PixelCanvas;
 
 const MOVEMENT_PER_FRAME: i32 = 1;
@@ -71,12 +76,53 @@ impl PlayerSystems {
         game_area: Res<GameArea>,
     ) {
         for (position, player_movement) in query.iter() {
+            let game_area_xy = game_area.game_area_xy_from(position.0);
+
             let sprite = Self::get_sprite_for_movement(player_movement);
-            pixel_canvas.draw_sprite(
-                game_area.game_area_xy_from(position.0),
-                &sprite_sheet.main,
-                sprite.sheet_rect,
-            );
+            pixel_canvas.draw_sprite(game_area_xy, &sprite_sheet.main, sprite.sheet_rect);
+            let s_w = sprite.sheet_rect.1.x - sprite.sheet_rect.0.x;
+            let s_h = sprite.sheet_rect.1.y - sprite.sheet_rect.0.y;
+
+            let style = PrimitiveStyleBuilder::new()
+                .stroke_color(Rgb888::new(
+                    Pico8Color::Blue.rgb8().0,
+                    Pico8Color::Blue.rgb8().1,
+                    Pico8Color::Blue.rgb8().2,
+                ))
+                .stroke_alignment(StrokeAlignment::Center)
+                .stroke_width(1)
+                .build();
+
+            let c_r1 = 30;
+            Circle::new(
+                Point::new(
+                    s_w / 2 + game_area_xy.x - c_r1 / 2,
+                    s_h / 2 + game_area_xy.y - c_r1 / 2,
+                ),
+                u32::try_from(c_r1).unwrap(),
+            )
+            // .into_styled(PrimitiveStyle::with_stroke(Rgb888::WHITE, 1))
+            .into_styled(style)
+            .draw(pixel_canvas.as_mut())
+            .expect("lol 1");
+
+            let style = PrimitiveStyleBuilder::new()
+                .stroke_color(Rgb888::RED)
+                .stroke_width(1)
+                .fill_color(Rgb888::GREEN)
+                .build();
+
+            let c_r2 = 20;
+            Circle::new(
+                Point::new(
+                    s_w / 2 + game_area_xy.x - c_r2 / 2,
+                    s_h / 2 + game_area_xy.y - c_r2 / 2,
+                ),
+                u32::try_from(c_r2).unwrap(),
+            )
+            .into_styled(style)
+            .draw(pixel_canvas.as_mut())
+            .expect("lol 2");
         }
     }
 

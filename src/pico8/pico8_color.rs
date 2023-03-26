@@ -41,7 +41,7 @@ impl Pico8Color {
         }
     }
 
-    fn rgb8(&self) -> (u8, u8, u8) {
+    pub fn rgb8(&self) -> (u8, u8, u8) {
         let hex = self.hex();
         (
             u8::from_str_radix(&hex[0..2], 16).expect("should convert from string hex to number"),

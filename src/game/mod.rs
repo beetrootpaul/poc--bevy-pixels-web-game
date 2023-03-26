@@ -6,6 +6,7 @@ use bevy::diagnostic::Diagnostic;
 use bevy::diagnostic::{DiagnosticId, Diagnostics};
 use bevy::prelude::*;
 
+pub use game_area::{GAME_AREA_HEIGHT, GAME_AREA_WIDTH};
 #[cfg(target_arch = "wasm32")]
 use wasm_bindgen::prelude::*;
 use FixedFpsSystemSet::{FixedFpsLast, FixedFpsSpawning, FixedFpsUpdateAndDraw};
