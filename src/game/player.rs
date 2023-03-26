@@ -40,7 +40,7 @@ impl PlayerSystems {
 
         commands.spawn(PlayerBundle {
             player: Player,
-            player_movement: initial_movement.clone(),
+            player_movement: initial_movement,
             position: Position(ivec2(1, 1)),
         });
     }

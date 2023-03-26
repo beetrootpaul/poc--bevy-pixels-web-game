@@ -35,7 +35,10 @@ jobs:
             params: "--target wasm32-unknown-unknown"
           - cache_sub_key: "variant-wasm32-release"
             lint_flags: "-D warnings -A dead_code -A unused-imports -A unused_mut -A unused-variables"
-            params: "--target wasm32-unknown-unknown  --release"
+            params: "--target wasm32-unknown-unknown --release"
+          - cache_sub_key: "test"
+            lint_flags: "-D warnings"
+            params: "--profile test"
     runs-on: ubuntu-latest
     steps:
       # https://github.com/marketplace/actions/checkout

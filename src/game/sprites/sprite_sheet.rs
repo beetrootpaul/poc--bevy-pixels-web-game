@@ -1,8 +1,9 @@
-use bevy::math::ivec2;
-use bevy::prelude::{IVec2, Resource};
+use bevy::prelude::Resource;
+
+use crate::irect::{irect, IRect};
 
 pub struct Sprite {
-    pub sheet_rect: (IVec2, IVec2),
+    pub sheet_rect: IRect,
 }
 
 #[derive(Resource)]
@@ -13,40 +14,40 @@ pub struct SpriteSheet {
 
 impl SpriteSheet {
     pub const PLAYER_UP: Sprite = Sprite {
-        sheet_rect: (ivec2(16, 16), ivec2(23, 23)),
+        sheet_rect: irect(16, 16, 7, 7),
     };
     pub const PLAYER_RIGHT: Sprite = Sprite {
-        sheet_rect: (ivec2(24, 16), ivec2(31, 23)),
+        sheet_rect: irect(24, 16, 7, 7),
     };
     pub const PLAYER_DOWN: Sprite = Sprite {
-        sheet_rect: (ivec2(32, 16), ivec2(39, 23)),
+        sheet_rect: irect(32, 16, 7, 7),
     };
     pub const PLAYER_LEFT: Sprite = Sprite {
-        sheet_rect: (ivec2(40, 16), ivec2(47, 23)),
+        sheet_rect: irect(40, 16, 7, 7),
     };
 
     pub const TOUCH_BUTTON_UP: Sprite = Sprite {
-        sheet_rect: (ivec2(0, 0), ivec2(30, 26)),
+        sheet_rect: irect(0, 0, 30, 26),
     };
     pub const TOUCH_BUTTON_RIGHT: Sprite = Sprite {
-        sheet_rect: (ivec2(0, 26), ivec2(26, 56)),
+        sheet_rect: irect(0, 26, 26, 30),
     };
     pub const TOUCH_BUTTON_DOWN: Sprite = Sprite {
-        sheet_rect: (ivec2(26, 30), ivec2(56, 56)),
+        sheet_rect: irect(26, 30, 30, 26),
     };
     pub const TOUCH_BUTTON_LEFT: Sprite = Sprite {
-        sheet_rect: (ivec2(30, 0), ivec2(56, 30)),
+        sheet_rect: irect(30, 0, 26, 30),
     };
     pub const TOUCH_BUTTON_UP_PRESSED: Sprite = Sprite {
-        sheet_rect: (ivec2(0, 56), ivec2(30, 82)),
+        sheet_rect: irect(0, 56, 30, 26),
     };
     pub const TOUCH_BUTTON_RIGHT_PRESSED: Sprite = Sprite {
-        sheet_rect: (ivec2(0, 82), ivec2(26, 112)),
+        sheet_rect: irect(0, 82, 26, 30),
     };
     pub const TOUCH_BUTTON_DOWN_PRESSED: Sprite = Sprite {
-        sheet_rect: (ivec2(26, 86), ivec2(56, 112)),
+        sheet_rect: irect(26, 86, 30, 26),
     };
     pub const TOUCH_BUTTON_LEFT_PRESSED: Sprite = Sprite {
-        sheet_rect: (ivec2(30, 56), ivec2(56, 86)),
+        sheet_rect: irect(30, 56, 26, 30),
     };
 }

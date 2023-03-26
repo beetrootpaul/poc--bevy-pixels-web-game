@@ -3,6 +3,7 @@ extern crate core;
 use crate::game::{GamePlugin, GAME_TITLE};
 
 mod game;
+mod irect;
 mod pico8;
 mod pixel_canvas;
 

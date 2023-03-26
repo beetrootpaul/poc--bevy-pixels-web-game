@@ -57,6 +57,7 @@ clippy:
 	cargo clippy --release
 	cargo clippy --target wasm32-unknown-unknown
 	cargo clippy --target wasm32-unknown-unknown --release
+	cargo clippy --profile test
 
 visualize_schedule_main:
 	cargo run --quiet --features visualize_schedule_main | pbcopy
