@@ -21,12 +21,14 @@ jobs:
           - cache_sub_key: "variant-debug-host"
             lint_flags: "-D warnings"
             params: ""
+            requires_alas: true
           - cache_sub_key: "variant-debug-web"
             lint_flags: "-D warnings"
             params: "--target wasm32-unknown-unknown"
           - cache_sub_key: "variant-release-host"
             lint_flags: "-D warnings -A dead_code -A unused-imports -A unused_mut -A unused-variables"
             params: "--release"
+            requires_alas: true
           - cache_sub_key: "variant-release-web"
             lint_flags: "-D warnings -A dead_code -A unused-imports -A unused_mut -A unused-variables"
             params: "--target wasm32-unknown-unknown --release"
@@ -35,5 +37,8 @@ jobs:
       # https://github.com/marketplace/actions/checkout
       - uses: actions/checkout@v3
       - uses: ./.github/shared-steps
+      # A fix for: "error: could not find system library 'alsa' required by the 'alsa-sys' crate"
+      - if: matrix.command_variant.requires_alas == true
+        run: sudo apt-get install --no-install-recommends libasound2-dev libudev-dev
       # --features bevy/x11: we need Bevy's support for X11 in GitHub Actions on Ubuntu
       - run: RUSTFLAGS="${{ matrix.command_variant.lint_flags }}" cargo build --features bevy/x11 ${{ matrix.command_variant.params }}
