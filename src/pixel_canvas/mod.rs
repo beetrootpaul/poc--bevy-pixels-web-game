@@ -1,5 +1,3 @@
-use std::ops::{Div, Mul, Sub};
-
 use bevy::math::{dvec2, DVec2, IVec2};
 use bevy::prelude::Resource;
 use image::RgbaImage;
@@ -8,6 +6,7 @@ use pixels::Pixels;
 pub use color::Color;
 pub use plugin::PixelCanvasPlugin;
 
+use crate::irect::IRect;
 use crate::pixel_canvas::draw_on_frame::DrawOnFrame;
 use crate::pixel_canvas::drawing_context::DrawingContext;
 
@@ -31,14 +30,14 @@ impl PixelCanvas {
         let scaled_viewport_xy: DVec2 = dvec2(
             f64::try_from(viewport_xy.x).unwrap(),
             f64::try_from(viewport_xy.y).unwrap(),
-        )
-        .mul(self.viewport_scale_factor);
-        let real_canvas_xy: DVec2 = scaled_viewport_xy.sub(dvec2(
-            f64::try_from(self.real_position_inside_window.x).unwrap(),
-            f64::try_from(self.real_position_inside_window.y).unwrap(),
-        ));
+        ) * self.viewport_scale_factor;
+        let real_canvas_xy: DVec2 = scaled_viewport_xy
+            - dvec2(
+                f64::try_from(self.real_position_inside_window.x).unwrap(),
+                f64::try_from(self.real_position_inside_window.y).unwrap(),
+            );
         let logical_canvas_xy: DVec2 =
-            real_canvas_xy.div(f64::try_from(self.scale_logical_to_real).unwrap());
+            real_canvas_xy / f64::try_from(self.scale_logical_to_real).unwrap();
         logical_canvas_xy.as_ivec2()
     }
 
@@ -61,17 +60,12 @@ impl PixelCanvas {
     }
 
     #[allow(dead_code)]
-    pub fn draw_filled_rect(&mut self, rect: (IVec2, IVec2), color: Color) {
+    pub fn draw_filled_rect(&mut self, rect: IRect, color: Color) {
         DrawOnFrame::draw_filled_rect(&mut self.drawing_context(), rect, color);
     }
 
     #[allow(dead_code)]
-    pub fn draw_sprite(
-        &mut self,
-        target_xy: IVec2,
-        rgba_image: &RgbaImage,
-        source_rect: (IVec2, IVec2),
-    ) {
+    pub fn draw_sprite(&mut self, target_xy: IVec2, rgba_image: &RgbaImage, source_rect: IRect) {
         DrawOnFrame::draw_sprite(
             &mut self.drawing_context(),
             target_xy,

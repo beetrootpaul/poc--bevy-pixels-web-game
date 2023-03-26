@@ -1,5 +1,4 @@
-use std::ops::Add;
-
+use crate::irect::{irect, IRect};
 use bevy::math::ivec2;
 use bevy::prelude::{IVec2, Resource};
 
@@ -33,18 +32,15 @@ impl GameArea {
         GAME_AREA_HEIGHT
     }
 
-    pub fn rect(&self) -> (IVec2, IVec2) {
+    pub fn rect(&self) -> IRect {
         match self.variant {
-            GameAreaVariant::NoControls => (ivec2(0, 0), ivec2(GAME_AREA_WIDTH, GAME_AREA_HEIGHT)),
-            GameAreaVariant::PortraitControls => {
-                (ivec2(0, 0), ivec2(GAME_AREA_WIDTH, GAME_AREA_HEIGHT))
-            },
-            GameAreaVariant::LandscapeControls => (
-                ivec2(LANDSCAPE_TOUCH_CONTROLS_LEFT_SIDE_AREA_WIDTH, 0),
-                ivec2(
-                    LANDSCAPE_TOUCH_CONTROLS_LEFT_SIDE_AREA_WIDTH + GAME_AREA_WIDTH,
-                    GAME_AREA_HEIGHT,
-                ),
+            GameAreaVariant::NoControls => irect(0, 0, GAME_AREA_WIDTH, GAME_AREA_HEIGHT),
+            GameAreaVariant::PortraitControls => irect(0, 0, GAME_AREA_WIDTH, GAME_AREA_HEIGHT),
+            GameAreaVariant::LandscapeControls => irect(
+                LANDSCAPE_TOUCH_CONTROLS_LEFT_SIDE_AREA_WIDTH,
+                0,
+                GAME_AREA_WIDTH,
+                GAME_AREA_HEIGHT,
             ),
         }
     }
@@ -71,41 +67,33 @@ impl GameArea {
         }
     }
 
-    pub fn outer_rects(&self) -> Vec<(IVec2, IVec2)> {
+    pub fn outer_rects(&self) -> Vec<IRect> {
         match self.variant {
             GameAreaVariant::NoControls => vec![],
-            GameAreaVariant::PortraitControls => vec![(
-                ivec2(0, GAME_AREA_HEIGHT),
-                ivec2(
-                    GAME_AREA_WIDTH,
-                    GAME_AREA_HEIGHT + PORTRAIT_TOUCH_CONTROLS_BOTTOM_AREA_HEIGHT,
-                ),
+            GameAreaVariant::PortraitControls => vec![irect(
+                0,
+                GAME_AREA_HEIGHT,
+                GAME_AREA_WIDTH,
+                PORTRAIT_TOUCH_CONTROLS_BOTTOM_AREA_HEIGHT,
             )],
             GameAreaVariant::LandscapeControls => vec![
-                (
-                    ivec2(0, 0),
-                    ivec2(
-                        LANDSCAPE_TOUCH_CONTROLS_LEFT_SIDE_AREA_WIDTH,
-                        GAME_AREA_HEIGHT,
-                    ),
+                irect(
+                    0,
+                    0,
+                    LANDSCAPE_TOUCH_CONTROLS_LEFT_SIDE_AREA_WIDTH,
+                    GAME_AREA_HEIGHT,
                 ),
-                (
-                    ivec2(
-                        LANDSCAPE_TOUCH_CONTROLS_LEFT_SIDE_AREA_WIDTH + GAME_AREA_WIDTH,
-                        0,
-                    ),
-                    ivec2(
-                        LANDSCAPE_TOUCH_CONTROLS_LEFT_SIDE_AREA_WIDTH
-                            + GAME_AREA_WIDTH
-                            + LANDSCAPE_TOUCH_CONTROLS_RIGHT_AREA_WIDTH,
-                        GAME_AREA_HEIGHT,
-                    ),
+                irect(
+                    LANDSCAPE_TOUCH_CONTROLS_LEFT_SIDE_AREA_WIDTH + GAME_AREA_WIDTH,
+                    0,
+                    LANDSCAPE_TOUCH_CONTROLS_RIGHT_AREA_WIDTH,
+                    GAME_AREA_HEIGHT,
                 ),
             ],
         }
     }
 
-    pub fn touch_controls_area(&self) -> Option<(IVec2, IVec2)> {
+    pub fn touch_controls_area(&self) -> Option<IRect> {
         self.outer_rects().first().cloned()
     }
 
@@ -114,7 +102,7 @@ impl GameArea {
             GameAreaVariant::NoControls => xy,
             GameAreaVariant::PortraitControls => xy,
             GameAreaVariant::LandscapeControls => {
-                xy.add(ivec2(LANDSCAPE_TOUCH_CONTROLS_LEFT_SIDE_AREA_WIDTH, 0))
+                xy + ivec2(LANDSCAPE_TOUCH_CONTROLS_LEFT_SIDE_AREA_WIDTH, 0)
             },
         }
     }

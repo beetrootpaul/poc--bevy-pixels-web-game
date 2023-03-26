@@ -1,5 +1,3 @@
-use std::ops::{Div, Sub};
-
 use bevy::math::ivec2;
 use bevy::prelude::*;
 use bevy::window::{PrimaryWindow, WindowResized};
@@ -90,7 +88,15 @@ impl PixelCanvasPlugin {
                         GameAreaVariant::LandscapeControls
                     }
                 } else {
-                    GameAreaVariant::NoControls
+                    #[cfg(not(all(not(target_arch = "wasm32"), debug_assertions)))]
+                    {
+                        GameAreaVariant::NoControls
+                    }
+                    // For canvas XY debug purposes, draw touch controls on desktop (the one run quickly from IDE)
+                    #[cfg(all(not(target_arch = "wasm32"), debug_assertions))]
+                    {
+                        GameAreaVariant::LandscapeControls
+                    }
                 };
                 if game_area.variant != game_area_variant {
                     info!("set game area variant: {:?}", game_area_variant);
