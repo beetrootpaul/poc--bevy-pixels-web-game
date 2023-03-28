@@ -45,6 +45,7 @@ fn main() {
     app.add_plugin(bevy::winit::WinitPlugin::default());
 
     app.add_plugin(bevy::input::InputPlugin::default());
+    app.add_plugin(bevy::gilrs::GilrsPlugin::default());
 
     app.add_plugin(bevy::asset::AssetPlugin::default());
     app.add_plugin(bevy::audio::AudioPlugin::default());

@@ -1,20 +1,20 @@
 use std::time::Duration;
 
 #[cfg(debug_assertions)]
-use bevy::diagnostic::Diagnostic;
-#[cfg(debug_assertions)]
 use bevy::diagnostic::{DiagnosticId, Diagnostics};
+#[cfg(debug_assertions)]
+use bevy::diagnostic::Diagnostic;
 use bevy::prelude::*;
 
+use FixedFpsSystemSet::{FixedFpsLast, FixedFpsSpawning, FixedFpsUpdateAndDraw};
 #[cfg(target_arch = "wasm32")]
 use wasm_bindgen::prelude::*;
-use FixedFpsSystemSet::{FixedFpsLast, FixedFpsSpawning, FixedFpsUpdateAndDraw};
 
 use crate::game::audio::AudioSystems;
 pub use crate::game::game_area::{GameArea, GameAreaVariant};
 use crate::game::game_state::GameState;
+use crate::game::input::{GamepadControlsSystems, KeyboardControlsSystems, TouchControlsSystems};
 pub use crate::game::input::InputConfig;
-use crate::game::input::{KeyboardControlsSystems, TouchControlsSystems};
 use crate::game::player::PlayerSystems;
 use crate::game::sprites::SpritesSystems;
 use crate::pico8::Pico8Color;
@@ -82,6 +82,11 @@ impl Plugin for GamePlugin {
         );
         app.add_system(
             TouchControlsSystems::handle_touch_input
+                .in_base_set(CoreSet::PreUpdate)
+                .run_if(GameState::is_game_loaded),
+        );
+        app.add_system(
+            GamepadControlsSystems::handle_gamepad_input
                 .in_base_set(CoreSet::PreUpdate)
                 .run_if(GameState::is_game_loaded),
         );

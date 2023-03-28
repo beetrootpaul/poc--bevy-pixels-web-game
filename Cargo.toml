@@ -41,6 +41,7 @@ default-features = false
 features = [
     "bevy_audio",
     "bevy_asset",
+    "bevy_gilrs",
     "bevy_winit",
     "vorbis",
 ]
