@@ -8,18 +8,33 @@ pub const fn irect(top_left_x: i32, top_left_y: i32, size_w: i32, size_h: i32) -
     }
 }
 
-#[derive(Clone, Copy, PartialEq, Eq)]
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
 pub struct IRect {
     pub top_left: IVec2,
     pub size: IVec2,
 }
 
 impl IRect {
-    pub fn x(self) -> i32 {
+    pub fn xy0(self) -> IVec2 {
+        self.top_left
+    }
+    pub fn x0(self) -> i32 {
         self.top_left.x
     }
-    pub fn y(self) -> i32 {
+    pub fn y0(self) -> i32 {
         self.top_left.y
+    }
+    pub fn xy1(self) -> IVec2 {
+        self.top_left + self.size
+    }
+    pub fn x1(self) -> i32 {
+        self.top_left.x + self.size.x
+    }
+    pub fn y1(self) -> i32 {
+        self.top_left.y + self.size.y
+    }
+    pub fn center(self) -> IVec2 {
+        self.top_left + self.size / 2
     }
     pub fn w(self) -> i32 {
         self.size.x

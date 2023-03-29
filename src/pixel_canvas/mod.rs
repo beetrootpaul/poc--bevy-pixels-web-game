@@ -60,8 +60,18 @@ impl PixelCanvas {
     }
 
     #[allow(dead_code)]
-    pub fn draw_filled_rect(&mut self, rect: IRect, color: Color) {
-        DrawOnFrame::draw_filled_rect(&mut self.drawing_context(), rect, color);
+    pub fn draw_rect_filled(&mut self, rect: IRect, color: Color) {
+        DrawOnFrame::draw_rect_filled(&mut self.drawing_context(), rect, color);
+    }
+
+    #[allow(dead_code)]
+    pub fn draw_ellipse(&mut self, bounding_rect: IRect, color: Color) {
+        DrawOnFrame::draw_ellipse(&mut self.drawing_context(), bounding_rect, color, false);
+    }
+
+    #[allow(dead_code)]
+    pub fn draw_ellipse_filled(&mut self, bounding_rect: IRect, color: Color) {
+        DrawOnFrame::draw_ellipse(&mut self.drawing_context(), bounding_rect, color, true);
     }
 
     #[allow(dead_code)]
