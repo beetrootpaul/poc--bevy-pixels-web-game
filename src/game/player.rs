@@ -75,20 +75,11 @@ impl PlayerSystems {
         for (position, player_movement) in query.iter() {
             let sprite = Self::get_sprite_for_movement(player_movement);
             let xy = game_area.game_area_xy_from(position.0);
-            pixel_canvas.draw_sprite(
-                xy,
-                &sprite_sheet.main,
-                sprite.sheet_rect,
-            );
+            pixel_canvas.draw_sprite(xy, &sprite_sheet.main, sprite.sheet_rect);
 
             let size = ivec2(20, 20);
-            pixel_canvas.draw_ellipse_filled(
-                IRect {
-                     top_left: xy,
-                    size
-                },
-                Pico8Color::LightPeach.into()
-            )
+            pixel_canvas
+                .draw_ellipse_filled(IRect { top_left: xy, size }, Pico8Color::LightPeach.into())
         }
     }
 

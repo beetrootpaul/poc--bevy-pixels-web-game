@@ -165,6 +165,7 @@ mod tests {
     use itertools::Itertools;
 
     use crate::irect::irect;
+    use crate::pixel_canvas::color::color_solid;
     use crate::pixel_canvas::drawing_context::DrawingContext;
 
     use super::*;
@@ -175,12 +176,13 @@ mod tests {
         const H: usize = 3;
         let mut frame = [0; PX_LEN * W * H];
         let mut ctx = DrawingContext::new(&mut frame, W, H);
+        let color_bg = color_solid(1, 2, 3);
 
-        DrawOnFrame::clear(&mut ctx, Color::Solid { r: 1, g: 2, b: 3 });
+        DrawOnFrame::clear(&mut ctx, color_bg);
 
         assert_frame_pixels(
             &ctx,
-            HashMap::from([(rgb(1, 2, 3), "#")]),
+            vec![("#", color_bg)],
             "
                 ###
                 ###
@@ -195,18 +197,17 @@ mod tests {
         const H: usize = 3;
         let mut frame = [0; PX_LEN * W * H];
         let mut ctx = DrawingContext::new(&mut frame, W, H);
-        DrawOnFrame::clear(&mut ctx, Color::Solid { r: 9, g: 8, b: 7 });
+        let color_bg = color_solid(9, 8, 7);
+        let color_1 = color_solid(1, 2, 3);
+        let color_2 = color_solid(4, 5, 6);
 
-        DrawOnFrame::set_pixel(&mut ctx, ivec2(0, 0), Color::Solid { r: 1, g: 2, b: 3 });
-        DrawOnFrame::set_pixel(&mut ctx, ivec2(2, 2), Color::Solid { r: 2, g: 3, b: 4 });
+        DrawOnFrame::clear(&mut ctx, color_bg);
+        DrawOnFrame::set_pixel(&mut ctx, ivec2(0, 0), color_1);
+        DrawOnFrame::set_pixel(&mut ctx, ivec2(2, 2), color_2);
 
         assert_frame_pixels(
             &ctx,
-            HashMap::from([
-                (rgb(9, 8, 7), "-"),
-                (rgb(1, 2, 3), "#"),
-                (rgb(2, 3, 4), "@"),
-            ]),
+            vec![("-", color_bg), ("#", color_1), ("@", color_2)],
             "
                 #--
                 ---
@@ -218,26 +219,23 @@ mod tests {
     #[test]
     fn test_draw_rect_filled() {
         const W: usize = 5;
-        const H: usize = 5;
+        const H: usize = 4;
         let mut frame = [0; PX_LEN * W * H];
         let mut ctx = DrawingContext::new(&mut frame, W, H);
-        DrawOnFrame::clear(&mut ctx, Color::Solid { r: 9, g: 8, b: 7 });
+        let color_bg = color_solid(9, 8, 7);
+        let color_fg = color_solid(1, 2, 3);
 
-        DrawOnFrame::draw_rect_filled(
-            &mut ctx,
-            irect(1, 2, 3, 3),
-            Color::Solid { r: 1, g: 2, b: 3 },
-        );
+        DrawOnFrame::clear(&mut ctx, color_bg);
+        DrawOnFrame::draw_rect_filled(&mut ctx, irect(3, 2).at(1, 1), color_fg);
 
         assert_frame_pixels(
             &ctx,
-            HashMap::from([(rgb(9, 8, 7), "-"), (rgb(1, 2, 3), "#")]),
+            vec![("-", color_bg), ("#", color_fg)],
             "
                 -----
+                -###-
+                -###-
                 -----
-                -###-
-                -###-
-                -###-
             ",
         );
     }
@@ -248,49 +246,35 @@ mod tests {
         const H: usize = 5;
         let mut frame = [0; PX_LEN * W * H];
         let mut ctx = DrawingContext::new(&mut frame, W, H);
-        DrawOnFrame::clear(&mut ctx, Color::Solid { r: 9, g: 8, b: 7 });
+        let color_bg = color_solid(9, 8, 7);
+        let color_1 = color_solid(1, 1, 1);
+        let color_2 = color_solid(2, 2, 2);
+        let color_3 = color_solid(3, 3, 3);
+        let color_4 = color_solid(4, 4, 4);
+        let color_5 = color_solid(5, 5, 5);
 
+        DrawOnFrame::clear(&mut ctx, color_bg);
         // clipped from the left
-        DrawOnFrame::draw_rect_filled(
-            &mut ctx,
-            irect(-1, 1, 3, 3),
-            Color::Solid { r: 1, g: 1, b: 1 },
-        );
+        DrawOnFrame::draw_rect_filled(&mut ctx, irect(3, 3).at(-1, 1), color_1);
         // clipped from the right
-        DrawOnFrame::draw_rect_filled(
-            &mut ctx,
-            irect(3, 1, 3, 3),
-            Color::Solid { r: 2, g: 2, b: 2 },
-        );
+        DrawOnFrame::draw_rect_filled(&mut ctx, irect(3, 3).at(3, 1), color_2);
         // clipped from the top
-        DrawOnFrame::draw_rect_filled(
-            &mut ctx,
-            irect(1, -1, 3, 3),
-            Color::Solid { r: 3, g: 3, b: 3 },
-        );
+        DrawOnFrame::draw_rect_filled(&mut ctx, irect(3, 3).at(1, -1), color_3);
         // clipped from the bottom
-        DrawOnFrame::draw_rect_filled(
-            &mut ctx,
-            irect(1, 3, 3, 3),
-            Color::Solid { r: 4, g: 4, b: 4 },
-        );
+        DrawOnFrame::draw_rect_filled(&mut ctx, irect(3, 3).at(1, 3), color_4);
         // drawn last, but clipped entirely
-        DrawOnFrame::draw_rect_filled(
-            &mut ctx,
-            irect(-3, -1, 3, 3),
-            Color::Solid { r: 5, g: 5, b: 5 },
-        );
+        DrawOnFrame::draw_rect_filled(&mut ctx, irect(3, 3).at(-3, -1), color_5);
 
         assert_frame_pixels(
             &ctx,
-            HashMap::from([
-                (rgb(9, 8, 7), "-"),
-                (rgb(1, 1, 1), "#"),
-                (rgb(2, 2, 2), "@"),
-                (rgb(3, 3, 3), "%"),
-                (rgb(4, 4, 4), "*"),
-                (rgb(5, 5, 5), "!"),
-            ]),
+            vec![
+                ("-", color_bg),
+                ("#", color_1),
+                ("@", color_2),
+                ("%", color_3),
+                ("*", color_4),
+                ("!", color_5),
+            ],
             "
                 -%%%-
                 #%%%@
@@ -307,21 +291,15 @@ mod tests {
         const H: usize = 3;
         let mut frame = [0; PX_LEN * W * H];
         let mut ctx = DrawingContext::new(&mut frame, W, H);
-        DrawOnFrame::clear(&mut ctx, Color::Solid { r: 9, g: 8, b: 7 });
+        let color_bg = color_solid(9, 8, 7);
+        let color_fg = color_solid(1, 2, 3);
 
-        DrawOnFrame::draw_ellipse(
-            &mut ctx,
-            IRect {
-                top_left: ivec2(1, 1),
-                size: ivec2(1, 1),
-            },
-            Color::Solid { r: 1, g: 2, b: 3 },
-            false,
-        );
+        DrawOnFrame::clear(&mut ctx, color_bg);
+        DrawOnFrame::draw_ellipse(&mut ctx, irect(1, 1).at(1, 1), color_fg, false);
 
         assert_frame_pixels(
             &ctx,
-            HashMap::from([(rgb(9, 8, 7), "-"), (rgb(1, 2, 3), "#")]),
+            vec![("-", color_bg), ("#", color_fg)],
             "
                 ---
                 -#-
@@ -336,21 +314,15 @@ mod tests {
         const H: usize = 4;
         let mut frame = [0; PX_LEN * W * H];
         let mut ctx = DrawingContext::new(&mut frame, W, H);
-        DrawOnFrame::clear(&mut ctx, Color::Solid { r: 9, g: 8, b: 7 });
+        let color_bg = color_solid(9, 8, 7);
+        let color_fg = color_solid(1, 2, 3);
 
-        DrawOnFrame::draw_ellipse(
-            &mut ctx,
-            IRect {
-                top_left: ivec2(1, 1),
-                size: ivec2(2, 2),
-            },
-            Color::Solid { r: 1, g: 2, b: 3 },
-            false,
-        );
+        DrawOnFrame::clear(&mut ctx, color_bg);
+        DrawOnFrame::draw_ellipse(&mut ctx, irect(2, 2).at(1, 1), color_fg, false);
 
         assert_frame_pixels(
             &ctx,
-            HashMap::from([(rgb(9, 8, 7), "-"), (rgb(1, 2, 3), "#")]),
+            vec![("-", color_bg), ("#", color_fg)],
             "
                 ----
                 -##-
@@ -366,21 +338,15 @@ mod tests {
         const H: usize = 5;
         let mut frame = [0; PX_LEN * W * H];
         let mut ctx = DrawingContext::new(&mut frame, W, H);
-        DrawOnFrame::clear(&mut ctx, Color::Solid { r: 9, g: 8, b: 7 });
+        let color_bg = color_solid(9, 8, 7);
+        let color_fg = color_solid(1, 2, 3);
 
-        DrawOnFrame::draw_ellipse(
-            &mut ctx,
-            IRect {
-                top_left: ivec2(1, 1),
-                size: ivec2(4, 3),
-            },
-            Color::Solid { r: 1, g: 2, b: 3 },
-            false,
-        );
+        DrawOnFrame::clear(&mut ctx, color_bg);
+        DrawOnFrame::draw_ellipse(&mut ctx, irect(4, 3).at(1, 1), color_fg, false);
 
         assert_frame_pixels(
             &ctx,
-            HashMap::from([(rgb(9, 8, 7), "-"), (rgb(1, 2, 3), "#")]),
+            vec![("-", color_bg), ("#", color_fg)],
             "
                 ------
                 --##--
@@ -393,31 +359,27 @@ mod tests {
 
     #[test]
     fn test_draw_ellipse_12x5() {
-        const W: usize = 12;
-        const H: usize = 5;
+        const W: usize = 14;
+        const H: usize = 7;
         let mut frame = [0; PX_LEN * W * H];
         let mut ctx = DrawingContext::new(&mut frame, W, H);
-        DrawOnFrame::clear(&mut ctx, Color::Solid { r: 9, g: 8, b: 7 });
+        let color_bg = color_solid(9, 8, 7);
+        let color_fg = color_solid(1, 2, 3);
 
-        DrawOnFrame::draw_ellipse(
-            &mut ctx,
-            IRect {
-                top_left: ivec2(0, 0),
-                size: ivec2(12, 5),
-            },
-            Color::Solid { r: 1, g: 2, b: 3 },
-            false,
-        );
+        DrawOnFrame::clear(&mut ctx, color_bg);
+        DrawOnFrame::draw_ellipse(&mut ctx, irect(12, 5).at(1, 1), color_fg, false);
 
         assert_frame_pixels(
             &ctx,
-            HashMap::from([(rgb(9, 8, 7), "-"), (rgb(1, 2, 3), "#")]),
+            vec![("-", color_bg), ("#", color_fg)],
             "
-                ---######---
-                -##------##-
-                #----------#
-                -##------##-
-                ---######---
+                --------------
+                ----######----
+                --##------##--
+                -#----------#-
+                --##------##--
+                ----######----
+                --------------
             ",
         );
     }
@@ -428,21 +390,15 @@ mod tests {
         const H: usize = 3;
         let mut frame = [0; PX_LEN * W * H];
         let mut ctx = DrawingContext::new(&mut frame, W, H);
-        DrawOnFrame::clear(&mut ctx, Color::Solid { r: 9, g: 8, b: 7 });
+        let color_bg = color_solid(9, 8, 7);
+        let color_fg = color_solid(1, 2, 3);
 
-        DrawOnFrame::draw_ellipse(
-            &mut ctx,
-            IRect {
-                top_left: ivec2(1, 1),
-                size: ivec2(1, 1),
-            },
-            Color::Solid { r: 1, g: 2, b: 3 },
-            true,
-        );
+        DrawOnFrame::clear(&mut ctx, color_bg);
+        DrawOnFrame::draw_ellipse(&mut ctx, irect(1, 1).at(1, 1), color_fg, true);
 
         assert_frame_pixels(
             &ctx,
-            HashMap::from([(rgb(9, 8, 7), "-"), (rgb(1, 2, 3), "#")]),
+            vec![("-", color_bg), ("#", color_fg)],
             "
                 ---
                 -#-
@@ -457,21 +413,15 @@ mod tests {
         const H: usize = 4;
         let mut frame = [0; PX_LEN * W * H];
         let mut ctx = DrawingContext::new(&mut frame, W, H);
-        DrawOnFrame::clear(&mut ctx, Color::Solid { r: 9, g: 8, b: 7 });
+        let color_bg = color_solid(9, 8, 7);
+        let color_fg = color_solid(1, 2, 3);
 
-        DrawOnFrame::draw_ellipse(
-            &mut ctx,
-            IRect {
-                top_left: ivec2(1, 1),
-                size: ivec2(2, 2),
-            },
-            Color::Solid { r: 1, g: 2, b: 3 },
-            true,
-        );
+        DrawOnFrame::clear(&mut ctx, color_bg);
+        DrawOnFrame::draw_ellipse(&mut ctx, irect(2, 2).at(1, 1), color_fg, true);
 
         assert_frame_pixels(
             &ctx,
-            HashMap::from([(rgb(9, 8, 7), "-"), (rgb(1, 2, 3), "#")]),
+            vec![("-", color_bg), ("#", color_fg)],
             "
                 ----
                 -##-
@@ -487,21 +437,15 @@ mod tests {
         const H: usize = 5;
         let mut frame = [0; PX_LEN * W * H];
         let mut ctx = DrawingContext::new(&mut frame, W, H);
-        DrawOnFrame::clear(&mut ctx, Color::Solid { r: 9, g: 8, b: 7 });
+        let color_bg = color_solid(9, 8, 7);
+        let color_fg = color_solid(1, 2, 3);
 
-        DrawOnFrame::draw_ellipse(
-            &mut ctx,
-            IRect {
-                top_left: ivec2(1, 1),
-                size: ivec2(4, 3),
-            },
-            Color::Solid { r: 1, g: 2, b: 3 },
-            true,
-        );
+        DrawOnFrame::clear(&mut ctx, color_bg);
+        DrawOnFrame::draw_ellipse(&mut ctx, irect(4, 3).at(1, 1), color_fg, true);
 
         assert_frame_pixels(
             &ctx,
-            HashMap::from([(rgb(9, 8, 7), "-"), (rgb(1, 2, 3), "#")]),
+            vec![("-", color_bg), ("#", color_fg)],
             "
                 ------
                 --##--
@@ -518,54 +462,35 @@ mod tests {
         const H: usize = 5;
         let mut frame = [0; PX_LEN * W * H];
         let mut ctx = DrawingContext::new(&mut frame, W, H);
-        DrawOnFrame::clear(&mut ctx, Color::Solid { r: 9, g: 8, b: 7 });
+        let color_bg = color_solid(9, 8, 7);
+        let color_1 = color_solid(1, 1, 1);
+        let color_2 = color_solid(2, 2, 2);
+        let color_3 = color_solid(3, 3, 3);
+        let color_4 = color_solid(4, 4, 4);
+        let color_5 = color_solid(5, 5, 5);
 
+        DrawOnFrame::clear(&mut ctx, color_bg);
         // clipped from the left
-        DrawOnFrame::draw_ellipse(
-            &mut ctx,
-            irect(-1, 1, 3, 3),
-            Color::Solid { r: 1, g: 1, b: 1 },
-            true,
-        );
+        DrawOnFrame::draw_ellipse(&mut ctx, irect(3, 3).at(-1, 1), color_1, true);
         // clipped from the right
-        DrawOnFrame::draw_ellipse(
-            &mut ctx,
-            irect(3, 1, 3, 3),
-            Color::Solid { r: 2, g: 2, b: 2 },
-            true,
-        );
+        DrawOnFrame::draw_ellipse(&mut ctx, irect(3, 3).at(3, 1), color_2, true);
         // clipped from the top
-        DrawOnFrame::draw_ellipse(
-            &mut ctx,
-            irect(1, -1, 3, 3),
-            Color::Solid { r: 3, g: 3, b: 3 },
-            true,
-        );
+        DrawOnFrame::draw_ellipse(&mut ctx, irect(3, 3).at(1, -1), color_3, true);
         // clipped from the bottom
-        DrawOnFrame::draw_ellipse(
-            &mut ctx,
-            irect(1, 3, 3, 3),
-            Color::Solid { r: 4, g: 4, b: 4 },
-            true,
-        );
+        DrawOnFrame::draw_ellipse(&mut ctx, irect(3, 3).at(1, 3), color_4, true);
         // drawn last, but clipped entirely
-        DrawOnFrame::draw_ellipse(
-            &mut ctx,
-            irect(-2, -2, 3, 3),
-            Color::Solid { r: 5, g: 5, b: 5 },
-            true,
-        );
+        DrawOnFrame::draw_ellipse(&mut ctx, irect(3, 3).at(-2, -2), color_5, true);
 
         assert_frame_pixels(
             &ctx,
-            HashMap::from([
-                (rgb(9, 8, 7), "-"),
-                (rgb(1, 1, 1), "#"),
-                (rgb(2, 2, 2), "@"),
-                (rgb(3, 3, 3), "%"),
-                (rgb(4, 4, 4), "*"),
-                (rgb(5, 5, 5), "!"),
-            ]),
+            vec![
+                ("-", color_bg),
+                ("#", color_1),
+                ("@", color_2),
+                ("%", color_3),
+                ("*", color_4),
+                ("!", color_5),
+            ],
             "
                 -%%%-
                 #-%-@
@@ -578,9 +503,15 @@ mod tests {
 
     fn assert_frame_pixels(
         ctx: &DrawingContext,
-        color_symbols: HashMap<[u8; PX_LEN], &str>,
+        color_symbols: Vec<(&str, Color)>,
         expected_frame_pixels: &str,
     ) {
+        let color_symbols: HashMap<[u8; 4], &str> =
+            HashMap::from_iter(color_symbols.iter().map(|(symbol, color)| match color {
+                Color::Transparent => ([0_u8, 0_u8, 0_u8, 0_u8], *symbol),
+                Color::Solid { r, g, b } => ([*r, *g, *b, 255_u8], *symbol),
+            }));
+
         let expected_frame_pixels = expected_frame_pixels
             .split('\n')
             .map(|line| line.trim())
@@ -616,9 +547,5 @@ mod tests {
             ctx.frame[idx + 2],
             ctx.frame[idx + 3],
         ]
-    }
-
-    fn rgb(r: u8, g: u8, b: u8) -> [u8; PX_LEN] {
-        [r, g, b, 255]
     }
 }
