@@ -27,17 +27,29 @@ impl DrawOnFrame {
     }
 
     #[allow(dead_code)]
-    pub fn draw_rect_filled(ctx: &mut DrawingContext, rect: IRect, color: Color) {
+    pub fn draw_horizontal_line(ctx: &mut DrawingContext, xy: IVec2, w: i32, color: Color) {
+        assert!(w >= 0);
         if let Color::Solid { r, g, b } = color {
-            if let Some(pixel_index) = ctx.pixel_first_index_for(rect.top_left) {
-                let rect_w = usize::try_from(rect.w()).unwrap();
-                let rect_h = usize::try_from(rect.h()).unwrap();
-                for rect_row in 0..rect_h {
-                    let target_i = pixel_index + (rect_row * ctx.w) * PX_LEN;
-                    ctx.frame[target_i..(target_i + rect_w * PX_LEN)]
-                        .copy_from_slice(&[r, g, b, 0xff].repeat(rect_w));
-                }
+            let ctx_w = i32::try_from(ctx.w).unwrap();
+            let ctx_h = i32::try_from(ctx.h).unwrap();
+            if xy.x >= ctx_w || xy.y < 0 || xy.y >= ctx_h {
+                return;
             }
+            let visible_x = xy.x.max(0);
+            let visible_w = (xy.x + w).min(ctx_w) - visible_x;
+
+            if let Some(pixel_index) = ctx.pixel_first_index_for(ivec2(visible_x, xy.y)) {
+                let visible_w = usize::try_from(visible_w).unwrap();
+                ctx.frame[pixel_index..(pixel_index + visible_w * PX_LEN)]
+                    .copy_from_slice(&[r, g, b, 0xff].repeat(visible_w));
+            }
+        }
+    }
+
+    #[allow(dead_code)]
+    pub fn draw_rect_filled(ctx: &mut DrawingContext, rect: IRect, color: Color) {
+        for y in rect.y0()..rect.y1() {
+            Self::draw_horizontal_line(ctx, ivec2(rect.x0(), y), rect.w(), color);
         }
     }
 
@@ -69,10 +81,9 @@ impl DrawOnFrame {
 
         loop {
             if fill {
-                for tmp_x in x0..=x1 {
-                    Self::set_pixel(ctx, ivec2(tmp_x, y0), color); //  I. & II. Quadrant
-                    Self::set_pixel(ctx, ivec2(tmp_x, y1), color); //  III. & IV. Quadrant
-                }
+                Self::draw_horizontal_line(ctx, ivec2(x0, y0), x1 - x0 + 1, color); //  I. & II. Quadrant
+                Self::draw_horizontal_line(ctx, ivec2(x0, y1), x1 - x0 + 1, color);
+            //  III. & IV. Quadrant
             } else {
                 Self::set_pixel(ctx, ivec2(x1, y0), color); //   I. Quadrant
                 Self::set_pixel(ctx, ivec2(x0, y0), color); //  II. Quadrant
@@ -227,6 +238,65 @@ mod tests {
                 -###-
                 -###-
                 -###-
+            ",
+        );
+    }
+
+    #[test]
+    fn test_draw_rects_clipped() {
+        const W: usize = 5;
+        const H: usize = 5;
+        let mut frame = [0; PX_LEN * W * H];
+        let mut ctx = DrawingContext::new(&mut frame, W, H);
+        DrawOnFrame::clear(&mut ctx, Color::Solid { r: 9, g: 8, b: 7 });
+
+        // clipped from the left
+        DrawOnFrame::draw_rect_filled(
+            &mut ctx,
+            irect(-1, 1, 3, 3),
+            Color::Solid { r: 1, g: 1, b: 1 },
+        );
+        // clipped from the right
+        DrawOnFrame::draw_rect_filled(
+            &mut ctx,
+            irect(3, 1, 3, 3),
+            Color::Solid { r: 2, g: 2, b: 2 },
+        );
+        // clipped from the top
+        DrawOnFrame::draw_rect_filled(
+            &mut ctx,
+            irect(1, -1, 3, 3),
+            Color::Solid { r: 3, g: 3, b: 3 },
+        );
+        // clipped from the bottom
+        DrawOnFrame::draw_rect_filled(
+            &mut ctx,
+            irect(1, 3, 3, 3),
+            Color::Solid { r: 4, g: 4, b: 4 },
+        );
+        // drawn last, but clipped entirely
+        DrawOnFrame::draw_rect_filled(
+            &mut ctx,
+            irect(-3, -1, 3, 3),
+            Color::Solid { r: 5, g: 5, b: 5 },
+        );
+
+        assert_frame_pixels(
+            &ctx,
+            HashMap::from([
+                (rgb(9, 8, 7), "-"),
+                (rgb(1, 1, 1), "#"),
+                (rgb(2, 2, 2), "@"),
+                (rgb(3, 3, 3), "%"),
+                (rgb(4, 4, 4), "*"),
+                (rgb(5, 5, 5), "!"),
+            ]),
+            "
+                -%%%-
+                #%%%@
+                ##-@@
+                #***@
+                -***-
             ",
         );
     }
