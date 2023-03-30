@@ -4,17 +4,17 @@ use bevy::prelude::*;
 use crate::game::game_area::GameArea;
 use crate::game::position::Position;
 use crate::game::sprites::{Sprite, SpriteSheet};
-use crate::irect::IRect;
-use crate::pico8::Pico8Color;
+use crate::game::trail::TrailSource;
 use crate::pixel_canvas::PixelCanvas;
 
-const MOVEMENT_PER_FRAME: i32 = 1;
+const MOVEMENT_PER_FRAME: i32 = 2;
 
 #[derive(Bundle)]
 struct PlayerBundle {
     player: Player,
     player_movement: PlayerMovement,
     position: Position,
+    trail_source: TrailSource,
 }
 
 #[derive(Component)]
@@ -43,7 +43,8 @@ impl PlayerSystems {
         commands.spawn(PlayerBundle {
             player: Player,
             player_movement: initial_movement,
-            position: Position(ivec2(1, 1)),
+            position: Position(ivec2(10, 10)),
+            trail_source: TrailSource::new(),
         });
     }
 
@@ -75,11 +76,11 @@ impl PlayerSystems {
         for (position, player_movement) in query.iter() {
             let sprite = Self::get_sprite_for_movement(player_movement);
             let xy = game_area.game_area_xy_from(position.0);
-            pixel_canvas.draw_sprite(xy, &sprite_sheet.main, sprite.sheet_rect);
-
-            let size = ivec2(20, 20);
-            pixel_canvas
-                .draw_ellipse_filled(IRect { top_left: xy, size }, Pico8Color::LightPeach.into())
+            pixel_canvas.draw_sprite(
+                xy - sprite.sheet_rect.size / 2,
+                &sprite_sheet.main,
+                sprite.sheet_rect,
+            );
         }
     }
 

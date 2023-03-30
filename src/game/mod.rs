@@ -17,6 +17,7 @@ pub use crate::game::input::InputConfig;
 use crate::game::input::{GamepadControlsSystems, KeyboardControlsSystems, TouchControlsSystems};
 use crate::game::player::PlayerSystems;
 use crate::game::sprites::SpritesSystems;
+use crate::game::trail::TrailSystems;
 use crate::pico8::Pico8Color;
 use crate::pixel_canvas::{PixelCanvas, PixelCanvasPlugin};
 
@@ -27,6 +28,7 @@ mod input;
 mod player;
 mod position;
 mod sprites;
+mod trail;
 
 #[cfg(target_arch = "wasm32")]
 #[wasm_bindgen]
@@ -120,10 +122,17 @@ impl Plugin for GamePlugin {
             schedule.add_systems(
                 (
                     PlayerSystems::move_player.run_if(GameState::is_game_running),
+                    TrailSystems::update_trails.run_if(GameState::is_game_running),
+                    TrailSystems::update_particles.run_if(GameState::is_game_running),
+                    TrailSystems::draw_particles.run_if(GameState::is_game_loaded),
                     PlayerSystems::draw_player.run_if(GameState::is_game_loaded),
-                    TouchControlsSystems::draw_touch_controls.run_if(GameState::is_game_loaded),
                 )
                     .chain()
+                    .in_set(FixedFpsUpdateAndDraw),
+            );
+            schedule.add_system(
+                TouchControlsSystems::draw_touch_controls
+                    .run_if(GameState::is_game_loaded)
                     .in_set(FixedFpsUpdateAndDraw),
             );
             schedule.add_system(GameState::update_game_state.in_set(FixedFpsLast));

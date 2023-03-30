@@ -1,6 +1,7 @@
-use crate::irect::{irect, IRect};
 use bevy::math::ivec2;
 use bevy::prelude::{IVec2, Resource};
+
+use crate::irect::{irect, IRect};
 
 const GAME_AREA_WIDTH: i32 = 128;
 const GAME_AREA_HEIGHT: i32 = 128;
@@ -96,6 +97,13 @@ impl GameArea {
             GameAreaVariant::LandscapeControls => {
                 xy + ivec2(LANDSCAPE_TOUCH_CONTROLS_LEFT_SIDE_AREA_WIDTH, 0)
             },
+        }
+    }
+
+    pub fn game_area_rect_from(&self, rect: IRect) -> IRect {
+        IRect {
+            top_left: self.game_area_xy_from(rect.top_left),
+            size: rect.size,
         }
     }
 }
