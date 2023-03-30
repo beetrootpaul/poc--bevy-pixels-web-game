@@ -153,7 +153,7 @@ impl PixelCanvasPlugin {
         // It would be nice to use any RGB8 color (e.g. one from Pico8Color enum), but
         //   apparently they do not translate correctly when just dividing by 255.0.
         //   Therefore, let's just use pure black.
-        pixels.set_clear_color(pixels::wgpu::Color::BLACK);
+        pixels.clear_color(pixels::wgpu::Color::BLACK);
 
         let (real_x, real_y, real_w, _real_h) = pixels.context().scaling_renderer.clip_rect();
         let real_x = i32::try_from(real_x).unwrap();
