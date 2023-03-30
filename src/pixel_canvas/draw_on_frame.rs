@@ -392,7 +392,7 @@ mod tests {
     }
 
     #[test]
-    fn test_draw_ellipse_12x14() {
+    fn test_draw_ellipse_12x5() {
         const W: usize = 12;
         const H: usize = 5;
         let mut frame = [0; PX_LEN * W * H];
@@ -402,7 +402,7 @@ mod tests {
         DrawOnFrame::draw_ellipse(
             &mut ctx,
             IRect {
-                top_left: IVec2::ZERO,
+                top_left: ivec2(0, 0),
                 size: ivec2(12, 5),
             },
             Color::Solid { r: 1, g: 2, b: 3 },
