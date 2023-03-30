@@ -79,22 +79,22 @@ impl Plugin for GamePlugin {
 
         app.add_system(
             TouchControlsSystems::spawn_touch_controls
-                .in_base_set(CoreSet::PreUpdate)
+                .in_base_set(CoreSet::Update)
                 .run_if(GameState::is_game_loaded),
         );
         app.add_system(
             TouchControlsSystems::handle_touch_input
-                .in_base_set(CoreSet::PreUpdate)
+                .in_base_set(CoreSet::Update)
                 .run_if(GameState::is_game_loaded),
         );
         app.add_system(
             GamepadControlsSystems::handle_gamepad_input
-                .in_base_set(CoreSet::PreUpdate)
+                .in_base_set(CoreSet::Update)
                 .run_if(GameState::is_game_loaded),
         );
         app.add_system(
             KeyboardControlsSystems::handle_keyboard_input
-                .in_base_set(CoreSet::PreUpdate)
+                .in_base_set(CoreSet::Update)
                 .run_if(GameState::is_game_loaded),
         );
         app.add_system(AudioSystems::play_music.run_if(GameState::is_game_running));
