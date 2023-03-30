@@ -3,8 +3,8 @@ use bevy::prelude::IVec2;
 use image::{EncodableLayout, RgbaImage};
 
 use crate::irect::IRect;
-use crate::pixel_canvas::drawing_context::{DrawingContext, PX_LEN};
 use crate::pixel_canvas::Color;
+use crate::pixel_canvas::drawing_context::{DrawingContext, PX_LEN};
 
 pub struct DrawOnFrame;
 
@@ -148,8 +148,10 @@ impl DrawOnFrame {
 
 #[cfg(test)]
 mod tests {
+    use std::collections::HashMap;
+
     use bevy::math::ivec2;
-    use itertools::iproduct;
+    use itertools::Itertools;
 
     use crate::irect::irect;
     use crate::pixel_canvas::drawing_context::DrawingContext;
@@ -165,9 +167,15 @@ mod tests {
 
         DrawOnFrame::clear(&mut ctx, Color::Solid { r: 1, g: 2, b: 3 });
 
-        for (x, y) in iproduct!(0..W, 0..H) {
-            assert_color(&ctx, x, y, rgb(1, 2, 3));
-        }
+        assert_frame_pixels(
+            &ctx,
+            HashMap::from([(rgb(1, 2, 3), "#")]),
+            "
+                ###
+                ###
+                ###
+            ",
+        );
     }
 
     #[test]
@@ -181,13 +189,19 @@ mod tests {
         DrawOnFrame::set_pixel(&mut ctx, ivec2(0, 0), Color::Solid { r: 1, g: 2, b: 3 });
         DrawOnFrame::set_pixel(&mut ctx, ivec2(2, 2), Color::Solid { r: 2, g: 3, b: 4 });
 
-        for (x, y) in iproduct!(0..W, 0..H) {
-            match (x, y) {
-                (0, 0) => assert_color(&ctx, x, y, rgb(1, 2, 3)),
-                (2, 2) => assert_color(&ctx, x, y, rgb(2, 3, 4)),
-                _ => assert_color(&ctx, x, y, rgb(9, 8, 7)),
-            }
-        }
+        assert_frame_pixels(
+            &ctx,
+            HashMap::from([
+                (rgb(9, 8, 7), "-"),
+                (rgb(1, 2, 3), "#"),
+                (rgb(2, 3, 4), "@"),
+            ]),
+            "
+                #--
+                ---
+                --@
+            ",
+        );
     }
 
     #[test]
@@ -204,12 +218,17 @@ mod tests {
             Color::Solid { r: 1, g: 2, b: 3 },
         );
 
-        for (x, y) in iproduct!(0..W, 0..H) {
-            match (x, y) {
-                (1..=3, 2..=4) => assert_color(&ctx, x, y, rgb(1, 2, 3)),
-                _ => assert_color(&ctx, x, y, rgb(9, 8, 7)),
-            }
-        }
+        assert_frame_pixels(
+            &ctx,
+            HashMap::from([(rgb(9, 8, 7), "-"), (rgb(1, 2, 3), "#")]),
+            "
+                -----
+                -----
+                -###-
+                -###-
+                -###-
+            ",
+        );
     }
 
     #[test]
@@ -230,18 +249,21 @@ mod tests {
             false,
         );
 
-        for (x, y) in iproduct!(0..W, 0..H) {
-            match (x, y) {
-                (1, 1) => assert_color(&ctx, x, y, rgb(1, 2, 3)),
-                _ => assert_color(&ctx, x, y, rgb(9, 8, 7)),
-            }
-        }
+        assert_frame_pixels(
+            &ctx,
+            HashMap::from([(rgb(9, 8, 7), "-"), (rgb(1, 2, 3), "#")]),
+            "
+                ---
+                -#-
+                ---
+            ",
+        );
     }
 
     #[test]
     fn test_draw_ellipse_2x2() {
-        const W: usize = 3;
-        const H: usize = 3;
+        const W: usize = 4;
+        const H: usize = 4;
         let mut frame = [0; PX_LEN * W * H];
         let mut ctx = DrawingContext::new(&mut frame, W, H);
         DrawOnFrame::clear(&mut ctx, Color::Solid { r: 9, g: 8, b: 7 });
@@ -256,12 +278,16 @@ mod tests {
             false,
         );
 
-        for (x, y) in iproduct!(0..W, 0..H) {
-            match (x, y) {
-                (1..=2, 1..=2) => assert_color(&ctx, x, y, rgb(1, 2, 3)),
-                _ => assert_color(&ctx, x, y, rgb(9, 8, 7)),
-            }
-        }
+        assert_frame_pixels(
+            &ctx,
+            HashMap::from([(rgb(9, 8, 7), "-"), (rgb(1, 2, 3), "#")]),
+            "
+                ----
+                -##-
+                -##-
+                ----
+            ",
+        );
     }
 
     #[test]
@@ -282,15 +308,48 @@ mod tests {
             false,
         );
 
-        for (x, y) in iproduct!(0..W, 0..H) {
-            match (x, y) {
-                (2..=3, 1) => assert_color(&ctx, x, y, rgb(1, 2, 3)),
-                (1, 2) => assert_color(&ctx, x, y, rgb(1, 2, 3)),
-                (4, 2) => assert_color(&ctx, x, y, rgb(1, 2, 3)),
-                (2..=3, 3) => assert_color(&ctx, x, y, rgb(1, 2, 3)),
-                _ => assert_color(&ctx, x, y, rgb(9, 8, 7)),
-            }
-        }
+        assert_frame_pixels(
+            &ctx,
+            HashMap::from([(rgb(9, 8, 7), "-"), (rgb(1, 2, 3), "#")]),
+            "
+                ------
+                --##--
+                -#--#-
+                --##--
+                ------
+            ",
+        );
+    }
+
+    #[test]
+    fn test_draw_ellipse_12x14() {
+        const W: usize = 12;
+        const H: usize = 5;
+        let mut frame = [0; PX_LEN * W * H];
+        let mut ctx = DrawingContext::new(&mut frame, W, H);
+        DrawOnFrame::clear(&mut ctx, Color::Solid { r: 9, g: 8, b: 7 });
+
+        DrawOnFrame::draw_ellipse(
+            &mut ctx,
+            IRect {
+                top_left: IVec2::ZERO,
+                size: ivec2(12, 5),
+            },
+            Color::Solid { r: 1, g: 2, b: 3 },
+            false,
+        );
+
+        assert_frame_pixels(
+            &ctx,
+            HashMap::from([(rgb(9, 8, 7), "-"), (rgb(1, 2, 3), "#")]),
+            "
+                ---######---
+                -##------##-
+                #----------#
+                -##------##-
+                ---######---
+            ",
+        );
     }
 
     #[test]
@@ -311,18 +370,21 @@ mod tests {
             true,
         );
 
-        for (x, y) in iproduct!(0..W, 0..H) {
-            match (x, y) {
-                (1, 1) => assert_color(&ctx, x, y, rgb(1, 2, 3)),
-                _ => assert_color(&ctx, x, y, rgb(9, 8, 7)),
-            }
-        }
+        assert_frame_pixels(
+            &ctx,
+            HashMap::from([(rgb(9, 8, 7), "-"), (rgb(1, 2, 3), "#")]),
+            "
+                ---
+                -#-
+                ---
+            ",
+        );
     }
 
     #[test]
     fn test_draw_ellipse_filled_2x2() {
-        const W: usize = 3;
-        const H: usize = 3;
+        const W: usize = 4;
+        const H: usize = 4;
         let mut frame = [0; PX_LEN * W * H];
         let mut ctx = DrawingContext::new(&mut frame, W, H);
         DrawOnFrame::clear(&mut ctx, Color::Solid { r: 9, g: 8, b: 7 });
@@ -337,12 +399,16 @@ mod tests {
             true,
         );
 
-        for (x, y) in iproduct!(0..W, 0..H) {
-            match (x, y) {
-                (1..=2, 1..=2) => assert_color(&ctx, x, y, rgb(1, 2, 3)),
-                _ => assert_color(&ctx, x, y, rgb(9, 8, 7)),
-            }
-        }
+        assert_frame_pixels(
+            &ctx,
+            HashMap::from([(rgb(9, 8, 7), "-"), (rgb(1, 2, 3), "#")]),
+            "
+                ----
+                -##-
+                -##-
+                ----
+            ",
+        );
     }
 
     #[test]
@@ -363,27 +429,47 @@ mod tests {
             true,
         );
 
-        for (x, y) in iproduct!(0..W, 0..H) {
-            match (x, y) {
-                (2..=3, 1) => assert_color(&ctx, x, y, rgb(1, 2, 3)),
-                (1..=4, 2) => assert_color(&ctx, x, y, rgb(1, 2, 3)),
-                (2..=3, 3) => assert_color(&ctx, x, y, rgb(1, 2, 3)),
-                _ => assert_color(&ctx, x, y, rgb(9, 8, 7)),
-            }
-        }
+        assert_frame_pixels(
+            &ctx,
+            HashMap::from([(rgb(9, 8, 7), "-"), (rgb(1, 2, 3), "#")]),
+            "
+                ------
+                --##--
+                -####-
+                --##--
+                ------
+            ",
+        );
     }
 
-    fn assert_color(ctx: &DrawingContext, x: usize, y: usize, expected_color_slice: [u8; 4]) {
-        assert_eq!(
-            get_pixel(
-                ctx,
-                ivec2(i32::try_from(x).unwrap(), i32::try_from(y).unwrap())
-            ),
-            expected_color_slice,
-            "Color mismatch at ({},{})",
-            x,
-            y
-        );
+    fn assert_frame_pixels(
+        ctx: &DrawingContext,
+        color_symbols: HashMap<[u8; PX_LEN], &str>,
+        expected_frame_pixels: &str,
+    ) {
+        let expected_frame_pixels = expected_frame_pixels
+            .split('\n')
+            .map(|line| line.trim())
+            .filter(|line| !line.is_empty())
+            .join("\n");
+
+        let mut actual_frame_pixels = "".to_string();
+        for y in 0..ctx.h {
+            actual_frame_pixels += "\n";
+            for x in 0..ctx.w {
+                let pixel: [u8; PX_LEN] = get_pixel(
+                    ctx,
+                    ivec2(i32::try_from(x).unwrap(), i32::try_from(y).unwrap()),
+                );
+                match color_symbols.get(&pixel) {
+                    Some(symbol) => actual_frame_pixels += symbol,
+                    None => actual_frame_pixels += "?",
+                }
+            }
+        }
+        let actual_frame_pixels = actual_frame_pixels.as_str().trim();
+
+        assert_eq!(actual_frame_pixels, expected_frame_pixels);
     }
 
     fn get_pixel(ctx: &DrawingContext, xy: IVec2) -> [u8; PX_LEN] {
