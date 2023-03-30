@@ -43,7 +43,7 @@ impl PixelCanvas {
 
     fn drawing_context(&mut self) -> DrawingContext {
         DrawingContext::new(
-            self.pixels.get_frame_mut(),
+            self.pixels.frame_mut(),
             self.logical_width,
             self.logical_height,
         )

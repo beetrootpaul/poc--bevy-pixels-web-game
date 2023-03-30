@@ -14,40 +14,40 @@ pub struct SpriteSheet {
 
 impl SpriteSheet {
     pub const PLAYER_UP: Sprite = Sprite {
-        sheet_rect: irect(16, 16, 7, 7),
+        sheet_rect: irect(7, 7).at(16, 16),
     };
     pub const PLAYER_RIGHT: Sprite = Sprite {
-        sheet_rect: irect(24, 16, 7, 7),
+        sheet_rect: irect(7, 7).at(24, 16),
     };
     pub const PLAYER_DOWN: Sprite = Sprite {
-        sheet_rect: irect(32, 16, 7, 7),
+        sheet_rect: irect(7, 7).at(32, 16),
     };
     pub const PLAYER_LEFT: Sprite = Sprite {
-        sheet_rect: irect(40, 16, 7, 7),
+        sheet_rect: irect(7, 7).at(40, 16),
     };
 
     pub const TOUCH_BUTTON_UP: Sprite = Sprite {
-        sheet_rect: irect(0, 0, 30, 26),
+        sheet_rect: irect(30, 26).at(0, 0),
     };
     pub const TOUCH_BUTTON_RIGHT: Sprite = Sprite {
-        sheet_rect: irect(0, 26, 26, 30),
+        sheet_rect: irect(26, 30).at(0, 26),
     };
     pub const TOUCH_BUTTON_DOWN: Sprite = Sprite {
-        sheet_rect: irect(26, 30, 30, 26),
+        sheet_rect: irect(30, 26).at(26, 30),
     };
     pub const TOUCH_BUTTON_LEFT: Sprite = Sprite {
-        sheet_rect: irect(30, 0, 26, 30),
+        sheet_rect: irect(26, 30).at(30, 0),
     };
     pub const TOUCH_BUTTON_UP_PRESSED: Sprite = Sprite {
-        sheet_rect: irect(0, 56, 30, 26),
+        sheet_rect: irect(30, 26).at(0, 56),
     };
     pub const TOUCH_BUTTON_RIGHT_PRESSED: Sprite = Sprite {
-        sheet_rect: irect(0, 82, 26, 30),
+        sheet_rect: irect(26, 30).at(0, 82),
     };
     pub const TOUCH_BUTTON_DOWN_PRESSED: Sprite = Sprite {
-        sheet_rect: irect(26, 86, 30, 26),
+        sheet_rect: irect(30, 26).at(26, 86),
     };
     pub const TOUCH_BUTTON_LEFT_PRESSED: Sprite = Sprite {
-        sheet_rect: irect(30, 56, 26, 30),
+        sheet_rect: irect(26, 30).at(30, 56),
     };
 }

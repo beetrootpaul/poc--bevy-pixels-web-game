@@ -1,22 +1,23 @@
 use std::time::Duration;
 
 #[cfg(debug_assertions)]
-use bevy::diagnostic::{DiagnosticId, Diagnostics};
-#[cfg(debug_assertions)]
 use bevy::diagnostic::Diagnostic;
+#[cfg(debug_assertions)]
+use bevy::diagnostic::{DiagnosticId, Diagnostics};
 use bevy::prelude::*;
 
-use FixedFpsSystemSet::{FixedFpsLast, FixedFpsSpawning, FixedFpsUpdateAndDraw};
 #[cfg(target_arch = "wasm32")]
 use wasm_bindgen::prelude::*;
+use FixedFpsSystemSet::{FixedFpsLast, FixedFpsSpawning, FixedFpsUpdateAndDraw};
 
 use crate::game::audio::AudioSystems;
 pub use crate::game::game_area::{GameArea, GameAreaVariant};
 use crate::game::game_state::GameState;
-use crate::game::input::{GamepadControlsSystems, KeyboardControlsSystems, TouchControlsSystems};
 pub use crate::game::input::InputConfig;
+use crate::game::input::{GamepadControlsSystems, KeyboardControlsSystems, TouchControlsSystems};
 use crate::game::player::PlayerSystems;
 use crate::game::sprites::SpritesSystems;
+use crate::game::trail::TrailSystems;
 use crate::pico8::Pico8Color;
 use crate::pixel_canvas::{PixelCanvas, PixelCanvasPlugin};
 
@@ -27,6 +28,7 @@ mod input;
 mod player;
 mod position;
 mod sprites;
+mod trail;
 
 #[cfg(target_arch = "wasm32")]
 #[wasm_bindgen]
@@ -77,22 +79,22 @@ impl Plugin for GamePlugin {
 
         app.add_system(
             TouchControlsSystems::spawn_touch_controls
-                .in_base_set(CoreSet::PreUpdate)
+                .in_base_set(CoreSet::Update)
                 .run_if(GameState::is_game_loaded),
         );
         app.add_system(
             TouchControlsSystems::handle_touch_input
-                .in_base_set(CoreSet::PreUpdate)
+                .in_base_set(CoreSet::Update)
                 .run_if(GameState::is_game_loaded),
         );
         app.add_system(
             GamepadControlsSystems::handle_gamepad_input
-                .in_base_set(CoreSet::PreUpdate)
+                .in_base_set(CoreSet::Update)
                 .run_if(GameState::is_game_loaded),
         );
         app.add_system(
             KeyboardControlsSystems::handle_keyboard_input
-                .in_base_set(CoreSet::PreUpdate)
+                .in_base_set(CoreSet::Update)
                 .run_if(GameState::is_game_loaded),
         );
         app.add_system(AudioSystems::play_music.run_if(GameState::is_game_running));
@@ -120,10 +122,17 @@ impl Plugin for GamePlugin {
             schedule.add_systems(
                 (
                     PlayerSystems::move_player.run_if(GameState::is_game_running),
+                    TrailSystems::update_trails.run_if(GameState::is_game_running),
+                    TrailSystems::update_particles.run_if(GameState::is_game_running),
+                    TrailSystems::draw_particles.run_if(GameState::is_game_loaded),
                     PlayerSystems::draw_player.run_if(GameState::is_game_loaded),
-                    TouchControlsSystems::draw_touch_controls.run_if(GameState::is_game_loaded),
                 )
                     .chain()
+                    .in_set(FixedFpsUpdateAndDraw),
+            );
+            schedule.add_system(
+                TouchControlsSystems::draw_touch_controls
+                    .run_if(GameState::is_game_loaded)
                     .in_set(FixedFpsUpdateAndDraw),
             );
             schedule.add_system(GameState::update_game_state.in_set(FixedFpsLast));

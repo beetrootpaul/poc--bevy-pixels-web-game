@@ -7,7 +7,6 @@ pub struct GamepadControlsSystems;
 impl GamepadControlsSystems {
     const LEFT_STICK_THRESHOLD: f32 = 0.5;
 
-    // TODO: handle a case of multiple buttons pressed at once
     pub fn handle_gamepad_input(
         gamepads: Res<Gamepads>,
         gamepad_button_inputs: Res<Input<GamepadButton>>,
