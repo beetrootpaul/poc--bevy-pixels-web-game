@@ -3,8 +3,8 @@ use bevy::prelude::IVec2;
 use image::{EncodableLayout, RgbaImage};
 
 use crate::irect::IRect;
-use crate::pixel_canvas::Color;
 use crate::pixel_canvas::drawing_context::{DrawingContext, PX_LEN};
+use crate::pixel_canvas::Color;
 
 pub struct DrawOnFrame;
 
@@ -438,6 +438,70 @@ mod tests {
                 -####-
                 --##--
                 ------
+            ",
+        );
+    }
+
+    #[test]
+    fn test_draw_ellipses_clipped() {
+        const W: usize = 5;
+        const H: usize = 5;
+        let mut frame = [0; PX_LEN * W * H];
+        let mut ctx = DrawingContext::new(&mut frame, W, H);
+        DrawOnFrame::clear(&mut ctx, Color::Solid { r: 9, g: 8, b: 7 });
+
+        // clipped from the left
+        DrawOnFrame::draw_ellipse(
+            &mut ctx,
+            irect(-1, 1, 3, 3),
+            Color::Solid { r: 1, g: 1, b: 1 },
+            true,
+        );
+        // clipped from the right
+        DrawOnFrame::draw_ellipse(
+            &mut ctx,
+            irect(3, 1, 3, 3),
+            Color::Solid { r: 2, g: 2, b: 2 },
+            true,
+        );
+        // clipped from the top
+        DrawOnFrame::draw_ellipse(
+            &mut ctx,
+            irect(1, -1, 3, 3),
+            Color::Solid { r: 3, g: 3, b: 3 },
+            true,
+        );
+        // clipped from the bottom
+        DrawOnFrame::draw_ellipse(
+            &mut ctx,
+            irect(1, 3, 3, 3),
+            Color::Solid { r: 4, g: 4, b: 4 },
+            true,
+        );
+        // drawn last, but clipped entirely
+        DrawOnFrame::draw_ellipse(
+            &mut ctx,
+            irect(-2, -2, 3, 3),
+            Color::Solid { r: 5, g: 5, b: 5 },
+            true,
+        );
+
+        assert_frame_pixels(
+            &ctx,
+            HashMap::from([
+                (rgb(9, 8, 7), "-"),
+                (rgb(1, 1, 1), "#"),
+                (rgb(2, 2, 2), "@"),
+                (rgb(3, 3, 3), "%"),
+                (rgb(4, 4, 4), "*"),
+                (rgb(5, 5, 5), "!"),
+            ]),
+            "
+                -%%%-
+                #-%-@
+                ##-@@
+                #-*-@
+                -***-
             ",
         );
     }
