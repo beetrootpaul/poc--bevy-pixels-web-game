@@ -1,5 +1,5 @@
 #[allow(dead_code)]
-#[derive(PartialEq, Debug)]
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
 pub enum Color {
     Solid {
         // each color as a value between 0 and 255

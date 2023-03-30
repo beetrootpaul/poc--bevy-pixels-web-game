@@ -145,9 +145,9 @@ impl GamePlugin {
     }
 
     fn clear_canvas(mut pixel_canvas: ResMut<PixelCanvas>, game_area: Res<GameArea>) {
-        pixel_canvas.draw_filled_rect(game_area.rect(), Pico8Color::DarkBlue.into());
+        pixel_canvas.draw_rect_filled(game_area.rect(), Pico8Color::DarkBlue.into());
         for outer_rect in game_area.outer_rects().iter() {
-            pixel_canvas.draw_filled_rect(*outer_rect, Pico8Color::Black.into());
+            pixel_canvas.draw_rect_filled(*outer_rect, Pico8Color::Black.into());
         }
     }
 
