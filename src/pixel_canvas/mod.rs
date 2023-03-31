@@ -1,12 +1,15 @@
-use bevy::math::{dvec2, DVec2, IVec2};
+use bevy::math::{dvec2, ivec2, DVec2, IVec2};
 use bevy::prelude::Resource;
+use bevy::utils::HashMap;
 use image::RgbaImage;
 use pixels::Pixels;
 
 pub use color::Color;
 pub use plugin::PixelCanvasPlugin;
 
+use crate::font::{FontGlyph, FontSheet};
 use crate::irect::IRect;
+use crate::pico8::Pico8Color;
 use crate::pixel_canvas::draw_on_frame::DrawOnFrame;
 use crate::pixel_canvas::drawing_context::DrawingContext;
 
@@ -81,6 +84,27 @@ impl PixelCanvas {
             target_xy,
             rgba_image,
             source_rect,
+            HashMap::new(),
         );
+    }
+
+    #[allow(dead_code)]
+    pub fn draw_text<FS: FontSheet>(&mut self, target_xy: IVec2, font_sheet: &FS, text: &str) {
+        let font_sheet_image = font_sheet.rgba_image();
+        let mut xy = target_xy;
+        for char in text.chars() {
+            let glyph_rect = font_sheet.rect_of(FontGlyph::of(char));
+            DrawOnFrame::draw_sprite(
+                &mut self.drawing_context(),
+                xy,
+                font_sheet_image,
+                glyph_rect,
+                HashMap::from([
+                    (font_sheet.font_color(), Pico8Color::White.into()),
+                    (font_sheet.transparent_color(), Color::Transparent),
+                ]),
+            );
+            xy += ivec2(glyph_rect.w() + 1, 0);
+        }
     }
 }

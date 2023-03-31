@@ -31,7 +31,7 @@ pub enum PlayerMovement {
 pub struct PlayerSystems;
 
 impl PlayerSystems {
-    pub fn there_is_no_player(query: Query<&Player>) -> bool {
+    pub fn there_is_no_player(query: Query<(), With<Player>>) -> bool {
         query.iter().count() == 0
     }
 
@@ -68,7 +68,7 @@ impl PlayerSystems {
     }
 
     pub fn draw_player(
-        sprite_sheet: ResMut<SpriteSheet>,
+        sprite_sheet: Res<SpriteSheet>,
         query: Query<(&Position, &PlayerMovement), With<Player>>,
         mut pixel_canvas: ResMut<PixelCanvas>,
         game_area: Res<GameArea>,
