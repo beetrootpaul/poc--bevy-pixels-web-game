@@ -38,6 +38,7 @@ update_rust_toolchain:
 	rustup update stable
 
 clean_up:
+	rm -rf ./_generated_dir_with_bundle_assets_/
 	trunk clean
 	trunk --config ./Trunk.release.toml clean
 	trunk --config ./Trunk.itch_io.toml clean
@@ -70,11 +71,17 @@ visualize_schedule_fixed_update:
 # # # # # # # # # #
 # build commands
 #
-build_release_host:
+
+generate_dir_with_bundle_assets:
+	rm -rf ./_generated_dir_with_bundle_assets_/
+	mkdir -p ./_generated_dir_with_bundle_assets_/
+	cp ./assets/*.ogg ./_generated_dir_with_bundle_assets_/
+
+build_release_host: generate_dir_with_bundle_assets
 	$(rust_flags_release) cargo build --release
 	rm -rf ./target/release/assets/
 	mkdir -p ./target/release/assets/
-	cp ./assets/*.ogg ./target/release/assets/
+	cp -R ./_generated_dir_with_bundle_assets_/ ./target/release/assets/
 
 # # # # # # # # #
 # run commands
@@ -83,6 +90,8 @@ build_release_host:
 run_debug_host:
 	$(rust_log_debug) cargo run --features bevy/dynamic_linking
 
+# For a debug web build we do not call `generate_dir_with_bundle_assets` step,
+#   because it is run by `trunk` itself on every detected asset change.
 run_debug_web:
 	mkdir -p ./dist/web_debug/
 	$(rust_log_debug) trunk serve
@@ -90,14 +99,14 @@ run_debug_web:
 run_release_host: build_release_host
 	./target/release/bevy_pixels_web_game_poc
 
-run_release_web:
+run_release_web: generate_dir_with_bundle_assets
 	$(rust_flags_release) trunk --config ./Trunk.release.toml serve
 
 # # # # # # # # #
 # dist commands
 #
 
-dist_itch_io:
+dist_itch_io: generate_dir_with_bundle_assets
 	trunk --config ./Trunk.itch_io.toml clean
 	$(rust_flags_release) trunk --config ./Trunk.itch_io.toml build
 	rm -f ./dist/bevy_pixels_web_game_poc__itch_io.zip

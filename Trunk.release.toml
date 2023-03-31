@@ -12,3 +12,10 @@ open = true
 
 [clean]
 dist = "dist/web_release"
+
+# Apparently, "data-target-path" attr is not used by `trunk` on my "copy-dir" asset HTML config.
+# Therefore, let's do its job here, as a post-build hook.
+[[hooks]]
+stage = "post_build"
+command = "mv"
+command_arguments = ["./dist/web_release/.stage/_generated_dir_with_bundle_assets_/", "./dist/web_release/.stage/assets/"]
