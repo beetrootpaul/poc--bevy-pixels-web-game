@@ -5,6 +5,7 @@ use bevy::window::WindowResolution;
 
 use crate::game::{GamePlugin, GAME_TITLE};
 
+mod font;
 mod game;
 mod irect;
 mod pico8;

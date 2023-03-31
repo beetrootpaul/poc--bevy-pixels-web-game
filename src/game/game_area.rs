@@ -102,7 +102,7 @@ impl GameArea {
 
     pub fn game_area_rect_from(&self, rect: IRect) -> IRect {
         IRect {
-            top_left: self.game_area_xy_from(rect.top_left),
+            left_top: self.game_area_xy_from(rect.left_top),
             size: rect.size,
         }
     }

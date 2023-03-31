@@ -17,8 +17,10 @@ pub use crate::game::input::InputConfig;
 use crate::game::input::{GamepadControlsSystems, KeyboardControlsSystems, TouchControlsSystems};
 use crate::game::player::PlayerSystems;
 use crate::game::sprites::SpritesSystems;
+use crate::game::text::TextSystems;
+use crate::game::top_bar::TopBarSystems;
 use crate::game::trail::TrailSystems;
-use crate::pico8::Pico8Color;
+use crate::pico8::{Pico8Color, Pico8FontSystems};
 use crate::pixel_canvas::{PixelCanvas, PixelCanvasPlugin};
 
 mod audio;
@@ -28,6 +30,8 @@ mod input;
 mod player;
 mod position;
 mod sprites;
+mod text;
+mod top_bar;
 mod trail;
 
 #[cfg(target_arch = "wasm32")]
@@ -75,6 +79,7 @@ impl Plugin for GamePlugin {
         #[cfg(debug_assertions)]
         app.add_startup_system(Self::setup_measurements);
         app.add_startup_system(SpritesSystems::load_sprite_sheet);
+        app.add_startup_system(Pico8FontSystems::load_font_sheet);
         app.add_startup_system(AudioSystems::load_music_files);
 
         app.add_system(
@@ -104,6 +109,12 @@ impl Plugin for GamePlugin {
             schedule
                 .configure_sets((FixedFpsSpawning, FixedFpsUpdateAndDraw, FixedFpsLast).chain());
             schedule.add_system(
+                TopBarSystems::spawn_top_bar
+                    .run_if(TopBarSystems::there_is_no_top_bar)
+                    .in_set(FixedFpsSpawning)
+                    .run_if(GameState::is_game_running),
+            );
+            schedule.add_system(
                 PlayerSystems::spawn_player
                     .run_if(PlayerSystems::there_is_no_player)
                     .in_set(FixedFpsSpawning)
@@ -126,6 +137,7 @@ impl Plugin for GamePlugin {
                     TrailSystems::update_particles.run_if(GameState::is_game_running),
                     TrailSystems::draw_particles.run_if(GameState::is_game_loaded),
                     PlayerSystems::draw_player.run_if(GameState::is_game_loaded),
+                    TextSystems::draw_texts,
                 )
                     .chain()
                     .in_set(FixedFpsUpdateAndDraw),

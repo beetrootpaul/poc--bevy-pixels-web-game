@@ -42,7 +42,11 @@ impl TouchControlsSystems {
 
         info!("SPAWN touch controls");
 
-        if let Some(IRect { top_left, size }) = game_area.touch_controls_area() {
+        if let Some(IRect {
+            left_top: top_left,
+            size,
+        }) = game_area.touch_controls_area()
+        {
             let area_center = top_left + size / 2;
             let distance = 28;
 
