@@ -5,6 +5,8 @@ combined with [pixels](https://github.com/parasyte/pixels) library for drawing.
 
 Based on https://github.com/beetrootpaul/avoid-your-past (partial rewrite).
 
+Deployed to https://beetrootpaul.itch.io/bevy-pixels-web-game-poc
+
 ## Quick start
 
 - `make setup` – initial Rust toolchain setup
