@@ -1,5 +1,6 @@
 use bevy::math::ivec2;
 use bevy::prelude::IVec2;
+use bevy::utils::HashMap;
 use image::{EncodableLayout, RgbaImage};
 
 use crate::irect::IRect;
@@ -127,6 +128,7 @@ impl DrawOnFrame {
         target_xy: IVec2,
         rgba_image: &RgbaImage,
         source_rect: IRect,
+        color_replacements: HashMap<[u8; 4], Color>,
     ) {
         if let Some(pixel_index) = ctx.pixel_first_index_for(target_xy) {
             let sprite_w = usize::try_from(source_rect.w()).unwrap();
@@ -134,22 +136,24 @@ impl DrawOnFrame {
             let sprite_bytes: &[u8] = rgba_image.as_bytes();
             for sprite_row in 0..sprite_h {
                 for sprite_column in 0..sprite_w {
-                    let target_i_r = pixel_index + (sprite_row * ctx.w + sprite_column) * PX_LEN;
-                    let target_i_g = target_i_r + 1;
-                    let target_i_b = target_i_g + 1;
-                    let target_i_a = target_i_b + 1;
-                    let source_i_r = ((usize::try_from(source_rect.y0()).unwrap() + sprite_row)
+                    let target_i = pixel_index + (sprite_row * ctx.w + sprite_column) * PX_LEN;
+                    let source_i = ((usize::try_from(source_rect.y0()).unwrap() + sprite_row)
                         * usize::try_from(rgba_image.width()).unwrap()
                         + (usize::try_from(source_rect.x0()).unwrap() + sprite_column))
                         * PX_LEN;
-                    let source_i_g = source_i_r + 1;
-                    let source_i_b = source_i_g + 1;
-                    let source_i_a = source_i_b + 1;
-                    if sprite_bytes[source_i_a] > 0x88 {
-                        ctx.frame[target_i_r] = sprite_bytes[source_i_r];
-                        ctx.frame[target_i_g] = sprite_bytes[source_i_g];
-                        ctx.frame[target_i_b] = sprite_bytes[source_i_b];
-                        ctx.frame[target_i_a] = sprite_bytes[source_i_a];
+                    let source_rgba = &sprite_bytes[source_i..(source_i + PX_LEN)];
+                    if let Some(color) = color_replacements.get(source_rgba) {
+                        if let Color::Solid { r, g, b } = color {
+                            ctx.frame[target_i] = *r;
+                            ctx.frame[target_i + 1] = *g;
+                            ctx.frame[target_i + 2] = *b;
+                            ctx.frame[target_i + 3] = 0xff;
+                        }
+                    } else if source_rgba[3] > 0x88 {
+                        ctx.frame[target_i] = source_rgba[0];
+                        ctx.frame[target_i + 1] = source_rgba[1];
+                        ctx.frame[target_i + 2] = source_rgba[2];
+                        ctx.frame[target_i + 3] = source_rgba[3];
                     }
                 }
             }
@@ -159,8 +163,6 @@ impl DrawOnFrame {
 
 #[cfg(test)]
 mod tests {
-    use std::collections::HashMap;
-
     use bevy::math::ivec2;
     use itertools::Itertools;
 

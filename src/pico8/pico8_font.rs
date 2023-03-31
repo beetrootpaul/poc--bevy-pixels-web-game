@@ -80,4 +80,12 @@ impl FontSheet for Pico8FontSheet {
             Self::CELL_H * (cell_index / Self::CELLS_PER_ROW),
         )
     }
+
+    fn font_color(&self) -> [u8; 4] {
+        [0xff, 0xff, 0xff, 0xff]
+    }
+
+    fn transparent_color(&self) -> [u8; 4] {
+        [0xde, 0x72, 0x98, 0xff]
+    }
 }

@@ -1,6 +1,5 @@
 use bevy::prelude::*;
 
-use crate::font::FontGlyph;
 use crate::game::position::Position;
 use crate::game::GameArea;
 use crate::pico8::Pico8FontSheet;
