@@ -26,6 +26,10 @@ impl SpriteSheet {
         sheet_rect: irect(7, 7).at(40, 16),
     };
 
+    pub const COIN_FRAME_1: Sprite = Sprite {
+        sheet_rect: irect(6, 6).at(1, 1),
+    };
+
     pub const TOUCH_BUTTON_UP: Sprite = Sprite {
         sheet_rect: irect(30, 26).at(0, 0),
     };

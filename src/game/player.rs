@@ -1,4 +1,5 @@
-use bevy::math::ivec2;
+use crate::game::collision::HitCircle;
+use bevy::math::{ivec2, vec2};
 use bevy::prelude::*;
 
 use crate::game::game_area::GameArea;
@@ -14,6 +15,7 @@ struct PlayerBundle {
     player: Player,
     player_movement: PlayerMovement,
     position: Position,
+    hit_circle: HitCircle,
     trail_source: TrailSource,
 }
 
@@ -44,6 +46,10 @@ impl PlayerSystems {
             player: Player,
             player_movement: initial_movement,
             position: Position(ivec2(10, 10)),
+            hit_circle: HitCircle {
+                r: 3.5,
+                offset: vec2(-3.0, -3.0),
+            },
             trail_source: TrailSource::new(),
         });
     }
