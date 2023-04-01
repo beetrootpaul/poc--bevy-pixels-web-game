@@ -1,5 +1,7 @@
+use crate::game::audio::AudioFiles;
+use bevy::audio::{Audio, PlaybackSettings};
 use bevy::hierarchy::DespawnRecursiveExt;
-use bevy::prelude::{Commands, Entity, Query, With};
+use bevy::prelude::{Commands, Entity, Query, Res, With};
 
 use crate::game::coin::Coin;
 use crate::game::collision::{Collision, HitCircle};
@@ -13,6 +15,8 @@ impl CollectCoinsSystems {
         mut commands: Commands,
         players_query: Query<(&Position, &HitCircle), With<Player>>,
         coins_query: Query<(Entity, &Position, &HitCircle), With<Coin>>,
+        audio: Res<Audio>,
+        audio_files: Res<AudioFiles>,
     ) {
         for (player_position, player_hit_circle) in players_query.iter() {
             for (coin_entity, coin_position, coin_hit_circle) in coins_query.iter() {
@@ -23,6 +27,10 @@ impl CollectCoinsSystems {
                     coin_hit_circle,
                 ) {
                     commands.entity(coin_entity).despawn_recursive();
+                    audio.play_with_settings(
+                        audio_files.sfx_coin_collected.clone(),
+                        PlaybackSettings::ONCE,
+                    );
                 }
             }
         }

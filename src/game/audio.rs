@@ -5,6 +5,7 @@ pub struct AudioSystems;
 #[derive(Resource, Default)]
 pub struct AudioFiles {
     pub music_base: Handle<AudioSource>,
+    pub sfx_coin_collected: Handle<AudioSource>,
 }
 
 impl AudioFiles {
@@ -16,8 +17,12 @@ impl AudioFiles {
 impl AudioSystems {
     pub fn load_music_files(mut commands: Commands, asset_server: Res<AssetServer>) {
         info!("Loading music files…");
-        let handle = asset_server.load("music_base.ogg");
-        commands.insert_resource(AudioFiles { music_base: handle });
+        let music_base = asset_server.load("music_base.ogg");
+        let sfx_coin_collected = asset_server.load("sfx_coin_collected.ogg");
+        commands.insert_resource(AudioFiles {
+            music_base,
+            sfx_coin_collected,
+        });
     }
 
     pub fn play_music(
