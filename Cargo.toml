@@ -32,7 +32,7 @@ pixels = "0.12.0" # https://crates.io/crates/pixels
 rand = "0.8.5"
 
 [dependencies.bevy] # https://crates.io/crates/bevy
-version = "0.10.0"
+version = "0.10.1"
 # Available features: https://docs.rs/crate/bevy/latest/features
 #
 # Please, keep bevy's render and bevy_wgpu features disabled, since (according to https://crates.io/crates/bevy_pixels )
