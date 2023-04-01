@@ -1,21 +1,22 @@
 use std::time::Duration;
 
 #[cfg(debug_assertions)]
-use bevy::diagnostic::Diagnostic;
-#[cfg(debug_assertions)]
 use bevy::diagnostic::{DiagnosticId, Diagnostics};
+#[cfg(debug_assertions)]
+use bevy::diagnostic::Diagnostic;
 use bevy::prelude::*;
 
+use FixedFpsSystemSet::{FixedFpsLast, FixedFpsSpawning, FixedFpsUpdateAndDraw};
 #[cfg(target_arch = "wasm32")]
 use wasm_bindgen::prelude::*;
-use FixedFpsSystemSet::{FixedFpsLast, FixedFpsSpawning, FixedFpsUpdateAndDraw};
 
 use crate::game::audio::AudioSystems;
 use crate::game::coin::CoinSystems;
+use crate::game::collision::CollisionSystems;
 pub use crate::game::game_area::{GameArea, GameAreaVariant};
 use crate::game::game_state::GameState;
-pub use crate::game::input::InputConfig;
 use crate::game::input::{GamepadControlsSystems, KeyboardControlsSystems, TouchControlsSystems};
+pub use crate::game::input::InputConfig;
 use crate::game::player::PlayerSystems;
 use crate::game::sprites::SpritesSystems;
 use crate::game::text::TextSystems;
@@ -26,6 +27,7 @@ use crate::pixel_canvas::{PixelCanvas, PixelCanvasPlugin};
 
 mod audio;
 mod coin;
+mod collision;
 mod game_area;
 mod game_state;
 mod input;
@@ -146,6 +148,7 @@ impl Plugin for GamePlugin {
                     TrailSystems::draw_particles,
                     CoinSystems::draw_coin,
                     PlayerSystems::draw_player,
+                    CollisionSystems::draw_hit_circles,
                     TextSystems::draw_texts,
                 )
                     .chain()
