@@ -1,9 +1,9 @@
-use crate::game::collision::HitCircle;
 use bevy::log::debug;
-use bevy::math::{ivec2, IVec2, vec2};
+use bevy::math::{ivec2, vec2};
 use bevy::prelude::{Bundle, Commands, Component, Query, Res, ResMut, With};
 use rand::Rng;
 
+use crate::game::collision::HitCircle;
 use crate::game::position::Position;
 use crate::game::sprites::SpriteSheet;
 use crate::game::GameArea;
@@ -32,7 +32,7 @@ impl CoinSystems {
             )),
             hit_circle: HitCircle {
                 r: 5.0,
-                offset: vec2(-5.0,-5.0),
+                offset: vec2(-5.0, -5.0),
             },
         });
     }

@@ -156,6 +156,7 @@ impl Plugin for GamePlugin {
                     TrailSystems::draw_particles,
                     CoinSystems::draw_coin,
                     PlayerSystems::draw_player,
+                    #[cfg(debug_assertions)]
                     CollisionSystems::draw_hit_circles,
                     TextSystems::draw_texts,
                     TouchControlsSystems::draw_touch_controls.run_if(GameState::is_game_loaded),
