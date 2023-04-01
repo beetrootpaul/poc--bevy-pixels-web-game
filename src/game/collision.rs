@@ -13,9 +13,11 @@ pub struct HitCircle {
     pub offset: Vec2,
 }
 
+#[allow(dead_code)]
 pub struct CollisionSystems;
 
 impl CollisionSystems {
+    #[allow(dead_code)]
     pub fn draw_hit_circles(
         query: Query<(&HitCircle, &Position)>,
         game_area: Res<GameArea>,

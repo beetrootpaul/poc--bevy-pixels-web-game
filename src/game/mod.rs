@@ -12,6 +12,7 @@ use FixedFpsSystemSet::{FixedFpsLast, FixedFpsSpawning};
 
 use crate::game::audio::AudioSystems;
 use crate::game::coin::CoinSystems;
+#[cfg(debug_assertions)]
 use crate::game::collision::CollisionSystems;
 pub use crate::game::game_area::{GameArea, GameAreaVariant};
 use crate::game::game_state::GameState;

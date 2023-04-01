@@ -1,5 +1,6 @@
-use crate::game::audio::AudioFiles;
-use bevy::audio::{Audio, PlaybackSettings};
+use crate::game::audio::{AudioFiles, Playback};
+use bevy::asset::Assets;
+use bevy::audio::{Audio, AudioSink, PlaybackSettings};
 use bevy::hierarchy::DespawnRecursiveExt;
 use bevy::prelude::{Commands, Entity, Query, Res, With};
 
@@ -17,6 +18,8 @@ impl CollectCoinsSystems {
         coins_query: Query<(Entity, &Position, &HitCircle), With<Coin>>,
         audio: Res<Audio>,
         audio_files: Res<AudioFiles>,
+        playback: Res<Playback>,
+        audio_sinks: Res<Assets<AudioSink>>,
     ) {
         for (player_position, player_hit_circle) in players_query.iter() {
             for (coin_entity, coin_position, coin_hit_circle) in coins_query.iter() {
@@ -31,6 +34,7 @@ impl CollectCoinsSystems {
                         audio_files.sfx_coin_collected.clone(),
                         PlaybackSettings::ONCE,
                     );
+                    playback.toggle_melody(audio_sinks.as_ref());
                 }
             }
         }
