@@ -14,7 +14,9 @@ Deployed to https://beetrootpaul.itch.io/bevy-pixels-web-game-poc
 - `make web` – build the app for the web and run it (requires opening a printed URL in a browser)
 
 On a touch-enabled devices (e.g. a smartphone) additional arrows GUI appears on the left (in landscape screen
-orientation) or below the game (in a portrait one).​
+orientation) or below the game (in a portrait one).
+
+The main game loop is based on a fixed timestamp, running at 30 FPS.
 
 ## License
 

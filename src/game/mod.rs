@@ -10,8 +10,9 @@ use bevy::prelude::*;
 use wasm_bindgen::prelude::*;
 use FixedFpsSystemSet::{FixedFpsLast, FixedFpsSpawning};
 
-use crate::game::audio::AudioSystems;
+use crate::game::audio::{AudioSystems, Playback};
 use crate::game::coin::CoinSystems;
+#[cfg(debug_assertions)]
 use crate::game::collision::CollisionSystems;
 pub use crate::game::game_area::{GameArea, GameAreaVariant};
 use crate::game::game_state::GameState;
@@ -64,6 +65,8 @@ pub struct GamePlugin;
 
 impl Plugin for GamePlugin {
     fn build(&self, app: &mut App) {
+        app.init_resource::<Playback>();
+
         app.insert_resource(InputConfig {
             #[cfg(not(target_arch = "wasm32"))]
             is_touch_available: false,
