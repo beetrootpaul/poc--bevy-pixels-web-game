@@ -11,6 +11,7 @@ use wasm_bindgen::prelude::*;
 use FixedFpsSystemSet::{FixedFpsLast, FixedFpsSpawning, FixedFpsUpdateAndDraw};
 
 use crate::game::audio::AudioSystems;
+use crate::game::coin::CoinSystems;
 pub use crate::game::game_area::{GameArea, GameAreaVariant};
 use crate::game::game_state::GameState;
 pub use crate::game::input::InputConfig;
@@ -24,6 +25,7 @@ use crate::pico8::{Pico8Color, Pico8FontSystems};
 use crate::pixel_canvas::{PixelCanvas, PixelCanvasPlugin};
 
 mod audio;
+mod coin;
 mod game_area;
 mod game_state;
 mod input;
@@ -121,6 +123,12 @@ impl Plugin for GamePlugin {
                     .run_if(GameState::is_game_running),
             );
             schedule.add_system(
+                CoinSystems::spawn_coin
+                    .run_if(CoinSystems::there_is_no_coin)
+                    .in_set(FixedFpsSpawning)
+                    .run_if(GameState::is_game_running),
+            );
+            schedule.add_system(
                 apply_system_buffers
                     .after(FixedFpsSpawning)
                     .before(FixedFpsUpdateAndDraw),
@@ -135,8 +143,9 @@ impl Plugin for GamePlugin {
                     PlayerSystems::move_player.run_if(GameState::is_game_running),
                     TrailSystems::update_trails.run_if(GameState::is_game_running),
                     TrailSystems::update_particles.run_if(GameState::is_game_running),
-                    TrailSystems::draw_particles.run_if(GameState::is_game_loaded),
-                    PlayerSystems::draw_player.run_if(GameState::is_game_loaded),
+                    TrailSystems::draw_particles,
+                    CoinSystems::draw_coin,
+                    PlayerSystems::draw_player,
                     TextSystems::draw_texts,
                 )
                     .chain()
