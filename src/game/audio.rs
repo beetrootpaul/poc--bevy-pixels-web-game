@@ -10,15 +10,17 @@ pub struct AudioFiles {
     pub sfx_coin_collected: Handle<AudioSource>,
 }
 
-#[derive(Resource)]
+#[derive(Resource, Default)]
 pub struct Playback {
-    music_melody_sink_handle: Handle<AudioSink>,
+    music_melody_sink_handle: Option<Handle<AudioSink>>,
 }
 
 impl Playback {
     pub fn toggle_melody(&self, audio_sinks: &Assets<AudioSink>) {
-        if let Some(sink) = audio_sinks.get(&self.music_melody_sink_handle) {
-            sink.set_volume(1.0 - sink.volume());
+        if let Some(handle) = &self.music_melody_sink_handle {
+            if let Some(sink) = audio_sinks.get(handle) {
+                sink.set_volume(1.0 - sink.volume());
+            }
         }
     }
 }
@@ -67,7 +69,7 @@ impl AudioSystems {
             ));
 
             commands.insert_resource(Playback {
-                music_melody_sink_handle,
+                music_melody_sink_handle: Some(music_melody_sink_handle),
             });
         }
     }
