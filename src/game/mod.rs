@@ -1,27 +1,29 @@
 use std::time::Duration;
 
 #[cfg(debug_assertions)]
-use bevy::diagnostic::{DiagnosticId, Diagnostics};
-#[cfg(debug_assertions)]
 use bevy::diagnostic::Diagnostic;
+#[cfg(debug_assertions)]
+use bevy::diagnostic::{DiagnosticId, Diagnostics};
 use bevy::prelude::*;
 
-use FixedFpsSystemSet::{FixedFpsLast, FixedFpsSpawning, FixedFpsUpdateAndDraw};
 #[cfg(target_arch = "wasm32")]
 use wasm_bindgen::prelude::*;
+use FixedFpsSystemSet::{FixedFpsLast, FixedFpsSpawning};
 
 use crate::game::audio::AudioSystems;
 use crate::game::coin::CoinSystems;
 use crate::game::collision::CollisionSystems;
 pub use crate::game::game_area::{GameArea, GameAreaVariant};
 use crate::game::game_state::GameState;
-use crate::game::input::{GamepadControlsSystems, KeyboardControlsSystems, TouchControlsSystems};
 pub use crate::game::input::InputConfig;
+use crate::game::input::{GamepadControlsSystems, KeyboardControlsSystems, TouchControlsSystems};
+use crate::game::logic::CollectCoinsSystems;
 use crate::game::player::PlayerSystems;
 use crate::game::sprites::SpritesSystems;
 use crate::game::text::TextSystems;
 use crate::game::top_bar::TopBarSystems;
 use crate::game::trail::TrailSystems;
+use crate::game::FixedFpsSystemSet::{FixedFpsDraw, FixedFpsUpdate};
 use crate::pico8::{Pico8Color, Pico8FontSystems};
 use crate::pixel_canvas::{PixelCanvas, PixelCanvasPlugin};
 
@@ -31,6 +33,7 @@ mod collision;
 mod game_area;
 mod game_state;
 mod input;
+mod logic;
 mod player;
 mod position;
 mod sprites;
@@ -52,7 +55,8 @@ const DESIRED_FPS: u64 = 30;
 #[derive(SystemSet, Debug, Hash, PartialEq, Eq, Clone)]
 enum FixedFpsSystemSet {
     FixedFpsSpawning,
-    FixedFpsUpdateAndDraw,
+    FixedFpsUpdate,
+    FixedFpsDraw,
     FixedFpsLast,
 }
 
@@ -110,54 +114,54 @@ impl Plugin for GamePlugin {
 
         app.insert_resource(Self::fixed_time());
         app.edit_schedule(CoreSchedule::FixedUpdate, |schedule| {
-            schedule
-                .configure_sets((FixedFpsSpawning, FixedFpsUpdateAndDraw, FixedFpsLast).chain());
-            schedule.add_system(
-                TopBarSystems::spawn_top_bar
-                    .run_if(TopBarSystems::there_is_no_top_bar)
-                    .in_set(FixedFpsSpawning)
-                    .run_if(GameState::is_game_running),
+            schedule.configure_sets(
+                (FixedFpsSpawning, FixedFpsUpdate, FixedFpsDraw, FixedFpsLast).chain(),
             );
-            schedule.add_system(
-                PlayerSystems::spawn_player
-                    .run_if(PlayerSystems::there_is_no_player)
-                    .in_set(FixedFpsSpawning)
-                    .run_if(GameState::is_game_running),
-            );
-            schedule.add_system(
-                CoinSystems::spawn_coin
-                    .run_if(CoinSystems::there_is_no_coin)
-                    .in_set(FixedFpsSpawning)
-                    .run_if(GameState::is_game_running),
+            schedule.add_systems(
+                (
+                    TopBarSystems::spawn_top_bar
+                        .run_if(TopBarSystems::there_is_no_top_bar)
+                        .run_if(GameState::is_game_running),
+                    PlayerSystems::spawn_player
+                        .run_if(PlayerSystems::there_is_no_player)
+                        .run_if(GameState::is_game_running),
+                    CoinSystems::spawn_coin
+                        .run_if(CoinSystems::there_is_no_coin)
+                        .run_if(GameState::is_game_running),
+                )
+                    .in_set(FixedFpsSpawning),
             );
             schedule.add_system(
                 apply_system_buffers
                     .after(FixedFpsSpawning)
-                    .before(FixedFpsUpdateAndDraw),
-            );
-            schedule.add_system(
-                Self::clear_canvas
-                    .before(FixedFpsUpdateAndDraw)
-                    .run_if(GameState::is_game_loaded),
+                    .before(FixedFpsUpdate),
             );
             schedule.add_systems(
                 (
                     PlayerSystems::move_player.run_if(GameState::is_game_running),
                     TrailSystems::update_trails.run_if(GameState::is_game_running),
                     TrailSystems::update_particles.run_if(GameState::is_game_running),
+                    CollectCoinsSystems::collect_coins.run_if(GameState::is_game_running),
+                )
+                    .in_set(FixedFpsUpdate),
+            );
+            schedule.add_system(
+                apply_system_buffers
+                    .after(FixedFpsUpdate)
+                    .before(FixedFpsDraw),
+            );
+            schedule.add_systems(
+                (
+                    Self::clear_canvas,
                     TrailSystems::draw_particles,
                     CoinSystems::draw_coin,
                     PlayerSystems::draw_player,
                     CollisionSystems::draw_hit_circles,
                     TextSystems::draw_texts,
+                    TouchControlsSystems::draw_touch_controls.run_if(GameState::is_game_loaded),
                 )
                     .chain()
-                    .in_set(FixedFpsUpdateAndDraw),
-            );
-            schedule.add_system(
-                TouchControlsSystems::draw_touch_controls
-                    .run_if(GameState::is_game_loaded)
-                    .in_set(FixedFpsUpdateAndDraw),
+                    .in_set(FixedFpsDraw),
             );
             schedule.add_system(GameState::update_game_state.in_set(FixedFpsLast));
             #[cfg(debug_assertions)]
